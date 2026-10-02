@@ -1169,6 +1169,284 @@ mark.red {
   border-right: 0;
 }
 
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  background: rgba(31, 29, 28, 0.62);
+}
+
+.package-modal {
+  position: relative;
+  width: 1328px;
+  min-height: 696px;
+  padding: 28px 24px 24px;
+  background: #ffffff;
+  border-radius: 6px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+}
+
+.package-modal h2 {
+  margin: 0 0 26px;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.modal-close {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 28px;
+  height: 28px;
+  color: #2b2523;
+  font-size: 22px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.modal-grid {
+  display: grid;
+  grid-template-columns: 620px 1fr;
+  gap: 24px;
+}
+
+.modal-left label,
+.modal-right label {
+  display: grid;
+  gap: 9px;
+  color: #1f1d1c;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.modal-left sup,
+.field-title sup {
+  color: #df4438;
+}
+
+.modal-left label span {
+  color: #4f4543;
+  font-weight: 500;
+}
+
+.modal-left input,
+.modal-left textarea {
+  width: 100%;
+  color: #4f4543;
+  font-size: 12px;
+  border: 1px solid #857370;
+  border-radius: 2px;
+}
+
+.modal-left input {
+  height: 46px;
+  padding: 0 10px;
+}
+
+.modal-left textarea {
+  height: 151px;
+  padding: 12px 10px;
+  resize: none;
+}
+
+.modal-divider {
+  height: 1px;
+  margin: 22px 0;
+  background: #e2d8d5;
+}
+
+.field-title {
+  margin: 0 0 12px;
+  color: #1f1d1c;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.stage-picker {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.stage-picker button {
+  display: grid;
+  place-items: center;
+  min-height: 130px;
+  padding: 16px 8px 12px;
+  background: #ffffff;
+  border: 1px solid #857370;
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.stage-picker button.active {
+  box-shadow: inset 0 0 0 2px rgba(223, 68, 56, 0.18);
+}
+
+.stage-picker .figma-icon {
+  width: 34px;
+  height: 34px;
+  margin-bottom: 12px;
+}
+
+.stage-picker strong {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.stage-picker span {
+  margin-top: 9px;
+  font-size: 10px;
+}
+
+.stepper-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+}
+
+.stepper {
+  display: grid;
+  grid-template-columns: 45px 1fr 45px;
+  height: 46px;
+  border: 1px solid #857370;
+}
+
+.stepper button,
+.stepper span {
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  background: #ffffff;
+  border: 0;
+}
+
+.stepper button {
+  color: #df4438;
+  cursor: pointer;
+}
+
+.stepper button:first-child {
+  color: #4f4543;
+  border-right: 1px solid #857370;
+}
+
+.stepper button:last-child {
+  border-left: 1px solid #857370;
+}
+
+.price-box {
+  padding: 18px 18px 0;
+  background: #eee5e2;
+  border: 1px solid #857370;
+}
+
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 13px;
+}
+
+.price-row strong,
+.price-total span {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.price-row span {
+  display: block;
+  margin-top: 4px;
+  color: #4f4543;
+  font-size: 10px;
+}
+
+.price-row b {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.price-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 56px;
+  margin-top: 10px;
+  border-top: 1px solid #d8cecb;
+}
+
+.price-total strong {
+  color: #df4438;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.manual-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 24px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.manual-row button {
+  position: relative;
+  width: 48px;
+  height: 30px;
+  background: #eadfdd;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.manual-row button::after {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  width: 24px;
+  height: 24px;
+  background: #ffffff;
+  border-radius: 50%;
+}
+
+.manual-row button.active {
+  background: #df4438;
+}
+
+.manual-row button.active::after {
+  left: 21px;
+}
+
+.modal-actions {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.modal-actions button {
+  height: 46px;
+  padding: 0 20px;
+  color: #df4438;
+  font-size: 10px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.modal-actions button:last-child {
+  color: #ffffff;
+  background: #df4438;
+  border-radius: 2px;
+}
+
 .figma-mockup-page {
   display: grid;
   place-items: start center;

@@ -46,6 +46,13 @@ const packages = [
   { title: 'Hanya Mixing', desc: 'Paket ini hanya berisi jasa mixing saja.', price: 'Rp 150.000', meta: '0 Jam Rekaman | 1 Lagu', tags: ['Mixing'] },
 ];
 
+const productionStages = [
+  { name: 'Recording', icon: 'mic', unit: 'Jam', price: 150000 },
+  { name: 'Editing', icon: 'cut', unit: 'Lagu', price: 200000 },
+  { name: 'Mixing', icon: 'mix', unit: 'Lagu', price: 350000 },
+  { name: 'Mastering', icon: 'master', unit: 'Lagu', price: 250000 },
+];
+
 const schedule = [['Nama Project A', 'John Doe', '13:00 - 16:00'], ['Nama Project B', 'Jane Doe', '13:00 - 16:00'], ['Nama Project C', 'John Doe', '13:00 - 16:00']];
 const progress = [['Nama Project D', 'Jane Doe', 'Mastering', 'purple'], ['Nama Project E', 'John Doe', 'Editing', 'green'], ['Nama Project F', 'Jane Doe', 'Mixing', 'yellow']];
 const offers = [['Penawaran A', 'Klien X', 'Klien Menawarkan Harga', 'orange'], ['Penawaran B', 'Klien Y', 'Ditolak', 'red'], ['Penawaran C', 'Klien Z', 'Diterima', 'green']];
@@ -249,19 +256,99 @@ function PackageTable({ items, total, onDuplicate, onDelete }) {
   );
 }
 
+function formatRupiah(value) {
+  return `Rp ${value.toLocaleString('id-ID')}`;
+}
+
+function CreatePackageModal({ onClose, onCreate }) {
+  const [name, setName] = React.useState('');
+  const [description, setDescription] = React.useState('');
+  const [selectedStages, setSelectedStages] = React.useState(['Recording', 'Editing', 'Mixing', 'Mastering']);
+  const [recordingHours, setRecordingHours] = React.useState(3);
+  const [songCount, setSongCount] = React.useState(1);
+  const [manualPrice, setManualPrice] = React.useState(false);
+
+  const totalPrice = productionStages.reduce((total, stage) => {
+    if (!selectedStages.includes(stage.name)) return total;
+    const qty = stage.name === 'Recording' ? recordingHours : songCount;
+    return total + (stage.price * qty);
+  }, 0);
+
+  const toggleStage = (stage) => {
+    setSelectedStages((stages) => stages.includes(stage) ? stages.filter((item) => item !== stage) : [...stages, stage]);
+  };
+
+  const submitPackage = () => {
+    const title = name.trim() || `Paket Baru`;
+    onCreate({
+      title,
+      desc: description.trim() || 'Paket baru untuk kebutuhan produksi musik.',
+      price: formatRupiah(totalPrice),
+      meta: `${selectedStages.includes('Recording') ? `${recordingHours} Jam Rekaman` : '0 Jam Rekaman'} | ${songCount} Lagu`,
+      tags: selectedStages.length ? selectedStages : ['Recording'],
+    });
+    onClose();
+  };
+
+  return (
+    <div className="modal-backdrop">
+      <section className="package-modal" role="dialog" aria-modal="true" aria-label="Buat Paket Baru">
+        <button className="modal-close" type="button" onClick={onClose}>x</button>
+        <h2>Buat Paket Baru</h2>
+        <div className="modal-grid">
+          <div className="modal-left">
+            <label>Nama Paket<sup>*</sup><input value={name} onChange={(event) => setName(event.target.value)} placeholder="Example text" /></label>
+            <label>Deskripsi Paket <span>(Opsional)</span><textarea value={description} onChange={(event) => setDescription(event.target.value)} placeholder="Example text" /></label>
+            <div className="modal-divider" />
+            <p className="field-title">Tahap Produksi<sup>*</sup></p>
+            <div className="stage-picker">
+              {productionStages.map((stage) => (
+                <button className={selectedStages.includes(stage.name) ? 'active' : ''} type="button" onClick={() => toggleStage(stage.name)} key={stage.name}>
+                  <FigmaIcon name={stage.icon} />
+                  <strong>{stage.name}</strong>
+                  <span>{formatRupiah(stage.price)} / {stage.unit}</span>
+                </button>
+              ))}
+            </div>
+            <div className="modal-divider" />
+            <div className="stepper-grid">
+              <label>Durasi Recording / Lagu<sup>*</sup><div className="stepper"><button type="button" onClick={() => setRecordingHours((value) => Math.max(0, value - 1))}>-</button><span>{recordingHours}</span><button type="button" onClick={() => setRecordingHours((value) => value + 1)}>+</button></div></label>
+              <label>Jumlah Lagu<sup>*</sup><div className="stepper"><button type="button" onClick={() => setSongCount((value) => Math.max(1, value - 1))}>-</button><span>{songCount}</span><button type="button" onClick={() => setSongCount((value) => value + 1)}>+</button></div></label>
+            </div>
+          </div>
+          <div className="modal-right">
+            <p className="field-title">Rincian Harga</p>
+            <div className="price-box">
+              {productionStages.filter((stage) => selectedStages.includes(stage.name)).map((stage) => {
+                const qty = stage.name === 'Recording' ? recordingHours : songCount;
+                return <div className="price-row" key={stage.name}><div><strong>{stage.name}</strong><span>{qty} {stage.unit} x {formatRupiah(stage.price)}</span></div><b>{formatRupiah(qty * stage.price)}</b></div>;
+              })}
+              <div className="price-total"><span>Harga Paket</span><strong>{formatRupiah(totalPrice)}</strong></div>
+            </div>
+            <div className="manual-row"><span>Atur Harga Manual</span><button className={manualPrice ? 'active' : ''} type="button" onClick={() => setManualPrice((value) => !value)} aria-label="Atur Harga Manual" /></div>
+          </div>
+        </div>
+        <footer className="modal-actions"><button type="button" onClick={onClose}>Batal</button><button type="button" onClick={submitPackage}>Buat Paket</button></footer>
+      </section>
+    </div>
+  );
+}
+
 function PackageManagement() {
   const [filter, setFilter] = React.useState('Semua Paket');
   const [viewMode, setViewMode] = React.useState('Tabel');
   const [query, setQuery] = React.useState('');
   const [packageItems, setPackageItems] = React.useState(packages);
+  const [showCreateModal, setShowCreateModal] = React.useState(false);
   const filteredPackages = packageItems.filter((item) => {
     const matchesQuery = item.title.toLowerCase().includes(query.toLowerCase());
     const matchesFilter = filter === 'Semua Paket' || item.tags.includes(filter);
     return matchesQuery && matchesFilter;
   });
   const addPackage = () => {
-    setPackageItems((items) => [...items, { ...packages[0], title: `Paket Baru ${items.length + 1}`, price: 'Rp 0' }]);
+    setShowCreateModal(true);
   };
+  const createPackage = (item) => setPackageItems((items) => [...items, item]);
   const duplicatePackage = (item) => {
     setPackageItems((items) => [...items, { ...item, title: `${item.title} Copy` }]);
   };
@@ -286,6 +373,7 @@ function PackageManagement() {
         {viewMode === 'Tabel' ? <PackageTable items={filteredPackages} total={packageItems.length} onDuplicate={duplicatePackage} onDelete={deletePackage} /> : <section className="package-grid">{filteredPackages.map((item) => <PackageCard item={item} key={item.title} />)}</section>}
         <div className="page-bottom-line" />
       </main>
+      {showCreateModal && <CreatePackageModal onClose={() => setShowCreateModal(false)} onCreate={createPackage} />}
     </div>
   );
 }
