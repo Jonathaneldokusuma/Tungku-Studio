@@ -87,7 +87,7 @@ function FigmaIcon({ name, className = '' }) {
 function Sidebar({ activeKey = 'dashboard' }) {
   return (
     <aside className="sidebar">
-      <div className="brand"><div className="brand-mark" /><div><h1>Tungku Studio</h1><p>Enterprise Resource Planning</p></div></div>
+      <div className="brand"><div className="brand-mark"><FigmaIcon name="packages" /></div><div><h1>Tungku Studio</h1><p>Enterprise Resource Planning</p></div></div>
       <nav className="nav">
         {menuSections.map((section) => (
           <section className="nav-section" key={section.title}>
