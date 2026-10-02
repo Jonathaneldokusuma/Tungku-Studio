@@ -105,6 +105,8 @@ function FigmaIcon({ name, className = '' }) {
     edit: [465, 386],
     quotation: [801, 386],
     sliders: [689, 509],
+    'thumb-up': [353, 509],
+    'thumb-down': [465, 509],
   };
   const [x, y] = positions[name] || positions.packages;
   return (
@@ -438,9 +440,9 @@ function QuotationActions({ item, onEdit }) {
   const canClientRespond = item.status === 'Klien Menawarkan Harga';
   return (
     <div className="table-actions quotation-actions">
-      <button className="action-offer" type="button" aria-label={`Sunting ${item.title}`} onClick={() => onEdit(item)}><FigmaIcon name="edit" /></button>
-      {canClientRespond && <button className="action-accept" type="button" aria-label={`Setujui ${item.title}`}><FigmaIcon name="circle-add" /></button>}
-      {canClientRespond && <button className="action-reject" type="button" aria-label={`Tolak ${item.title}`}><FigmaIcon name="delete" /></button>}
+      <button className="action-offer" type="button" aria-label={`Sunting ${item.title}`} onClick={() => onEdit(item)}><FigmaIcon name="circle-add" /></button>
+      {canClientRespond && <button className="action-accept" type="button" aria-label={`Setujui ${item.title}`}><FigmaIcon name="thumb-up" /></button>}
+      {canClientRespond && <button className="action-reject" type="button" aria-label={`Tolak ${item.title}`}><FigmaIcon name="thumb-down" /></button>}
       {item.status !== 'Klien Menawarkan Harga' && <button className="action-delete" type="button" aria-label={`Hapus ${item.title}`}><FigmaIcon name="delete" /></button>}
     </div>
   );
@@ -485,7 +487,7 @@ function QuotationTable({ items, onEdit }) {
             <span>{duration}</span>
             <span>{songs}</span>
             <b>{item.price}</b>
-            <span className={`status-pill ${item.tone || 'pending'}`}><FigmaIcon name={item.status === 'Diterima' ? 'circle-add' : item.status === 'Ditolak' ? 'delete' : 'quotation'} />{item.status}</span>
+            <span className={`status-pill ${item.tone || 'pending'}`}><FigmaIcon name={item.status === 'Diterima' ? 'thumb-up' : item.status === 'Ditolak' ? 'thumb-down' : 'quotation'} />{item.status}</span>
             <QuotationActions item={item} onEdit={onEdit} />
           </div>
         );
