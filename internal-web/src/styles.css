@@ -2067,9 +2067,9 @@ mark.red {
 
 .project-detail-modal {
   position: relative;
-  width: 520px;
+  width: 450px;
   max-width: calc(100vw - 40px);
-  padding: 24px;
+  padding: 20px 22px;
   background: #ffffff;
   border-radius: 6px;
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
@@ -2078,15 +2078,15 @@ mark.red {
 
 .project-detail-modal header {
   display: grid;
-  grid-template-columns: 44px 1fr auto;
+  grid-template-columns: 36px 1fr auto;
   align-items: start;
-  gap: 12px;
-  padding-right: 34px;
+  gap: 10px;
+  padding-right: 28px;
 }
 
 .project-detail-modal header .project-avatar {
-  width: 38px;
-  height: 38px;
+  width: 34px;
+  height: 34px;
 }
 
 .project-detail-modal header span:first-child {
@@ -2096,7 +2096,7 @@ mark.red {
 
 .project-detail-modal h2 {
   margin: 3px 0;
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 500;
 }
 
@@ -2107,31 +2107,39 @@ mark.red {
 }
 
 .detail-progress {
-  margin-top: 26px;
+  margin-top: 22px;
 }
 
 .detail-progress div {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  gap: 16px;
+  margin-bottom: 6px;
 }
 
 .detail-progress strong {
   color: #df4438;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
 }
 
 .detail-progress span {
+  max-width: 180px;
+  overflow: hidden;
   color: #6a605d;
-  font-size: 10px;
+  font-size: 8px;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .detail-progress mark {
   display: block;
-  height: 7px;
+  height: 5px;
   overflow: hidden;
   background: #e8dedb;
+  border-radius: 999px;
 }
 
 .detail-progress i {
@@ -2143,13 +2151,13 @@ mark.red {
 .detail-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-top: 22px;
+  gap: 10px;
+  margin-top: 20px;
 }
 
 .detail-grid article {
-  min-height: 58px;
-  padding: 12px;
+  min-height: 52px;
+  padding: 10px;
   background: #faf7f6;
   border: 1px solid #e2d8d5;
   border-radius: 4px;
@@ -2157,31 +2165,49 @@ mark.red {
 
 .detail-grid article > span {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 7px;
   color: #857370;
-  font-size: 9px;
+  font-size: 8px;
 }
 
 .detail-grid strong {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
 }
 
 .project-detail-modal footer {
   display: flex;
   justify-content: flex-end;
-  margin-top: 22px;
+  margin-top: 18px;
 }
 
 .project-detail-modal footer button {
-  height: 36px;
-  padding: 0 18px;
+  height: 34px;
+  padding: 0 16px;
   color: #ffffff;
   font-size: 10px;
   background: #df4438;
   border: 0;
   border-radius: 2px;
   cursor: pointer;
+}
+
+.project-detail-modal .modal-close {
+  top: 16px;
+  right: 16px;
+  width: 24px;
+  height: 24px;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.project-detail-modal .project-stage {
+  margin-top: 1px;
+}
+
+.project-detail-modal .operator-stack .project-avatar {
+  width: 19px;
+  height: 19px;
 }
 
 .quotation-actions {
