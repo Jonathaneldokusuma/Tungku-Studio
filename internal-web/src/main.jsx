@@ -620,7 +620,7 @@ function ProjectTable({ items, onDetail }) {
           <strong>{item.name}</strong>
           <span>{item.client}</span>
           <span className={`project-stage ${item.stage.toLowerCase()}`}><FigmaIcon name={{ Recording: 'mic', Editing: 'cut', Mixing: 'mix', Mastering: 'master', Selesai: 'mic', Revisi: 'mic' }[item.stage]} />{item.stage}</span>
-          <div className="table-progress"><b>{item.progress}%</b><mark><i style={{ width: `${item.progress}%` }} /></mark><span>{item.note}</span></div>
+          <div className="table-progress"><div><b>{item.progress}%</b><span>{item.note}</span></div><mark><i style={{ width: `${item.progress}%` }} /></mark></div>
           <div className="operator-stack">{[0, 1, 2, 3].map((tone) => <ProjectAvatar tone={tone} key={tone} />)}</div>
           <span>{item.date}</span>
           <button className="project-detail-button" type="button" onClick={() => onDetail(item)}>Lihat Detail <span>-&gt;</span></button>
@@ -641,7 +641,7 @@ function ProjectDetailModal({ item, onClose }) {
           <div><span>Detail Project</span><h2>{item.name}</h2><p>{item.client}</p></div>
           <span className={`project-stage ${item.stage.toLowerCase()}`}><FigmaIcon name={{ Recording: 'mic', Editing: 'cut', Mixing: 'mix', Mastering: 'master', Selesai: 'mic', Revisi: 'mic' }[item.stage]} />{item.stage}</span>
         </header>
-        <div className="detail-progress"><strong>{item.progress}%</strong><mark><i style={{ width: `${item.progress}%` }} /></mark><span>{item.note}</span></div>
+        <div className="detail-progress"><div><strong>{item.progress}%</strong><span>{item.note}</span></div><mark><i style={{ width: `${item.progress}%` }} /></mark></div>
         <div className="detail-grid">
           <article><span>Tanggal</span><strong>{item.date}</strong></article>
           <article><span>Operator</span><div className="operator-stack">{[0, 1, 2, 3].map((tone) => <ProjectAvatar tone={tone} key={tone} />)}</div></article>

@@ -1971,7 +1971,7 @@ mark.red {
 .project-table-head,
 .project-table-row {
   display: grid;
-  grid-template-columns: minmax(140px, 1.15fr) minmax(115px, 0.85fr) 118px 150px 105px 92px 96px;
+  grid-template-columns: minmax(140px, 1.15fr) minmax(115px, 0.85fr) 118px 148px 105px 92px 96px;
   align-items: center;
   column-gap: 12px;
   padding: 0 18px;
@@ -2014,23 +2014,30 @@ mark.red {
 
 .table-progress {
   display: grid;
-  align-content: center;
-  gap: 3px;
-  width: 132px;
+  gap: 5px;
+  width: 138px;
+}
+
+.table-progress div {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  align-items: center;
+  gap: 8px;
 }
 
 .table-progress b {
   color: #df4438;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 500;
 }
 
 .table-progress span {
   display: block;
-  max-width: 120px;
+  max-width: 90px;
   overflow: hidden;
   color: #6a605d;
-  font-size: 7px;
+  font-size: 8px;
+  text-align: right;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -2108,10 +2115,15 @@ mark.red {
 }
 
 .detail-progress {
-  display: grid;
-  gap: 4px;
-  width: 238px;
   margin-top: 14px;
+}
+
+.detail-progress div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 4px;
 }
 
 .detail-progress strong {
@@ -2125,6 +2137,7 @@ mark.red {
   overflow: hidden;
   color: #6a605d;
   font-size: 8px;
+  text-align: right;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
