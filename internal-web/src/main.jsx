@@ -1,8 +1,11 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { MoreVertical } from 'lucide-react';
+import {
+  Bell, Box, BriefcaseBusiness, CalendarDays, ChevronDown, CircleDollarSign, FileText, Folder,
+  Grid2X2, HandCoins, LayoutDashboard, LogOut, MoreVertical, Package, Plus, ReceiptText,
+  Search, Settings, SlidersHorizontal, Table2, Users, Mic, Scissors, Sliders, AudioWaveform,
+} from 'lucide-react';
 import './styles.css';
-import figmaIcons from './assets/figma-icons.svg';
 
 const menuSections = [
   { title: 'UTAMA', items: [{ key: 'dashboard', label: 'Dashboard', icon: 'dashboard' }] },
@@ -51,7 +54,34 @@ const offers = [['Penawaran A', 'Klien X', 'Klien Menawarkan Harga', 'orange'], 
 const activities = [['Klien A meminta revisi lagu Example A pada Projec...', '2 jam lalu'], ['Operator A mengunggah hasil editing lagu Exampl...', '5 hari lalu'], ['Operator C mengunggah hasil recording lagu Exam...', '1 minggu lalu']];
 
 function FigmaIcon({ name, className = '' }) {
-  return <span className={`figma-icon figma-icon-${name} ${className}`} style={{ '--figma-icons': `url(${figmaIcons})` }} aria-hidden="true" />;
+  const icons = {
+    dashboard: LayoutDashboard,
+    booking: CalendarDays,
+    quotation: HandCoins,
+    project: Folder,
+    inventaris: Box,
+    packages: Package,
+    crm: Users,
+    invoice: ReceiptText,
+    reports: FileText,
+    expenses: CircleDollarSign,
+    operator: BriefcaseBusiness,
+    settings: Settings,
+    logout: LogOut,
+    bell: Bell,
+    search: Search,
+    sliders: SlidersHorizontal,
+    'chevron-down': ChevronDown,
+    grid: Grid2X2,
+    table: Table2,
+    add: Plus,
+    mic: Mic,
+    cut: Scissors,
+    mix: Sliders,
+    master: AudioWaveform,
+  };
+  const Icon = icons[name] || Package;
+  return <Icon className={`figma-icon ${className}`} aria-hidden="true" />;
 }
 
 function Sidebar({ activeKey = 'dashboard' }) {
@@ -83,6 +113,18 @@ function Header({ crumb = 'Utama / Dashboard', title = 'Dashboard' }) {
 }
 
 function MiniIcon({ type }) {
+  const iconByType = {
+    'package-box': 'packages',
+    'mic-box': 'mic',
+    'cut-box': 'cut',
+    'mix-box': 'mix',
+    'master-box': 'master',
+  };
+
+  if (iconByType[type]) {
+    return <span className={`mini-icon ${type}`} aria-hidden="true"><FigmaIcon name={iconByType[type]} /></span>;
+  }
+
   return <span className={`mini-icon ${type}`} aria-hidden="true" />;
 }
 
@@ -156,8 +198,8 @@ function PackageManagement() {
         <section className="package-stats">{packageStats.map((item) => <PackageStatCard item={item} key={item.title} />)}</section>
         <section className="package-toolbar panel">
           <label className="package-search"><FigmaIcon name="search" /><input placeholder="Cari nama paket..." /></label>
-          <div className="view-mode"><span>Mode Lihat:</span><button className="active" type="button">Kartu</button><button type="button">Tabel</button></div>
-          <button className="add-package" type="button">+ Buat Paket</button>
+          <div className="view-mode"><span>Mode Lihat:</span><button className="active" type="button"><FigmaIcon name="grid" />Kartu</button><button type="button"><FigmaIcon name="table" />Tabel</button></div>
+          <button className="add-package" type="button"><FigmaIcon name="add" />Buat Paket</button>
         </section>
         <div className="package-filter-row">
           {['Semua Paket (6)', 'Recording (4)', 'Editing (3)', 'Mixing (3)', 'Mastering (2)'].map((filter, index) => <button className={index === 0 ? 'active' : ''} type="button" key={filter}>{filter}</button>)}

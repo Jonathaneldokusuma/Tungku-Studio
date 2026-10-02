@@ -104,43 +104,17 @@ input {
 }
 
 .figma-icon {
-  --x: 17px;
-  --y: 17px;
-  display: inline-block;
   width: 16px;
   height: 16px;
   flex: 0 0 16px;
-  background-image: var(--figma-icons);
-  background-repeat: no-repeat;
-  background-size: 189.833px 144.667px;
-  background-position: calc(var(--x) / -6) calc(var(--y) / -6);
-  filter: brightness(0) saturate(100%) invert(15%) sepia(4%) saturate(1243%) hue-rotate(321deg) brightness(94%) contrast(90%);
+  color: currentColor;
+  stroke-width: 1.9;
 }
-
-.figma-icon-dashboard { --x: 17px; --y: 17px; }
-.figma-icon-crm { --x: 129px; --y: 17px; }
-.figma-icon-packages { --x: 241px; --y: 17px; }
-.figma-icon-booking { --x: 353px; --y: 17px; }
-.figma-icon-inventaris { --x: 465px; --y: 17px; }
-.figma-icon-project { --x: 577px; --y: 17px; }
-.figma-icon-invoice { --x: 689px; --y: 17px; }
-.figma-icon-expenses { --x: 801px; --y: 17px; }
-.figma-icon-reports { --x: 913px; --y: 17px; }
-.figma-icon-logout { --x: 129px; --y: 140px; }
-.figma-icon-bell { --x: 577px; --y: 140px; }
-.figma-icon-chevron-down { --x: 129px; --y: 263px; }
-.figma-icon-settings { --x: 241px; --y: 263px; }
-.figma-icon-operator { --x: 353px; --y: 263px; }
-.figma-icon-search { --x: 577px; --y: 263px; }
-.figma-icon-quotation { --x: 801px; --y: 386px; }
-.figma-icon-sliders { --x: 689px; --y: 509px; }
 
 .nav-heading .figma-icon {
   width: 11px;
   height: 11px;
   flex-basis: 11px;
-  background-size: 130.51px 99.46px;
-  background-position: calc(var(--x) / -8.727) calc(var(--y) / -8.727);
 }
 
 .nav-item {
@@ -162,7 +136,7 @@ input {
 }
 
 .nav-item.active .figma-icon {
-  filter: brightness(0) invert(1);
+  color: #ffffff;
 }
 
 .nav-item em {
@@ -253,8 +227,6 @@ input {
   width: 20px;
   height: 20px;
   flex-basis: 20px;
-  background-size: 237.292px 180.833px;
-  background-position: calc(var(--x) / -4.8) calc(var(--y) / -4.8);
 }
 
 .top-actions button {
@@ -815,6 +787,13 @@ mark.red {
   height: 32px;
 }
 
+.package-stat-card .mini-icon .figma-icon {
+  position: absolute;
+  inset: 7px;
+  width: 18px;
+  height: 18px;
+}
+
 .package-toolbar {
   display: grid;
   grid-template-columns: minmax(300px, 1fr) auto auto;
@@ -871,6 +850,14 @@ mark.red {
   background: transparent;
   border: 0;
   border-radius: 2px;
+}
+
+.view-mode .figma-icon,
+.add-package .figma-icon,
+.package-search .figma-icon {
+  width: 13px;
+  height: 13px;
+  flex-basis: 13px;
 }
 
 .view-mode button.active,
