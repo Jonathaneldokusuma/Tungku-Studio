@@ -1900,6 +1900,12 @@ mark.red {
   font-weight: 500;
 }
 
+.project-progress-head span,
+.detail-progress span,
+.project-table .table-progress span {
+  display: none !important;
+}
+
 .project-progress {
   height: 5px;
   margin-top: 4px;

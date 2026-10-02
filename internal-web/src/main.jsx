@@ -73,12 +73,12 @@ const projectStats = [
 const projectFilters = ['Semua Project (6)', 'Recording (4)', 'Editing (3)', 'Mixing (3)', 'Mastering (2)'];
 
 const projectItems = [
-  { name: 'Project Name', client: 'Client Name', stage: 'Recording', date: '26 Sep 2026', progress: 15, note: 'Recording l...', tags: ['Recording'] },
-  { name: 'Project Name', client: 'Client Name', stage: 'Editing', date: '26 Sep 2026', progress: 30, note: 'Editing oleh...', tags: ['Editing'] },
-  { name: 'Project Name', client: 'Client Name', stage: 'Mixing', date: '26 Sep 2026', progress: 69, note: 'Mixing oleh...', tags: ['Mixing'] },
-  { name: 'Project Name', client: 'Client Name', stage: 'Mastering', date: '26 Sep 2026', progress: 87, note: 'Mastering o...', tags: ['Mastering'] },
-  { name: 'Project Name', client: 'Client Name', stage: 'Selesai', date: '26 Sep 2026', progress: 100, note: 'Menunggu...', tags: ['Recording'] },
-  { name: 'Project Name', client: 'Client Name', stage: 'Revisi', date: '26 Sep 2026', progress: 99, note: 'Sedang Rev...', tags: ['Recording'] },
+  { name: 'Project Name', client: 'Client Name', stage: 'Recording', date: '26 Sep 2026', progress: 15, tags: ['Recording'] },
+  { name: 'Project Name', client: 'Client Name', stage: 'Editing', date: '26 Sep 2026', progress: 30, tags: ['Editing'] },
+  { name: 'Project Name', client: 'Client Name', stage: 'Mixing', date: '26 Sep 2026', progress: 69, tags: ['Mixing'] },
+  { name: 'Project Name', client: 'Client Name', stage: 'Mastering', date: '26 Sep 2026', progress: 87, tags: ['Mastering'] },
+  { name: 'Project Name', client: 'Client Name', stage: 'Selesai', date: '26 Sep 2026', progress: 100, tags: ['Recording'] },
+  { name: 'Project Name', client: 'Client Name', stage: 'Revisi', date: '26 Sep 2026', progress: 99, tags: ['Recording'] },
 ];
 
 const productionStages = [
