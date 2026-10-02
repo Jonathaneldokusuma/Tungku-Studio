@@ -2069,7 +2069,7 @@ mark.red {
   position: relative;
   width: 450px;
   max-width: calc(100vw - 40px);
-  padding: 20px 22px;
+  padding: 18px 22px 16px;
   background: #ffffff;
   border-radius: 6px;
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
@@ -2107,7 +2107,7 @@ mark.red {
 }
 
 .detail-progress {
-  margin-top: 22px;
+  margin-top: 14px;
 }
 
 .detail-progress div {
@@ -2115,7 +2115,7 @@ mark.red {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .detail-progress strong {
@@ -2152,11 +2152,11 @@ mark.red {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
-  margin-top: 20px;
+  margin-top: 14px;
 }
 
 .detail-grid article {
-  min-height: 52px;
+  min-height: 48px;
   padding: 10px;
   background: #faf7f6;
   border: 1px solid #e2d8d5;
@@ -2178,7 +2178,7 @@ mark.red {
 .project-detail-modal footer {
   display: flex;
   justify-content: flex-end;
-  margin-top: 18px;
+  margin-top: 14px;
 }
 
 .project-detail-modal footer button {
