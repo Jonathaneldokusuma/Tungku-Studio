@@ -1,27 +1,24 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import {
-  Bell, Box, BriefcaseBusiness, CalendarDays, ChevronDown, CircleDollarSign,
-  FileText, Folder, Grid2X2, HandCoins, LayoutDashboard, LogOut, MoreVertical,
-  Package, Plus, ReceiptText, Search, Settings, SlidersHorizontal, Table2, Users,
-} from 'lucide-react';
+import { MoreVertical } from 'lucide-react';
 import './styles.css';
 import managementPaketMockup from './assets/management-paket.svg';
+import figmaIcons from './assets/figma-icons.svg';
 
 const menuSections = [
-  { title: 'UTAMA', items: [{ key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard }] },
+  { title: 'UTAMA', items: [{ key: 'dashboard', label: 'Dashboard', icon: 'dashboard' }] },
   {
     title: 'OPERASIONAL',
     items: [
-      { key: 'booking', label: 'Booking', icon: CalendarDays },
-      { key: 'quotation', label: 'Quotation', icon: HandCoins, badge: '2' },
-      { key: 'project', label: 'Project', icon: Folder, badge: '2' },
-      { key: 'inventaris', label: 'Inventaris', icon: Box },
+      { key: 'booking', label: 'Booking', icon: 'booking' },
+      { key: 'quotation', label: 'Quotation', icon: 'quotation', badge: '2' },
+      { key: 'project', label: 'Project', icon: 'project', badge: '2' },
+      { key: 'inventaris', label: 'Inventaris', icon: 'inventaris' },
     ],
   },
-  { title: 'PENJUALAN', items: [{ key: 'packages', label: 'Manajemen Paket', icon: Package }, { key: 'crm', label: 'CRM', icon: Users }] },
-  { title: 'KEUANGAN', items: [{ key: 'invoice', label: 'Invoice', icon: ReceiptText }, { key: 'reports', label: 'Laporan', icon: FileText }, { key: 'expenses', label: 'Pengeluaran', icon: CircleDollarSign }] },
-  { title: 'ADMINISTRASI', items: [{ key: 'operator', label: 'Operator', icon: BriefcaseBusiness }, { key: 'settings', label: 'Pengaturan', icon: Settings }] },
+  { title: 'PENJUALAN', items: [{ key: 'packages', label: 'Manajemen Paket', icon: 'packages' }, { key: 'crm', label: 'CRM', icon: 'crm' }] },
+  { title: 'KEUANGAN', items: [{ key: 'invoice', label: 'Invoice', icon: 'invoice' }, { key: 'reports', label: 'Laporan', icon: 'reports' }, { key: 'expenses', label: 'Pengeluaran', icon: 'expenses' }] },
+  { title: 'ADMINISTRASI', items: [{ key: 'operator', label: 'Operator', icon: 'operator' }, { key: 'settings', label: 'Pengaturan', icon: 'settings' }] },
 ];
 
 const dashboardStats = [
@@ -54,6 +51,10 @@ const progress = [['Nama Project D', 'Jane Doe', 'Mastering', 'purple'], ['Nama 
 const offers = [['Penawaran A', 'Klien X', 'Klien Menawarkan Harga', 'orange'], ['Penawaran B', 'Klien Y', 'Ditolak', 'red'], ['Penawaran C', 'Klien Z', 'Diterima', 'green']];
 const activities = [['Klien A meminta revisi lagu Example A pada Projec...', '2 jam lalu'], ['Operator A mengunggah hasil editing lagu Exampl...', '5 hari lalu'], ['Operator C mengunggah hasil recording lagu Exam...', '1 minggu lalu']];
 
+function FigmaIcon({ name, className = '' }) {
+  return <span className={`figma-icon figma-icon-${name} ${className}`} style={{ '--figma-icons': `url(${figmaIcons})` }} aria-hidden="true" />;
+}
+
 function Sidebar({ activeKey = 'dashboard' }) {
   return (
     <aside className="sidebar">
@@ -61,15 +62,14 @@ function Sidebar({ activeKey = 'dashboard' }) {
       <nav className="nav">
         {menuSections.map((section) => (
           <section className="nav-section" key={section.title}>
-            <div className="nav-heading"><span>{section.title}</span><ChevronDown size={11} strokeWidth={2} /></div>
+            <div className="nav-heading"><span>{section.title}</span><FigmaIcon name="chevron-down" className="nav-chevron" /></div>
             {section.items.map((item) => {
-              const Icon = item.icon;
-              return <a className={`nav-item ${activeKey === item.key ? 'active' : ''}`} href={item.key === 'packages' ? '/manager/packages' : '#'} key={item.key}><Icon size={15} strokeWidth={1.9} /><span>{item.label}</span>{item.badge && <em>{item.badge}</em>}</a>;
+              return <a className={`nav-item ${activeKey === item.key ? 'active' : ''}`} href={item.key === 'packages' ? '/manager/packages' : '#'} key={item.key}><FigmaIcon name={item.icon} /><span>{item.label}</span>{item.badge && <em>{item.badge}</em>}</a>;
             })}
           </section>
         ))}
       </nav>
-      <div className="account"><div className="avatar" /><div><strong>Hervin C.</strong><span>Manager</span></div><LogOut size={17} strokeWidth={1.8} /></div>
+      <div className="account"><div className="avatar" /><div><strong>Hervin C.</strong><span>Manager</span></div><FigmaIcon name="logout" className="account-logout" /></div>
     </aside>
   );
 }
@@ -78,7 +78,7 @@ function Header({ crumb = 'Utama / Dashboard', title = 'Dashboard' }) {
   return (
     <header className="topbar">
       <div className="crumb"><span>{crumb}</span><strong>{title}</strong></div>
-      <div className="top-actions"><button>Buat Project</button><label className="search"><Search size={16} strokeWidth={1.7} /><input placeholder="Cari project, klien, operator..." /></label><SlidersHorizontal size={20} strokeWidth={1.7} /><Bell size={20} strokeWidth={1.7} /></div>
+      <div className="top-actions"><button>Buat Project</button><label className="search"><FigmaIcon name="search" /><input placeholder="Cari project, klien, operator..." /></label><FigmaIcon name="sliders" className="top-icon" /><FigmaIcon name="bell" className="top-icon" /></div>
     </header>
   );
 }
