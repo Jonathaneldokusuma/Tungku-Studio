@@ -579,7 +579,7 @@ function ProjectAvatar({ tone = 0 }) {
   return <span className={`project-avatar tone-${tone}`} aria-hidden="true" />;
 }
 
-function ProjectCard({ item, index }) {
+function ProjectCard({ item, index, onDetail }) {
   const statusTag = item.stage === 'Selesai' || item.stage === 'Revisi' ? item.stage : item.stage;
   const iconByStatus = { Selesai: 'mic', Revisi: 'mic' };
   return (
@@ -597,13 +597,13 @@ function ProjectCard({ item, index }) {
       <div className="project-progress"><span style={{ width: `${item.progress}%` }} /></div>
       <footer>
         <div><span>Operator:</span><div className="operator-stack">{[0, 1, 2, 3].map((tone) => <ProjectAvatar tone={tone} key={tone} />)}</div></div>
-        <button type="button">Lihat Detail <span>-&gt;</span></button>
+        <button type="button" onClick={() => onDetail(item)}>Lihat Detail <span>-&gt;</span></button>
       </footer>
     </article>
   );
 }
 
-function ProjectTable({ items }) {
+function ProjectTable({ items, onDetail }) {
   return (
     <section className="project-table panel">
       <div className="project-table-head">
@@ -623,11 +623,34 @@ function ProjectTable({ items }) {
           <div className="table-progress"><div><b>{item.progress}%</b><span>{item.note}</span></div><mark><i style={{ width: `${item.progress}%` }} /></mark></div>
           <div className="operator-stack">{[0, 1, 2, 3].map((tone) => <ProjectAvatar tone={tone} key={tone} />)}</div>
           <span>{item.date}</span>
-          <button className="project-detail-button" type="button">Lihat Detail <span>-&gt;</span></button>
+          <button className="project-detail-button" type="button" onClick={() => onDetail(item)}>Lihat Detail <span>-&gt;</span></button>
         </div>
       ))}
       <div className="package-table-foot"><div className="pager"><button type="button">&lt;</button><span>1</span><button type="button">&gt;</button></div><span>{items.length} dari {projectItems.length} project</span></div>
     </section>
+  );
+}
+
+function ProjectDetailModal({ item, onClose }) {
+  return (
+    <div className="modal-backdrop">
+      <section className="project-detail-modal" role="dialog" aria-modal="true" aria-label="Detail Project">
+        <button className="modal-close" type="button" onClick={onClose}>x</button>
+        <header>
+          <ProjectAvatar />
+          <div><span>Detail Project</span><h2>{item.name}</h2><p>{item.client}</p></div>
+          <span className={`project-stage ${item.stage.toLowerCase()}`}><FigmaIcon name={{ Recording: 'mic', Editing: 'cut', Mixing: 'mix', Mastering: 'master', Selesai: 'mic', Revisi: 'mic' }[item.stage]} />{item.stage}</span>
+        </header>
+        <div className="detail-progress"><div><strong>{item.progress}%</strong><span>{item.note}</span></div><mark><i style={{ width: `${item.progress}%` }} /></mark></div>
+        <div className="detail-grid">
+          <article><span>Tanggal</span><strong>{item.date}</strong></article>
+          <article><span>Operator</span><div className="operator-stack">{[0, 1, 2, 3].map((tone) => <ProjectAvatar tone={tone} key={tone} />)}</div></article>
+          <article><span>Client</span><strong>{item.client}</strong></article>
+          <article><span>Status</span><strong>{item.stage}</strong></article>
+        </div>
+        <footer><button type="button" onClick={onClose}>Tutup</button></footer>
+      </section>
+    </div>
   );
 }
 
@@ -636,6 +659,7 @@ function ProjectPage() {
   const [filter, setFilter] = React.useState(projectFilters[0]);
   const [viewMode, setViewMode] = React.useState('Kartu');
   const [sortMode, setSortMode] = React.useState('A-Z');
+  const [selectedProject, setSelectedProject] = React.useState(null);
   const filteredProjects = projectItems
     .filter((item) => {
       const matchesQuery = item.name.toLowerCase().includes(query.toLowerCase()) || item.client.toLowerCase().includes(query.toLowerCase());
@@ -659,9 +683,10 @@ function ProjectPage() {
           </div>
         </section>
         <div className="package-filter-row project-filters">{projectFilters.map((name) => <button className={filter === name ? 'active' : ''} type="button" onClick={() => setFilter(name)} key={name}>{name}</button>)}</div>
-        {viewMode === 'Kartu' ? <section className="project-grid">{filteredProjects.map((item, index) => <ProjectCard item={item} index={index} key={`${item.stage}-${index}`} />)}</section> : <ProjectTable items={filteredProjects} />}
+        {viewMode === 'Kartu' ? <section className="project-grid">{filteredProjects.map((item, index) => <ProjectCard item={item} index={index} onDetail={setSelectedProject} key={`${item.stage}-${index}`} />)}</section> : <ProjectTable items={filteredProjects} onDetail={setSelectedProject} />}
         <div className="page-bottom-line" />
       </main>
+      {selectedProject && <ProjectDetailModal item={selectedProject} onClose={() => setSelectedProject(null)} />}
     </div>
   );
 }

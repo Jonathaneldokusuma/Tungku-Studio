@@ -1971,7 +1971,7 @@ mark.red {
 .project-table-head,
 .project-table-row {
   display: grid;
-  grid-template-columns: 180px 150px 160px 230px 120px 110px 100px;
+  grid-template-columns: minmax(140px, 1.15fr) minmax(115px, 0.85fr) 118px minmax(190px, 1.2fr) 105px 92px 96px;
   align-items: center;
   column-gap: 12px;
   padding: 0 18px;
@@ -1986,10 +1986,15 @@ mark.red {
 }
 
 .project-table-row {
-  min-height: 58px;
+  min-height: 62px;
   color: #383230;
   font-size: 9px;
   border-bottom: 1px solid #e7dfdc;
+  transition: background 160ms var(--ease-soft);
+}
+
+.project-table-row:hover {
+  background: #fff8f6;
 }
 
 .project-table-row strong {
@@ -2052,6 +2057,130 @@ mark.red {
   font-size: 9px;
   background: transparent;
   border: 0;
+  cursor: pointer;
+  transition: transform 160ms var(--ease-soft);
+}
+
+.project-detail-button:hover {
+  transform: translateX(2px);
+}
+
+.project-detail-modal {
+  position: relative;
+  width: 520px;
+  max-width: calc(100vw - 40px);
+  padding: 24px;
+  background: #ffffff;
+  border-radius: 6px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+  animation: modal-pop 200ms var(--ease-out);
+}
+
+.project-detail-modal header {
+  display: grid;
+  grid-template-columns: 44px 1fr auto;
+  align-items: start;
+  gap: 12px;
+  padding-right: 34px;
+}
+
+.project-detail-modal header .project-avatar {
+  width: 38px;
+  height: 38px;
+}
+
+.project-detail-modal header span:first-child {
+  color: #857370;
+  font-size: 9px;
+}
+
+.project-detail-modal h2 {
+  margin: 3px 0;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.project-detail-modal p {
+  margin: 0;
+  color: #5d5553;
+  font-size: 10px;
+}
+
+.detail-progress {
+  margin-top: 26px;
+}
+
+.detail-progress div {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.detail-progress strong {
+  color: #df4438;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.detail-progress span {
+  color: #6a605d;
+  font-size: 10px;
+}
+
+.detail-progress mark {
+  display: block;
+  height: 7px;
+  overflow: hidden;
+  background: #e8dedb;
+}
+
+.detail-progress i {
+  display: block;
+  height: 100%;
+  background: #df4438;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.detail-grid article {
+  min-height: 58px;
+  padding: 12px;
+  background: #faf7f6;
+  border: 1px solid #e2d8d5;
+  border-radius: 4px;
+}
+
+.detail-grid article > span {
+  display: block;
+  margin-bottom: 8px;
+  color: #857370;
+  font-size: 9px;
+}
+
+.detail-grid strong {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.project-detail-modal footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 22px;
+}
+
+.project-detail-modal footer button {
+  height: 36px;
+  padding: 0 18px;
+  color: #ffffff;
+  font-size: 10px;
+  background: #df4438;
+  border: 0;
+  border-radius: 2px;
   cursor: pointer;
 }
 
