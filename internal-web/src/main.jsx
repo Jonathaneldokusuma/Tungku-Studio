@@ -504,12 +504,14 @@ function QuotationPage() {
   const [viewMode, setViewMode] = React.useState('Kartu');
   const [sortMode, setSortMode] = React.useState('A-Z');
   const [quotationToOffer, setQuotationToOffer] = React.useState(null);
+  const [quotationToDelete, setQuotationToDelete] = React.useState(null);
   const [quotationItems, setQuotationItems] = React.useState(quotations);
   const updateQuotationStatus = (title, status) => {
     setQuotationItems((items) => items.map((item) => item.title === title ? { ...item, status, tone: status === 'Diterima' ? 'accepted' : 'rejected' } : item));
   };
   const deleteQuotation = (title) => {
     setQuotationItems((items) => items.filter((item) => item.title !== title));
+    setQuotationToDelete(null);
   };
   const submitQuotationOffer = (packageOffer) => {
     setQuotationItems((items) => items.map((item) => item.title === packageOffer.originalTitle ? {
@@ -545,10 +547,11 @@ function QuotationPage() {
           </div>
         </section>
         <div className="package-filter-row quotation-filters">{quotationFilters.map((name) => <button className={filter === name ? 'active' : ''} type="button" onClick={() => setFilter(name)} key={name}>{name}</button>)}</div>
-        {viewMode === 'Kartu' ? <section className="quotation-grid">{filteredItems.map((item) => <QuotationCard item={item} onOffer={setQuotationToOffer} onStatusChange={updateQuotationStatus} onDelete={deleteQuotation} key={item.title} />)}</section> : <QuotationTable items={filteredItems} onOffer={setQuotationToOffer} onStatusChange={updateQuotationStatus} onDelete={deleteQuotation} />}
+        {viewMode === 'Kartu' ? <section className="quotation-grid">{filteredItems.map((item) => <QuotationCard item={item} onOffer={setQuotationToOffer} onStatusChange={updateQuotationStatus} onDelete={(title) => setQuotationToDelete(quotationItems.find((quote) => quote.title === title))} key={item.title} />)}</section> : <QuotationTable items={filteredItems} onOffer={setQuotationToOffer} onStatusChange={updateQuotationStatus} onDelete={(title) => setQuotationToDelete(quotationItems.find((quote) => quote.title === title))} />}
         <div className="page-bottom-line" />
       </main>
       {quotationToOffer && <CreatePackageModal initialPackage={{ ...quotationToOffer, desc: quotationToOffer.status }} title="Sunting Paket" submitLabel="Buat Paket" onClose={() => setQuotationToOffer(null)} onSubmit={submitQuotationOffer} />}
+      {quotationToDelete && <DeletePackageModal item={quotationToDelete} title="Hapus Penawaran?" message={`Penawaran "${quotationToDelete.title}" akan dihapus dari daftar quotation.`} confirmLabel="Hapus Penawaran" onClose={() => setQuotationToDelete(null)} onConfirm={deleteQuotation} />}
     </div>
   );
 }
@@ -636,15 +639,15 @@ function CreatePackageModal({ initialPackage, onClose, onSubmit, title, submitLa
   );
 }
 
-function DeletePackageModal({ item, onClose, onConfirm }) {
+function DeletePackageModal({ item, onClose, onConfirm, title = 'Hapus Paket?', message, confirmLabel = 'Hapus Paket' }) {
   return (
     <div className="modal-backdrop">
       <section className="delete-modal" role="dialog" aria-modal="true" aria-label="Hapus Paket">
-        <h2>Hapus Paket?</h2>
-        <p>Paket "{item.title}" akan dihapus dari daftar. Project yang sudah berjalan tidak terpengaruh.</p>
+        <h2>{title}</h2>
+        <p>{message || `Paket "${item.title}" akan dihapus dari daftar. Project yang sudah berjalan tidak terpengaruh.`}</p>
         <footer>
           <button type="button" onClick={onClose}>Batal</button>
-          <button type="button" onClick={() => onConfirm(item.title)}>Hapus Paket</button>
+          <button type="button" onClick={() => onConfirm(item.title)}>{confirmLabel}</button>
         </footer>
       </section>
     </div>
