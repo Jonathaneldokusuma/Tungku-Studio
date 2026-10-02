@@ -436,11 +436,11 @@ function PackageTable({ items, total, onEdit, onDelete }) {
   );
 }
 
-function QuotationActions({ item, onEdit, onStatusChange }) {
+function QuotationActions({ item, onOffer, onStatusChange }) {
   const canClientRespond = item.status === 'Klien Menawarkan Harga';
   return (
     <div className="table-actions quotation-actions">
-      <button className="action-offer" type="button" aria-label={`Sunting ${item.title}`} onClick={() => onEdit(item)}><FigmaIcon name="edit" /></button>
+      <button className="action-offer" type="button" aria-label={`Tawarkan harga ${item.title}`} onClick={() => onOffer(item)}><FigmaIcon name="edit" /></button>
       {canClientRespond && <button className="action-accept" type="button" aria-label={`Setujui ${item.title}`} onClick={() => onStatusChange(item.title, 'Diterima')}><FigmaIcon name="thumb-up" /></button>}
       {canClientRespond && <button className="action-reject" type="button" aria-label={`Tolak ${item.title}`} onClick={() => onStatusChange(item.title, 'Ditolak')}><FigmaIcon name="thumb-down" /></button>}
       {item.status !== 'Klien Menawarkan Harga' && <button className="action-delete" type="button" aria-label={`Hapus ${item.title}`}><FigmaIcon name="delete" /></button>}
@@ -448,7 +448,7 @@ function QuotationActions({ item, onEdit, onStatusChange }) {
   );
 }
 
-function QuotationCard({ item, onEdit, onStatusChange }) {
+function QuotationCard({ item, onOffer, onStatusChange }) {
   const [menuOpen, setMenuOpen] = React.useState(false);
   const canClientRespond = item.status === 'Klien Menawarkan Harga';
   return (
@@ -457,7 +457,7 @@ function QuotationCard({ item, onEdit, onStatusChange }) {
         <h2>{item.title}</h2>
         <div className="card-menu-wrap">
           <button className="card-menu-button" type="button" onClick={() => setMenuOpen((value) => !value)} aria-label={`Menu ${item.title}`}>...</button>
-          {menuOpen && <div className="card-menu"><button type="button">Detail</button><button type="button" onClick={() => onEdit(item)}>Edit</button>{canClientRespond && <button type="button" onClick={() => onStatusChange(item.title, 'Diterima')}>Setuju</button>}{canClientRespond && <button type="button" onClick={() => onStatusChange(item.title, 'Ditolak')}>Tolak</button>}<button type="button">Hapus</button></div>}
+          {menuOpen && <div className="card-menu"><button type="button">Detail</button><button type="button" onClick={() => onOffer(item)}>Tawarkan Harga</button>{canClientRespond && <button type="button" onClick={() => onStatusChange(item.title, 'Diterima')}>Setuju</button>}{canClientRespond && <button type="button" onClick={() => onStatusChange(item.title, 'Ditolak')}>Tolak</button>}<button type="button">Hapus</button></div>}
         </div>
       </div>
       <p className="quotation-status">{item.status}</p>
@@ -467,7 +467,7 @@ function QuotationCard({ item, onEdit, onStatusChange }) {
   );
 }
 
-function QuotationTable({ items, onEdit, onStatusChange }) {
+function QuotationTable({ items, onOffer, onStatusChange }) {
   return (
     <section className="package-table quotation-table panel">
       <div className="package-table-head">
@@ -489,7 +489,7 @@ function QuotationTable({ items, onEdit, onStatusChange }) {
             <span>{songs}</span>
             <b>{item.price}</b>
             <span className={`status-pill ${item.tone || 'pending'}`}><FigmaIcon name={item.status === 'Diterima' ? 'thumb-up' : item.status === 'Ditolak' ? 'thumb-down' : 'quotation'} />{item.status}</span>
-            <QuotationActions item={item} onEdit={onEdit} onStatusChange={onStatusChange} />
+            <QuotationActions item={item} onOffer={onOffer} onStatusChange={onStatusChange} />
           </div>
         );
       })}
@@ -503,10 +503,21 @@ function QuotationPage() {
   const [filter, setFilter] = React.useState(quotationFilters[0]);
   const [viewMode, setViewMode] = React.useState('Kartu');
   const [sortMode, setSortMode] = React.useState('A-Z');
-  const [quotationToEdit, setQuotationToEdit] = React.useState(null);
+  const [quotationToOffer, setQuotationToOffer] = React.useState(null);
   const [quotationItems, setQuotationItems] = React.useState(quotations);
   const updateQuotationStatus = (title, status) => {
     setQuotationItems((items) => items.map((item) => item.title === title ? { ...item, status, tone: status === 'Diterima' ? 'accepted' : 'rejected' } : item));
+  };
+  const submitQuotationOffer = (packageOffer) => {
+    setQuotationItems((items) => items.map((item) => item.title === packageOffer.originalTitle ? {
+      ...item,
+      status: 'Tungku Menawarkan Harga',
+      price: packageOffer.price,
+      meta: packageOffer.meta,
+      tags: packageOffer.tags,
+      tone: undefined,
+    } : item));
+    setQuotationToOffer(null);
   };
   const filteredItems = quotationItems
     .filter((item) => {
@@ -531,10 +542,10 @@ function QuotationPage() {
           </div>
         </section>
         <div className="package-filter-row quotation-filters">{quotationFilters.map((name) => <button className={filter === name ? 'active' : ''} type="button" onClick={() => setFilter(name)} key={name}>{name}</button>)}</div>
-        {viewMode === 'Kartu' ? <section className="quotation-grid">{filteredItems.map((item) => <QuotationCard item={item} onEdit={setQuotationToEdit} onStatusChange={updateQuotationStatus} key={item.title} />)}</section> : <QuotationTable items={filteredItems} onEdit={setQuotationToEdit} onStatusChange={updateQuotationStatus} />}
+        {viewMode === 'Kartu' ? <section className="quotation-grid">{filteredItems.map((item) => <QuotationCard item={item} onOffer={setQuotationToOffer} onStatusChange={updateQuotationStatus} key={item.title} />)}</section> : <QuotationTable items={filteredItems} onOffer={setQuotationToOffer} onStatusChange={updateQuotationStatus} />}
         <div className="page-bottom-line" />
       </main>
-      {quotationToEdit && <CreatePackageModal initialPackage={{ ...quotationToEdit, desc: quotationToEdit.status }} title="Sunting Paket" submitLabel="Buat Paket" onClose={() => setQuotationToEdit(null)} onSubmit={() => setQuotationToEdit(null)} />}
+      {quotationToOffer && <CreatePackageModal initialPackage={{ ...quotationToOffer, desc: quotationToOffer.status }} title="Sunting Paket" submitLabel="Buat Paket" onClose={() => setQuotationToOffer(null)} onSubmit={submitQuotationOffer} />}
     </div>
   );
 }
