@@ -46,10 +46,10 @@ const packages = [
 ];
 
 const quotations = [
-  { title: 'Paket Penawaran A', status: 'Klien Menawarkan Harga', price: 'Rp 123.000', meta: '6 Jam Rekaman | 1 Lagu', tags: ['Recording', 'Editing', 'Mixing', 'Mastering'] },
-  { title: 'Paket Penawaran D', status: 'Tungku Menawarkan Harga', price: 'Rp 123.000', meta: '6 Jam Rekaman | 1 Lagu', tags: ['Recording', 'Editing', 'Mixing', 'Mastering'] },
-  { title: 'Paket Penawaran B', status: 'Diterima', price: 'Rp 1.123.000', meta: '6 Jam Rekaman | 1 Lagu', tags: ['Recording', 'Editing', 'Mixing', 'Mastering'], tone: 'accepted' },
-  { title: 'Paket Penawaran C', status: 'Ditolak', price: 'Rp 234.000', meta: '6 Jam Rekaman | 1 Lagu', tags: ['Recording', 'Editing', 'Mixing', 'Mastering'], tone: 'rejected' },
+  { title: 'Nama Klien A', status: 'Klien Menawarkan Harga', price: 'Rp 970.000', meta: '6 Jam Rekaman | 1 Lagu', tags: ['Recording', 'Editing', 'Mixing', 'Mastering'] },
+  { title: 'Nama Klien B', status: 'Tungku Menawarkan Harga', price: 'Rp 1.600.000', meta: '12 Jam Rekaman | 2 Lagu', tags: ['Recording', 'Editing', 'Mixing', 'Mastering'] },
+  { title: 'Nama Klien C', status: 'Ditolak', price: 'Rp 360.000', meta: '2 Jam Rekaman | 1 Lagu', tags: ['Recording'], tone: 'rejected' },
+  { title: 'Nama Klien D', status: 'Diterima', price: 'Rp 450.000', meta: '2 Jam Rekaman | 1 Lagu', tags: ['Recording'], tone: 'accepted' },
 ];
 
 const quotationStats = [
@@ -434,7 +434,19 @@ function PackageTable({ items, total, onEdit, onDelete }) {
   );
 }
 
-function QuotationCard({ item }) {
+function QuotationActions({ item, onEdit }) {
+  const canClientRespond = item.status === 'Klien Menawarkan Harga';
+  return (
+    <div className="table-actions quotation-actions">
+      <button className="action-offer" type="button" aria-label={`Sunting ${item.title}`} onClick={() => onEdit(item)}><FigmaIcon name="edit" /></button>
+      {canClientRespond && <button className="action-accept" type="button" aria-label={`Setujui ${item.title}`}><FigmaIcon name="circle-add" /></button>}
+      {canClientRespond && <button className="action-reject" type="button" aria-label={`Tolak ${item.title}`}><FigmaIcon name="delete" /></button>}
+      {item.status !== 'Klien Menawarkan Harga' && <button className="action-delete" type="button" aria-label={`Hapus ${item.title}`}><FigmaIcon name="delete" /></button>}
+    </div>
+  );
+}
+
+function QuotationCard({ item, onEdit }) {
   const [menuOpen, setMenuOpen] = React.useState(false);
   return (
     <article className={`quotation-card ${item.tone || ''}`}>
@@ -442,7 +454,7 @@ function QuotationCard({ item }) {
         <h2>{item.title}</h2>
         <div className="card-menu-wrap">
           <button className="card-menu-button" type="button" onClick={() => setMenuOpen((value) => !value)} aria-label={`Menu ${item.title}`}>...</button>
-          {menuOpen && <div className="card-menu"><button type="button">Detail</button><button type="button">Edit</button><button type="button">Hapus</button></div>}
+          {menuOpen && <div className="card-menu"><button type="button">Detail</button><button type="button" onClick={() => onEdit(item)}>Edit</button><button type="button">Hapus</button></div>}
         </div>
       </div>
       <p className="quotation-status">{item.status}</p>
@@ -452,16 +464,16 @@ function QuotationCard({ item }) {
   );
 }
 
-function QuotationTable({ items }) {
+function QuotationTable({ items, onEdit }) {
   return (
     <section className="package-table quotation-table panel">
       <div className="package-table-head">
-        <span>Nama Penawaran</span>
-        <span>Status</span>
+        <span>Nama Klien</span>
         <span>Tahapan</span>
         <span>Durasi Rekaman</span>
         <span>Banyak Lagu</span>
         <span>Harga</span>
+        <span>Status</span>
         <span>Aksi</span>
       </div>
       {items.map((item) => {
@@ -469,15 +481,12 @@ function QuotationTable({ items }) {
         return (
           <div className="package-table-row" key={item.title}>
             <strong>{item.title}</strong>
-            <p>{item.status}</p>
             <div className="package-tags">{item.tags.map((tag) => <Tag name={tag} key={tag} />)}</div>
             <span>{duration}</span>
             <span>{songs}</span>
             <b>{item.price}</b>
-            <div className="table-actions">
-              <button className="action-add" type="button" aria-label={`Edit ${item.title}`}><FigmaIcon name="edit" /></button>
-              <button className="action-delete" type="button" aria-label={`Hapus ${item.title}`}><FigmaIcon name="delete" /></button>
-            </div>
+            <span className={`status-pill ${item.tone || 'pending'}`}><FigmaIcon name={item.status === 'Diterima' ? 'circle-add' : item.status === 'Ditolak' ? 'delete' : 'quotation'} />{item.status}</span>
+            <QuotationActions item={item} onEdit={onEdit} />
           </div>
         );
       })}
@@ -491,6 +500,7 @@ function QuotationPage() {
   const [filter, setFilter] = React.useState(quotationFilters[0]);
   const [viewMode, setViewMode] = React.useState('Kartu');
   const [sortMode, setSortMode] = React.useState('A-Z');
+  const [quotationToEdit, setQuotationToEdit] = React.useState(null);
   const filteredItems = quotations
     .filter((item) => {
       const matchesQuery = item.title.toLowerCase().includes(query.toLowerCase()) || item.status.toLowerCase().includes(query.toLowerCase());
@@ -514,9 +524,10 @@ function QuotationPage() {
           </div>
         </section>
         <div className="package-filter-row quotation-filters">{quotationFilters.map((name) => <button className={filter === name ? 'active' : ''} type="button" onClick={() => setFilter(name)} key={name}>{name}</button>)}</div>
-        {viewMode === 'Kartu' ? <section className="quotation-grid">{filteredItems.map((item) => <QuotationCard item={item} key={item.title} />)}</section> : <QuotationTable items={filteredItems} />}
+        {viewMode === 'Kartu' ? <section className="quotation-grid">{filteredItems.map((item) => <QuotationCard item={item} onEdit={setQuotationToEdit} key={item.title} />)}</section> : <QuotationTable items={filteredItems} onEdit={setQuotationToEdit} />}
         <div className="page-bottom-line" />
       </main>
+      {quotationToEdit && <CreatePackageModal initialPackage={{ ...quotationToEdit, desc: quotationToEdit.status }} title="Sunting Paket" submitLabel="Buat Paket" onClose={() => setQuotationToEdit(null)} onSubmit={() => setQuotationToEdit(null)} />}
     </div>
   );
 }
@@ -525,7 +536,7 @@ function formatRupiah(value) {
   return `Rp ${value.toLocaleString('id-ID')}`;
 }
 
-function CreatePackageModal({ initialPackage, onClose, onSubmit }) {
+function CreatePackageModal({ initialPackage, onClose, onSubmit, title, submitLabel }) {
   const initialDuration = initialPackage ? packageDuration(initialPackage.meta) : null;
   const [name, setName] = React.useState(initialPackage?.title || '');
   const [description, setDescription] = React.useState(initialPackage?.desc || '');
@@ -563,7 +574,7 @@ function CreatePackageModal({ initialPackage, onClose, onSubmit }) {
     <div className="modal-backdrop">
       <section className="package-modal" role="dialog" aria-modal="true" aria-label="Buat Paket Baru">
         <button className="modal-close" type="button" onClick={onClose}>x</button>
-        <h2>{initialPackage ? 'Edit Paket' : 'Buat Paket Baru'}</h2>
+        <h2>{title || (initialPackage ? 'Edit Paket' : 'Buat Paket Baru')}</h2>
         <div className="modal-grid">
           <div className="modal-left">
             <label>Nama Paket<sup>*</sup><input value={name} onChange={(event) => setName(event.target.value)} placeholder="Example text" /></label>
@@ -598,7 +609,7 @@ function CreatePackageModal({ initialPackage, onClose, onSubmit }) {
             {manualPrice && <label className="manual-price-input">Harga Manual<input type="number" min="0" value={manualPriceValue} onChange={(event) => setManualPriceValue(event.target.value)} placeholder="1250000" /></label>}
           </div>
         </div>
-        <footer className="modal-actions"><button type="button" onClick={onClose}>Batal</button><button type="button" onClick={submitPackage}>{initialPackage ? 'Simpan Paket' : 'Buat Paket'}</button></footer>
+        <footer className="modal-actions"><button type="button" onClick={onClose}>Batal</button><button type="button" onClick={submitPackage}>{submitLabel || (initialPackage ? 'Simpan Paket' : 'Buat Paket')}</button></footer>
       </section>
     </div>
   );
