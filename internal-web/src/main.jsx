@@ -45,6 +45,23 @@ const packages = [
   { title: 'Hanya Mixing', desc: 'Paket ini hanya berisi jasa mixing saja.', price: 'Rp 150.000', meta: '0 Jam Rekaman | 1 Lagu', tags: ['Mixing'] },
 ];
 
+const quotations = [
+  { title: 'Paket Penawaran A', status: 'Klien Menawarkan Harga', price: 'Rp 123.000', meta: '6 Jam Rekaman | 1 Lagu', tags: ['Recording', 'Editing', 'Mixing', 'Mastering'] },
+  { title: 'Paket Penawaran D', status: 'Tungku Menawarkan Harga', price: 'Rp 123.000', meta: '6 Jam Rekaman | 1 Lagu', tags: ['Recording', 'Editing', 'Mixing', 'Mastering'] },
+  { title: 'Paket Penawaran B', status: 'Diterima', price: 'Rp 1.123.000', meta: '6 Jam Rekaman | 1 Lagu', tags: ['Recording', 'Editing', 'Mixing', 'Mastering'], tone: 'accepted' },
+  { title: 'Paket Penawaran C', status: 'Ditolak', price: 'Rp 234.000', meta: '6 Jam Rekaman | 1 Lagu', tags: ['Recording', 'Editing', 'Mixing', 'Mastering'], tone: 'rejected' },
+];
+
+const quotationStats = [
+  { title: 'Semua Penawaran', value: '6', shape: 'quotation' },
+  { title: 'Klien Menawarkan Harga', value: '4', shape: 'mic-box' },
+  { title: 'Tungku Menawarkan Harga', value: '3', shape: 'cut-box' },
+  { title: 'Diterima', value: '3', shape: 'circle-add' },
+  { title: 'Ditolak', value: '2', shape: 'delete' },
+];
+
+const quotationFilters = ['Semua Penawaran (6)', 'Klien Menawarkan Harga (4)', 'Tungku Menawarkan Harga (3)', 'Diterima (3)', 'Ditolak (2)'];
+
 const productionStages = [
   { name: 'Recording', icon: 'mic', unit: 'Jam', price: 150000 },
   { name: 'Editing', icon: 'cut', unit: 'Lagu', price: 200000 },
@@ -106,7 +123,7 @@ function Sidebar({ activeKey = 'dashboard' }) {
           <section className="nav-section" key={section.title}>
             <div className="nav-heading"><span>{section.title}</span><FigmaIcon name="chevron-down" className="nav-chevron" /></div>
             {section.items.map((item) => {
-              const href = item.key === 'packages' ? '/manager/packages' : item.key === 'booking' ? '/manager/booking' : '#';
+              const href = item.key === 'packages' ? '/manager/packages' : item.key === 'booking' ? '/manager/booking' : item.key === 'quotation' ? '/manager/quotation' : '#';
               return <a className={`nav-item ${activeKey === item.key ? 'active' : ''}`} href={href} key={item.key}><FigmaIcon name={item.icon} /><span>{item.label}</span>{item.badge && <em>{item.badge}</em>}</a>;
             })}
           </section>
@@ -417,6 +434,93 @@ function PackageTable({ items, total, onEdit, onDelete }) {
   );
 }
 
+function QuotationCard({ item }) {
+  const [menuOpen, setMenuOpen] = React.useState(false);
+  return (
+    <article className={`quotation-card ${item.tone || ''}`}>
+      <div className="package-card-head">
+        <h2>{item.title}</h2>
+        <div className="card-menu-wrap">
+          <button className="card-menu-button" type="button" onClick={() => setMenuOpen((value) => !value)} aria-label={`Menu ${item.title}`}>...</button>
+          {menuOpen && <div className="card-menu"><button type="button">Detail</button><button type="button">Edit</button><button type="button">Hapus</button></div>}
+        </div>
+      </div>
+      <p className="quotation-status">{item.status}</p>
+      <div className="package-tags">{item.tags.map((tag) => <Tag name={tag} key={tag} />)}</div>
+      <div className="package-card-foot"><strong>{item.price}</strong><span>{item.meta}</span></div>
+    </article>
+  );
+}
+
+function QuotationTable({ items }) {
+  return (
+    <section className="package-table quotation-table panel">
+      <div className="package-table-head">
+        <span>Nama Penawaran</span>
+        <span>Status</span>
+        <span>Tahapan</span>
+        <span>Durasi Rekaman</span>
+        <span>Banyak Lagu</span>
+        <span>Harga</span>
+        <span>Aksi</span>
+      </div>
+      {items.map((item) => {
+        const { duration, songs } = packageDuration(item.meta);
+        return (
+          <div className="package-table-row" key={item.title}>
+            <strong>{item.title}</strong>
+            <p>{item.status}</p>
+            <div className="package-tags">{item.tags.map((tag) => <Tag name={tag} key={tag} />)}</div>
+            <span>{duration}</span>
+            <span>{songs}</span>
+            <b>{item.price}</b>
+            <div className="table-actions">
+              <button className="action-add" type="button" aria-label={`Edit ${item.title}`}><FigmaIcon name="edit" /></button>
+              <button className="action-delete" type="button" aria-label={`Hapus ${item.title}`}><FigmaIcon name="delete" /></button>
+            </div>
+          </div>
+        );
+      })}
+      <div className="package-table-foot"><div className="pager"><button type="button">&lt;</button><span>1</span><button type="button">&gt;</button></div><span>{items.length} dari {quotations.length} penawaran</span></div>
+    </section>
+  );
+}
+
+function QuotationPage() {
+  const [query, setQuery] = React.useState('');
+  const [filter, setFilter] = React.useState(quotationFilters[0]);
+  const [viewMode, setViewMode] = React.useState('Kartu');
+  const [sortMode, setSortMode] = React.useState('A-Z');
+  const filteredItems = quotations
+    .filter((item) => {
+      const matchesQuery = item.title.toLowerCase().includes(query.toLowerCase()) || item.status.toLowerCase().includes(query.toLowerCase());
+      const matchesFilter = filter === quotationFilters[0] || filter.includes(item.status);
+      return matchesQuery && matchesFilter;
+    })
+    .sort((a, b) => (sortMode === 'A-Z' ? a.title.localeCompare(b.title) : quotations.indexOf(a) - quotations.indexOf(b)));
+
+  return (
+    <div className="dashboard-frame package-page quotation-page">
+      <Sidebar activeKey="quotation" />
+      <main className="content">
+        <Header crumb="Operasional / Quotation" title="Quotation" />
+        <section className="package-stats">{quotationStats.map((item) => <PackageStatCard item={item} key={item.title} />)}</section>
+        <section className="package-toolbar quotation-toolbar panel">
+          <label className="package-search"><FigmaIcon name="search" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Cari penawaran..." /></label>
+          <div className="view-mode"><span>Mode Lihat:</span>{['Kartu', 'Tabel'].map((mode) => <button className={viewMode === mode ? 'active' : ''} type="button" onClick={() => setViewMode(mode)} key={mode}><FigmaIcon name={mode === 'Kartu' ? 'grid' : 'table'} />{mode}</button>)}</div>
+          <div className="view-mode sort-mode">
+            <button className={sortMode === 'A-Z' ? 'active' : ''} type="button" onClick={() => setSortMode('A-Z')}><FigmaIcon name="sliders" />A-Z</button>
+            <button className={sortMode === 'Terbaru' ? 'active' : ''} type="button" onClick={() => setSortMode('Terbaru')}><FigmaIcon name="sliders" />Terbaru</button>
+          </div>
+        </section>
+        <div className="package-filter-row quotation-filters">{quotationFilters.map((name) => <button className={filter === name ? 'active' : ''} type="button" onClick={() => setFilter(name)} key={name}>{name}</button>)}</div>
+        {viewMode === 'Kartu' ? <section className="quotation-grid">{filteredItems.map((item) => <QuotationCard item={item} key={item.title} />)}</section> : <QuotationTable items={filteredItems} />}
+        <div className="page-bottom-line" />
+      </main>
+    </div>
+  );
+}
+
 function formatRupiah(value) {
   return `Rp ${value.toLocaleString('id-ID')}`;
 }
@@ -570,6 +674,7 @@ function PackageManagement() {
 function App() {
   if (window.location.pathname.includes('/manager/packages')) return <PackageManagement />;
   if (window.location.pathname.includes('/manager/booking')) return <BookingPage />;
+  if (window.location.pathname.includes('/manager/quotation')) return <QuotationPage />;
   return <Dashboard />;
 }
 
