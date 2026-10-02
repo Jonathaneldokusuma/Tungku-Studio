@@ -203,63 +203,99 @@ function Dashboard() {
   );
 }
 
-const miniCalendarDays = [
-  ['30', 'muted'], ['31', 'muted'], ['1'], ['2'], ['3'], ['4'], ['5'],
-  ['6'], ['7'], ['8'], ['9'], ['10'], ['11'], ['12'],
-  ['13'], ['14'], ['15'], ['16'], ['17'], ['18'], ['19'],
-  ['20'], ['21', 'today'], ['22'], ['23'], ['24', 'booked'], ['25', 'booked'], ['26'],
-  ['27'], ['28'], ['29', 'booked'], ['30'], ['1', 'muted'], ['2', 'muted'], ['3', 'muted'],
-];
-
-const weekDays = ['20 SUN', '21 MON', '22 TUE', '23 WED', '24 THU', '25 FRI', '26 SAT'];
 const timeSlots = ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00'];
-const weeklyBookings = [
-  { day: 4, start: 3, span: 3, color: 'red', time: '13:00 - 16:00', title: 'Nama Project A' },
-  { day: 5, start: 0, span: 4, color: 'blue', time: '10:00 - 14:00', title: 'Nama Project B', avatar: true },
-  { day: 5, start: 5, span: 1, color: 'green', time: '16:00 - 22:00', title: 'Nama Project C' },
-  { day: 6, start: 1, span: 4, color: 'yellow', time: '11:00 - 15:00', title: 'Nama Project C', avatar: true },
+const bookingEvents = [
+  { day: 3, start: 0, span: 2, color: 'red', time: '10:00 - 12:00', title: 'Nama Project A', client: 'Satria Putra Kurniawan' },
+  { day: 5, start: 1, span: 3, color: 'yellow', time: '11:00 - 15:00', title: 'Nama Project C', client: 'Jane Doe', avatar: true },
+  { day: 9, start: 3, span: 2, color: 'red', time: '13:00 - 16:00', title: 'Nama Project A', client: 'Satria Putra Kurniawan' },
+  { day: 10, start: 0, span: 4, color: 'blue', time: '10:00 - 14:00', title: 'Nama Project B', client: 'Budi Spageti', avatar: true },
+  { day: 10, start: 5, span: 1, color: 'green', time: '16:00 - 22:00', title: 'Nama Project C', client: 'Jane Doe' },
+  { day: 17, start: 2, span: 2, color: 'yellow', time: '12:00 - 15:00', title: 'Nama Project D', client: 'John Doe' },
 ];
 
-const weeklyList = [
-  { date: 'Kamis, 24 September 2026', items: [['Nama Project A', 'Satria Putra Kurniawan', '13:00 - 16:00'], ['Nama Project B', 'Budi Spageti', '17:00 - 20:00']] },
-  { date: 'Jumat, 25 September 2026', items: [['Nama Project B', 'Budi Spageti', '10:00 - 14:00'], ['Nama Project C', 'Jane Doe', '16:00 - 22:00']] },
-];
+function monthName(date) {
+  return date.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+}
 
-function MiniCalendar() {
+function fullDate(date) {
+  return date.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function buildCalendarDays(today, bookedDays) {
+  const year = today.getFullYear();
+  const month = today.getMonth();
+  const first = new Date(year, month, 1);
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const totalCells = first.getDay() + daysInMonth > 35 ? 42 : 35;
+  const start = new Date(year, month, 1 - first.getDay());
+  return Array.from({ length: totalCells }, (_, index) => {
+    const date = new Date(start);
+    date.setDate(start.getDate() + index);
+    const state = date.getMonth() !== month ? 'muted' : date.toDateString() === today.toDateString() ? 'today' : bookedDays.has(date.getDate()) ? 'booked' : '';
+    return { day: date.getDate(), state };
+  });
+}
+
+function currentWeek(today) {
+  const start = new Date(today);
+  start.setDate(today.getDate() - today.getDay());
+  return Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(start);
+    date.setDate(start.getDate() + index);
+    return date;
+  });
+}
+
+function MiniCalendar({ today, events }) {
+  const bookedDays = new Set(events.map((event) => event.day));
+  const days = buildCalendarDays(today, bookedDays);
+  const weeklyGroups = Object.values(events.reduce((groups, event) => {
+    const date = new Date(today.getFullYear(), today.getMonth(), event.day);
+    const key = fullDate(date);
+    groups[key] ||= { date: key, items: [] };
+    groups[key].items.push([event.title, event.client, event.time]);
+    return groups;
+  }, {})).slice(0, 3);
+
   return (
     <aside className="booking-side panel">
-      <div className="mini-calendar-head"><strong>September 2026</strong><span>&lt;</span><span>&gt;</span></div>
+      <div className="mini-calendar-head"><strong>{monthName(today)}</strong><span>&lt;</span><span>&gt;</span></div>
       <div className="mini-weekdays">{['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day) => <span key={day}>{day}</span>)}</div>
-      <div className="mini-days">{miniCalendarDays.map(([day, state], index) => <button className={state || ''} type="button" key={`${day}-${index}`}>{day}</button>)}</div>
+      <div className="mini-days">{days.map((date, index) => <button className={date.state} type="button" key={`${date.day}-${index}`}>{date.day}</button>)}</div>
       <div className="booking-list">
         <h2>Jadwal Minggu Ini</h2>
-        {weeklyList.map((group) => <section key={group.date}><p>{group.date}</p>{group.items.map(([title, client, time]) => <article className="booking-list-card" key={`${title}-${time}`}><strong>{title}</strong><span>{client}</span><mark><FigmaIcon name="booking" />{time}</mark></article>)}</section>)}
+        {weeklyGroups.map((group) => <section key={group.date}><p>{group.date}</p>{group.items.map(([title, client, time]) => <article className="booking-list-card" key={`${title}-${time}`}><strong>{title}</strong><span>{client}</span><mark><FigmaIcon name="booking" />{time}</mark></article>)}</section>)}
       </div>
     </aside>
   );
 }
 
-function WeekSchedule() {
+function WeekSchedule({ today, events }) {
+  const week = currentWeek(today);
+  const weekEvents = events.filter((event) => week.some((date) => date.getDate() === event.day));
+  const weekNumber = Math.ceil(today.getDate() / 7);
+
   return (
     <section className="booking-board panel">
-      <div className="booking-board-title"><h1>September, 2026</h1><div><button type="button">&lt;</button><strong>Minggu 4</strong><button type="button">&gt;</button></div></div>
+      <div className="booking-board-title"><h1>{today.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}</h1><div><button type="button">&lt;</button><strong>Minggu {weekNumber}</strong><button type="button">&gt;</button></div></div>
       <div className="week-grid">
         <div className="timezone">UTC+7</div>
-        {weekDays.map((day) => <div className="week-day-head" key={day}>{day}</div>)}
+        {week.map((date) => <div className="week-day-head" key={date.toDateString()}>{date.getDate()} {date.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()}</div>)}
         <div className="time-axis">{timeSlots.map((time) => <span key={time}>{time}</span>)}</div>
-        {weekDays.map((day, dayIndex) => <div className="day-column" key={day}>{timeSlots.map((slot) => <div className="empty-slot" key={slot}>Kosong</div>)}{weeklyBookings.filter((booking) => booking.day === dayIndex).map((booking) => <article className={`booking-event ${booking.color}`} style={{ '--start': booking.start, '--span': booking.span }} key={`${booking.title}-${booking.time}`}><span>{booking.time}</span><strong>{booking.title}</strong>{booking.avatar && <i />}</article>)}</div>)}
+        {week.map((date, dayIndex) => <div className="day-column" key={date.toDateString()}>{timeSlots.map((slot) => <div className="empty-slot" key={slot}>Kosong</div>)}{weekEvents.filter((booking) => booking.day === date.getDate()).map((booking) => <article className={`booking-event ${booking.color}`} style={{ '--start': booking.start, '--span': booking.span }} key={`${booking.title}-${booking.time}`}><span>{booking.time}</span><strong>{booking.title}</strong>{booking.avatar && <i />}</article>)}</div>)}
       </div>
     </section>
   );
 }
 
 function BookingPage() {
+  const today = new Date();
   return (
     <div className="dashboard-frame booking-page">
       <Sidebar activeKey="booking" />
       <main className="content">
         <Header crumb="Operasional / Booking" title="Booking" />
-        <section className="booking-layout"><MiniCalendar /><WeekSchedule /></section>
+        <section className="booking-layout"><MiniCalendar today={today} events={bookingEvents} /><WeekSchedule today={today} events={bookingEvents} /></section>
       </main>
     </div>
   );
