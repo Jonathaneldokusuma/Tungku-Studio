@@ -1,12 +1,9 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import {
-  Bell, Box, BriefcaseBusiness, CalendarDays, ChevronDown, CircleDollarSign, FileText, Folder,
-  Grid2X2, HandCoins, LayoutDashboard, LogOut, MoreVertical, Package, Plus, ReceiptText,
-  Search, Settings, SlidersHorizontal, Table2, Users, Mic, Scissors, Sliders, AudioWaveform,
-} from 'lucide-react';
+import { MoreVertical } from 'lucide-react';
 import './styles.css';
 import brandLogo from './assets/brand/logo.svg';
+import figmaIcons from './assets/icons/figma-icons.svg';
 
 const menuSections = [
   { title: 'UTAMA', items: [{ key: 'dashboard', label: 'Dashboard', icon: 'dashboard' }] },
@@ -55,34 +52,40 @@ const offers = [['Penawaran A', 'Klien X', 'Klien Menawarkan Harga', 'orange'], 
 const activities = [['Klien A meminta revisi lagu Example A pada Projec...', '2 jam lalu'], ['Operator A mengunggah hasil editing lagu Exampl...', '5 hari lalu'], ['Operator C mengunggah hasil recording lagu Exam...', '1 minggu lalu']];
 
 function FigmaIcon({ name, className = '' }) {
-  const icons = {
-    dashboard: LayoutDashboard,
-    booking: CalendarDays,
-    quotation: HandCoins,
-    project: Folder,
-    inventaris: Box,
-    packages: Package,
-    crm: Users,
-    invoice: ReceiptText,
-    reports: FileText,
-    expenses: CircleDollarSign,
-    operator: BriefcaseBusiness,
-    settings: Settings,
-    logout: LogOut,
-    bell: Bell,
-    search: Search,
-    sliders: SlidersHorizontal,
-    'chevron-down': ChevronDown,
-    grid: Grid2X2,
-    table: Table2,
-    add: Plus,
-    mic: Mic,
-    cut: Scissors,
-    mix: Sliders,
-    master: AudioWaveform,
+  const positions = {
+    dashboard: [17, 17],
+    crm: [129, 17],
+    packages: [241, 17],
+    booking: [353, 17],
+    inventaris: [465, 17],
+    project: [577, 17],
+    invoice: [689, 17],
+    expenses: [801, 17],
+    reports: [913, 17],
+    logout: [129, 140],
+    'chart-up': [241, 140],
+    'chart-down': [353, 140],
+    bell: [577, 140],
+    'chevron-down': [129, 263],
+    settings: [241, 263],
+    operator: [353, 263],
+    add: [465, 263],
+    search: [577, 263],
+    mic: [689, 263],
+    cut: [801, 263],
+    mix: [913, 263],
+    master: [1025, 263],
+    grid: [241, 386],
+    table: [129, 386],
+    quotation: [801, 386],
+    sliders: [689, 509],
   };
-  const Icon = icons[name] || Package;
-  return <Icon className={`figma-icon ${className}`} aria-hidden="true" />;
+  const [x, y] = positions[name] || positions.packages;
+  return (
+    <svg className={`figma-icon ${className}`} viewBox="0 0 96 96" aria-hidden="true">
+      <image href={figmaIcons} x={-x} y={-y} width="1139" height="868" />
+    </svg>
+  );
 }
 
 function Sidebar({ activeKey = 'dashboard' }) {
@@ -115,6 +118,11 @@ function Header({ crumb = 'Utama / Dashboard', title = 'Dashboard' }) {
 
 function MiniIcon({ type }) {
   const iconByType = {
+    'chart-up': 'chart-up',
+    'chart-down': 'chart-down',
+    invoice: 'invoice',
+    folder: 'project',
+    offer: 'quotation',
     'package-box': 'packages',
     'mic-box': 'mic',
     'cut-box': 'cut',

@@ -123,8 +123,9 @@ label:focus-visible {
   width: 16px;
   height: 16px;
   flex: 0 0 16px;
-  color: currentColor;
-  stroke-width: 1.9;
+  display: block;
+  overflow: hidden;
+  filter: brightness(0) saturate(100%) invert(12%) sepia(7%) saturate(482%) hue-rotate(332deg) brightness(97%) contrast(88%);
 }
 
 .nav-heading .figma-icon {
@@ -152,7 +153,7 @@ label:focus-visible {
 }
 
 .nav-item.active .figma-icon {
-  color: #ffffff;
+  filter: brightness(0) invert(1);
 }
 
 .nav-item em {
@@ -294,8 +295,8 @@ label:focus-visible {
 
 .stat-card {
   position: relative;
-  height: 77px;
-  padding: 11px 12px;
+  height: 86px;
+  padding: 12px 12px 10px;
 }
 
 .pill {
@@ -345,6 +346,7 @@ label:focus-visible {
   display: block;
   font-size: 18px;
   font-weight: 500;
+  line-height: 1.12;
 }
 
 .mini-icon {
@@ -353,138 +355,95 @@ label:focus-visible {
   bottom: 10px;
   width: 32px;
   height: 32px;
+  display: grid;
+  place-items: center;
   border-radius: 2px;
+}
+
+.mini-icon .figma-icon {
+  width: 23px;
+  height: 23px;
+  flex-basis: 23px;
 }
 
 .chart-up {
   background: #92dbb4;
 }
 
-.chart-up::after {
-  content: "";
-  position: absolute;
-  inset: 9px 7px;
-  border-left: 4px solid #087d38;
-  border-top: 4px solid #087d38;
-  transform: skew(-20deg) rotate(135deg);
+.chart-up .figma-icon {
+  filter: brightness(0) saturate(100%) invert(33%) sepia(78%) saturate(855%) hue-rotate(105deg) brightness(88%) contrast(92%);
 }
 
 .chart-down {
   background: #ffd4d0;
 }
 
-.chart-down::after {
-  content: "";
-  position: absolute;
-  inset: 9px 7px;
-  border-left: 4px solid #df4438;
-  border-top: 4px solid #df4438;
-  transform: skew(20deg) rotate(-45deg);
+.chart-down .figma-icon {
+  filter: brightness(0) saturate(100%) invert(35%) sepia(74%) saturate(1433%) hue-rotate(335deg) brightness(94%) contrast(86%);
 }
 
 .invoice {
   background: #cbd8f6;
 }
 
-.invoice::after {
-  content: "";
-  position: absolute;
-  inset: 8px;
-  border: 3px solid #4b69af;
-  border-radius: 2px;
-  box-shadow: 6px 5px 0 -2px #4b69af;
+.invoice .figma-icon {
+  filter: brightness(0) saturate(100%) invert(41%) sepia(32%) saturate(1237%) hue-rotate(188deg) brightness(91%) contrast(88%);
 }
 
 .folder {
   background: #ead4f4;
 }
 
-.folder::after {
-  content: "";
-  position: absolute;
-  left: 7px;
-  top: 10px;
-  width: 21px;
-  height: 15px;
-  border: 3px solid #8e44ad;
-  border-radius: 2px;
+.folder .figma-icon {
+  filter: brightness(0) saturate(100%) invert(43%) sepia(68%) saturate(900%) hue-rotate(253deg) brightness(82%) contrast(86%);
 }
 
 .offer {
   background: #ffd6aa;
 }
 
-.offer::after {
-  content: "";
-  position: absolute;
-  left: 11px;
-  top: 9px;
-  width: 14px;
-  height: 14px;
-  border: 3px solid #df7a18;
-  transform: rotate(45deg);
+.offer .figma-icon {
+  filter: brightness(0) saturate(100%) invert(57%) sepia(88%) saturate(1017%) hue-rotate(348deg) brightness(88%) contrast(92%);
 }
 
 .package-box {
   background: #ffd9dc;
 }
 
-.package-box::after {
-  content: "";
-  position: absolute;
-  inset: 9px;
-  border: 3px solid #e24435;
-  transform: rotate(30deg);
+.package-box .figma-icon {
+  filter: brightness(0) saturate(100%) invert(40%) sepia(70%) saturate(1510%) hue-rotate(334deg) brightness(88%) contrast(96%);
 }
 
 .mic-box {
   background: #d9e4ff;
 }
 
-.mic-box::after {
-  content: "";
-  position: absolute;
-  left: 15px;
-  top: 8px;
-  width: 8px;
-  height: 17px;
-  border: 3px solid #4772bd;
-  border-radius: 7px;
+.mic-box .figma-icon {
+  filter: brightness(0) saturate(100%) invert(45%) sepia(35%) saturate(1162%) hue-rotate(181deg) brightness(87%) contrast(88%);
 }
 
 .cut-box {
   background: #d5f1de;
 }
 
-.cut-box::after {
-  content: "";
-  position: absolute;
-  inset: 8px 12px;
-  border-top: 3px solid #1e8350;
-  border-bottom: 3px solid #1e8350;
-  transform: rotate(45deg);
+.cut-box .figma-icon {
+  filter: brightness(0) saturate(100%) invert(35%) sepia(42%) saturate(931%) hue-rotate(101deg) brightness(91%) contrast(92%);
 }
 
 .mix-box {
   background: #ffe7ad;
 }
 
-.mix-box::after {
-  content: "";
-  position: absolute;
-  inset: 10px 8px;
-  background: linear-gradient(90deg, transparent 0 18%, #9a6e00 18% 28%, transparent 28% 45%, #9a6e00 45% 55%, transparent 55% 72%, #9a6e00 72% 82%, transparent 82%);
+.mix-box .figma-icon {
+  filter: brightness(0) saturate(100%) invert(43%) sepia(76%) saturate(759%) hue-rotate(16deg) brightness(88%) contrast(97%);
 }
 
 .master-box {
   background: #efd9fb;
 }
 
-.master-box::after {
-  content: "";
-  position: absolute;
-  inset: 8px;
-  background: repeating-linear-gradient(90deg, #8d45a3 0 3px, transparent 3px 7px);
+.master-box .figma-icon {
+  filter: brightness(0) saturate(100%) invert(35%) sepia(37%) saturate(1485%) hue-rotate(256deg) brightness(88%) contrast(91%);
 }
 
 .middle-grid {
