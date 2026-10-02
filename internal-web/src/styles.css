@@ -748,14 +748,38 @@ label:focus-visible {
   margin-bottom: 18px;
 }
 
-.mini-calendar-head strong {
+.mini-calendar-head input {
+  width: 100%;
+  min-width: 0;
+  padding: 3px 4px;
+  margin-left: -4px;
+  color: #231f20;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 3px;
   font-size: 12px;
   font-weight: 600;
+  outline: 0;
 }
 
-.mini-calendar-head span {
+.mini-calendar-head input:hover,
+.mini-calendar-head input:focus {
+  background: #ffffff;
+  border-color: #d7cecb;
+}
+
+.mini-calendar-head button {
   text-align: center;
   font-size: 14px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  transition: transform 160ms var(--ease-soft), color 160ms var(--ease-soft);
+}
+
+.mini-calendar-head button:hover {
+  color: #df4438;
+  transform: translateY(-1px);
 }
 
 .mini-weekdays,
@@ -898,6 +922,12 @@ label:focus-visible {
   background: transparent;
   border: 0;
   cursor: pointer;
+  transition: transform 160ms var(--ease-soft), color 160ms var(--ease-soft);
+}
+
+.booking-board-title button:hover {
+  color: #df4438;
+  transform: translateY(-1px);
 }
 
 .week-grid {
