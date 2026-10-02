@@ -106,7 +106,8 @@ function Sidebar({ activeKey = 'dashboard' }) {
           <section className="nav-section" key={section.title}>
             <div className="nav-heading"><span>{section.title}</span><FigmaIcon name="chevron-down" className="nav-chevron" /></div>
             {section.items.map((item) => {
-              return <a className={`nav-item ${activeKey === item.key ? 'active' : ''}`} href={item.key === 'packages' ? '/manager/packages' : '#'} key={item.key}><FigmaIcon name={item.icon} /><span>{item.label}</span>{item.badge && <em>{item.badge}</em>}</a>;
+              const href = item.key === 'packages' ? '/manager/packages' : item.key === 'booking' ? '/manager/booking' : '#';
+              return <a className={`nav-item ${activeKey === item.key ? 'active' : ''}`} href={href} key={item.key}><FigmaIcon name={item.icon} /><span>{item.label}</span>{item.badge && <em>{item.badge}</em>}</a>;
             })}
           </section>
         ))}
@@ -197,6 +198,68 @@ function Dashboard() {
           <SmallPanel title="Progress Penawaran">{offers.map(([name, client, tag, color]) => <div className="record-row" key={name}><div><strong>{name}</strong><span>{client}</span></div><mark className={color}>{tag}</mark></div>)}</SmallPanel>
           <SmallPanel title="Aktivitas Operator">{activities.map(([text, time]) => <div className="activity" key={text}><strong>{text}</strong><span>{time}</span></div>)}</SmallPanel>
         </section>
+      </main>
+    </div>
+  );
+}
+
+const miniCalendarDays = [
+  ['30', 'muted'], ['31', 'muted'], ['1'], ['2'], ['3'], ['4'], ['5'],
+  ['6'], ['7'], ['8'], ['9'], ['10'], ['11'], ['12'],
+  ['13'], ['14'], ['15'], ['16'], ['17'], ['18'], ['19'],
+  ['20'], ['21', 'today'], ['22'], ['23'], ['24', 'booked'], ['25', 'booked'], ['26'],
+  ['27'], ['28'], ['29', 'booked'], ['30'], ['1', 'muted'], ['2', 'muted'], ['3', 'muted'],
+];
+
+const weekDays = ['20 SUN', '21 MON', '22 TUE', '23 WED', '24 THU', '25 FRI', '26 SAT'];
+const timeSlots = ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00'];
+const weeklyBookings = [
+  { day: 4, start: 3, span: 3, color: 'red', time: '13:00 - 16:00', title: 'Nama Project A' },
+  { day: 5, start: 0, span: 4, color: 'blue', time: '10:00 - 14:00', title: 'Nama Project B', avatar: true },
+  { day: 5, start: 5, span: 1, color: 'green', time: '16:00 - 22:00', title: 'Nama Project C' },
+  { day: 6, start: 1, span: 4, color: 'yellow', time: '11:00 - 15:00', title: 'Nama Project C', avatar: true },
+];
+
+const weeklyList = [
+  { date: 'Kamis, 24 September 2026', items: [['Nama Project A', 'Satria Putra Kurniawan', '13:00 - 16:00'], ['Nama Project B', 'Budi Spageti', '17:00 - 20:00']] },
+  { date: 'Jumat, 25 September 2026', items: [['Nama Project B', 'Budi Spageti', '10:00 - 14:00'], ['Nama Project C', 'Jane Doe', '16:00 - 22:00']] },
+];
+
+function MiniCalendar() {
+  return (
+    <aside className="booking-side panel">
+      <div className="mini-calendar-head"><strong>September 2026</strong><span>&lt;</span><span>&gt;</span></div>
+      <div className="mini-weekdays">{['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day) => <span key={day}>{day}</span>)}</div>
+      <div className="mini-days">{miniCalendarDays.map(([day, state], index) => <button className={state || ''} type="button" key={`${day}-${index}`}>{day}</button>)}</div>
+      <div className="booking-list">
+        <h2>Jadwal Minggu Ini</h2>
+        {weeklyList.map((group) => <section key={group.date}><p>{group.date}</p>{group.items.map(([title, client, time]) => <article className="booking-list-card" key={`${title}-${time}`}><strong>{title}</strong><span>{client}</span><mark><FigmaIcon name="booking" />{time}</mark></article>)}</section>)}
+      </div>
+    </aside>
+  );
+}
+
+function WeekSchedule() {
+  return (
+    <section className="booking-board panel">
+      <div className="booking-board-title"><h1>September, 2026</h1><div><button type="button">&lt;</button><strong>Minggu 4</strong><button type="button">&gt;</button></div></div>
+      <div className="week-grid">
+        <div className="timezone">UTC+7</div>
+        {weekDays.map((day) => <div className="week-day-head" key={day}>{day}</div>)}
+        <div className="time-axis">{timeSlots.map((time) => <span key={time}>{time}</span>)}</div>
+        {weekDays.map((day, dayIndex) => <div className="day-column" key={day}>{timeSlots.map((slot) => <div className="empty-slot" key={slot}>Kosong</div>)}{weeklyBookings.filter((booking) => booking.day === dayIndex).map((booking) => <article className={`booking-event ${booking.color}`} style={{ '--start': booking.start, '--span': booking.span }} key={`${booking.title}-${booking.time}`}><span>{booking.time}</span><strong>{booking.title}</strong>{booking.avatar && <i />}</article>)}</div>)}
+      </div>
+    </section>
+  );
+}
+
+function BookingPage() {
+  return (
+    <div className="dashboard-frame booking-page">
+      <Sidebar activeKey="booking" />
+      <main className="content">
+        <Header crumb="Operasional / Booking" title="Booking" />
+        <section className="booking-layout"><MiniCalendar /><WeekSchedule /></section>
       </main>
     </div>
   );
@@ -420,7 +483,9 @@ function PackageManagement() {
 }
 
 function App() {
-  return window.location.pathname.includes('/manager/packages') ? <PackageManagement /> : <Dashboard />;
+  if (window.location.pathname.includes('/manager/packages')) return <PackageManagement />;
+  if (window.location.pathname.includes('/manager/booking')) return <BookingPage />;
+  return <Dashboard />;
 }
 
 createRoot(document.getElementById('root')).render(<App />);
