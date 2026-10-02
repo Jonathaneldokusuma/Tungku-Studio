@@ -937,8 +937,11 @@ mark.red {
 }
 
 .package-card {
+  display: grid;
+  grid-template-rows: 22px 36px 32px 1fr;
+  align-items: start;
   height: 155px;
-  padding: 16px 15px 12px;
+  padding: 14px 15px 12px;
   background: #ffffff;
   border: 1px solid #df4438;
   border-radius: 5px;
@@ -947,9 +950,10 @@ mark.red {
 .package-card-head {
   position: relative;
   display: flex;
+  align-items: start;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 0;
 }
 
 .card-menu-wrap {
@@ -1017,7 +1021,7 @@ mark.red {
 
 .package-card p {
   min-height: 28px;
-  margin: 0 0 12px;
+  margin: 0;
   color: #5d5553;
   font-size: 8px;
   line-height: 1.35;
@@ -1026,8 +1030,9 @@ mark.red {
 .package-tags {
   display: flex;
   flex-wrap: wrap;
+  align-content: start;
   gap: 5px;
-  min-height: 36px;
+  min-height: 0;
 }
 
 .package-tag {
@@ -1086,7 +1091,8 @@ mark.red {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  padding-top: 9px;
+  align-self: end;
+  padding-top: 0;
 }
 
 .package-card-foot strong {
