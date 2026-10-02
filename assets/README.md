@@ -7,6 +7,7 @@ Folder ini ada di root project supaya mudah dinavigasi saat mencocokkan UI denga
 - `brand/`: logo, brand mark, dan identitas Tungku Studio.
 - `icons/`: icon set dari Figma atau icon satuan.
 - `mockups/`: export mockup Figma sebagai referensi visual.
+- `mockups/design-rules.svg`: rules/design reference dari Figma.
 - `screenshots/`: screenshot hasil implementasi dan referensi pembanding.
 - `uploads/`: asset mentah dari user sebelum dirapikan.
 
