@@ -2,6 +2,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { MoreVertical } from 'lucide-react';
 import './styles.css';
+import dashboardMockup from './assets/manager-dashboard.png';
 import managementPaketMockup from './assets/management-paket.svg';
 import figmaIcons from './assets/figma-icons.svg';
 
@@ -116,19 +117,8 @@ function SmallPanel({ title, children }) {
 
 function Dashboard() {
   return (
-    <div className="dashboard-frame">
-      <Sidebar activeKey="dashboard" />
-      <main className="content">
-        <Header />
-        <section className="stats">{dashboardStats.map((item) => <StatCard item={item} key={item.title} />)}</section>
-        <section className="middle-grid"><FinanceChart /><PiePanel /><PiePanel kind="donut" /></section>
-        <section className="bottom-grid">
-          <SmallPanel title="Jadwal Rekaman Hari Ini">{schedule.map(([name, client, time]) => <div className="record-row" key={name}><div><strong>{name}</strong><span>{client}</span></div><time>{time}</time></div>)}</SmallPanel>
-          <SmallPanel title="Progress Proyek">{progress.map(([name, client, tag, color]) => <div className="record-row" key={name}><div><strong>{name}</strong><span>{client}</span></div><mark className={color}>{tag}</mark></div>)}</SmallPanel>
-          <SmallPanel title="Progress Penawaran">{offers.map(([name, client, tag, color]) => <div className="record-row" key={name}><div><strong>{name}</strong><span>{client}</span></div><mark className={color}>{tag}</mark></div>)}</SmallPanel>
-          <SmallPanel title="Aktivitas Operator">{activities.map(([text, time]) => <div className="activity" key={text}><strong>{text}</strong><span>{time}</span></div>)}</SmallPanel>
-        </section>
-      </main>
+    <div className="figma-mockup-page">
+      <img src={dashboardMockup} alt="Dashboard Manager" />
     </div>
   );
 }
