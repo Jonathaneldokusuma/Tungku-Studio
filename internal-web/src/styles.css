@@ -1490,6 +1490,51 @@ mark.red {
   border-radius: 2px;
 }
 
+.delete-modal {
+  width: 405px;
+  padding: 24px 24px 22px;
+  background: #ffffff;
+  border-radius: 6px;
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.26);
+}
+
+.delete-modal h2 {
+  margin: 0 0 18px;
+  color: #1f1d1c;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.delete-modal p {
+  margin: 0;
+  color: #4f4543;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.delete-modal footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 18px;
+  margin-top: 24px;
+}
+
+.delete-modal button {
+  height: 38px;
+  padding: 0 17px;
+  color: #df4438;
+  font-size: 10px;
+  background: transparent;
+  border: 0;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.delete-modal button:last-child {
+  color: #ffffff;
+  background: #df4438;
+}
+
 .figma-mockup-page {
   display: grid;
   place-items: start center;

@@ -343,12 +343,28 @@ function CreatePackageModal({ onClose, onCreate }) {
   );
 }
 
+function DeletePackageModal({ item, onClose, onConfirm }) {
+  return (
+    <div className="modal-backdrop">
+      <section className="delete-modal" role="dialog" aria-modal="true" aria-label="Hapus Paket">
+        <h2>Hapus Paket?</h2>
+        <p>Paket "{item.title}" akan dihapus dari daftar. Project yang sudah berjalan tidak terpengaruh.</p>
+        <footer>
+          <button type="button" onClick={onClose}>Batal</button>
+          <button type="button" onClick={() => onConfirm(item.title)}>Hapus Paket</button>
+        </footer>
+      </section>
+    </div>
+  );
+}
+
 function PackageManagement() {
   const [filter, setFilter] = React.useState('Semua Paket');
   const [viewMode, setViewMode] = React.useState('Tabel');
   const [query, setQuery] = React.useState('');
   const [packageItems, setPackageItems] = React.useState(packages);
   const [showCreateModal, setShowCreateModal] = React.useState(false);
+  const [packageToDelete, setPackageToDelete] = React.useState(null);
   const filteredPackages = packageItems.filter((item) => {
     const matchesQuery = item.title.toLowerCase().includes(query.toLowerCase());
     const matchesFilter = filter === 'Semua Paket' || item.tags.includes(filter);
@@ -363,6 +379,7 @@ function PackageManagement() {
   };
   const deletePackage = (title) => {
     setPackageItems((items) => items.filter((item) => item.title !== title));
+    setPackageToDelete(null);
   };
 
   return (
@@ -379,10 +396,11 @@ function PackageManagement() {
         <div className="package-filter-row">
           {['Semua Paket', 'Recording', 'Editing', 'Mixing', 'Mastering'].map((item) => <button className={filter === item ? 'active' : ''} type="button" onClick={() => setFilter(item)} key={item}>{item} ({item === 'Semua Paket' ? packageItems.length : packageItems.filter((pkg) => pkg.tags.includes(item)).length})</button>)}
         </div>
-        {viewMode === 'Tabel' ? <PackageTable items={filteredPackages} total={packageItems.length} onDuplicate={duplicatePackage} onDelete={deletePackage} /> : <section className="package-grid">{filteredPackages.map((item) => <PackageCard item={item} key={item.title} />)}</section>}
+        {viewMode === 'Tabel' ? <PackageTable items={filteredPackages} total={packageItems.length} onDuplicate={duplicatePackage} onDelete={(title) => setPackageToDelete(packageItems.find((item) => item.title === title))} /> : <section className="package-grid">{filteredPackages.map((item) => <PackageCard item={item} key={item.title} />)}</section>}
         <div className="page-bottom-line" />
       </main>
       {showCreateModal && <CreatePackageModal onClose={() => setShowCreateModal(false)} onCreate={createPackage} />}
+      {packageToDelete && <DeletePackageModal item={packageToDelete} onClose={() => setPackageToDelete(null)} onConfirm={deletePackage} />}
     </div>
   );
 }
