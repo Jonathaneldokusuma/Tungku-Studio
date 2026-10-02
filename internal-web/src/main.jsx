@@ -85,6 +85,7 @@ function FigmaIcon({ name, className = '' }) {
     master: [1025, 263],
     grid: [241, 386],
     table: [129, 386],
+    edit: [465, 386],
     quotation: [801, 386],
     sliders: [689, 509],
   };
@@ -234,7 +235,7 @@ function packageDuration(meta) {
   return { duration: duration || 'Tidak rekaman', songs: songs || '1 Lagu' };
 }
 
-function PackageTable({ items, total, onDuplicate, onDelete }) {
+function PackageTable({ items, total, onEdit, onDelete }) {
   return (
     <section className="package-table panel">
       <div className="package-table-head">
@@ -257,7 +258,7 @@ function PackageTable({ items, total, onDuplicate, onDelete }) {
             <span>{songs}</span>
             <b>{item.price}</b>
             <div className="table-actions">
-              <button className="action-add" type="button" aria-label={`Tambah ${item.title}`} onClick={() => onDuplicate(item)}><FigmaIcon name="circle-add" /></button>
+              <button className="action-add" type="button" aria-label={`Edit ${item.title}`} onClick={() => onEdit(item)}><FigmaIcon name="edit" /></button>
               <button className="action-delete" type="button" aria-label={`Hapus ${item.title}`} onClick={() => onDelete(item.title)}><FigmaIcon name="delete" /></button>
             </div>
           </div>
@@ -408,7 +409,7 @@ function PackageManagement() {
         <div className="package-filter-row">
           {['Semua Paket', 'Recording', 'Editing', 'Mixing', 'Mastering'].map((item) => <button className={filter === item ? 'active' : ''} type="button" onClick={() => setFilter(item)} key={item}>{item} ({item === 'Semua Paket' ? packageItems.length : packageItems.filter((pkg) => pkg.tags.includes(item)).length})</button>)}
         </div>
-        {viewMode === 'Tabel' ? <PackageTable items={filteredPackages} total={packageItems.length} onDuplicate={duplicatePackage} onDelete={(title) => setPackageToDelete(packageItems.find((item) => item.title === title))} /> : <section className="package-grid">{filteredPackages.map((item) => <PackageCard item={item} onEdit={setPackageToEdit} onDelete={(title) => setPackageToDelete(packageItems.find((pkg) => pkg.title === title))} key={item.title} />)}</section>}
+        {viewMode === 'Tabel' ? <PackageTable items={filteredPackages} total={packageItems.length} onEdit={setPackageToEdit} onDelete={(title) => setPackageToDelete(packageItems.find((item) => item.title === title))} /> : <section className="package-grid">{filteredPackages.map((item) => <PackageCard item={item} onEdit={setPackageToEdit} onDelete={(title) => setPackageToDelete(packageItems.find((pkg) => pkg.title === title))} key={item.title} />)}</section>}
         <div className="page-bottom-line" />
       </main>
       {showCreateModal && <CreatePackageModal onClose={() => setShowCreateModal(false)} onSubmit={(item) => { savePackage(item); setShowCreateModal(false); }} />}
