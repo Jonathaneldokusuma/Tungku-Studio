@@ -1742,6 +1742,227 @@ mark.red {
   grid-template-columns: 180px 330px 115px 92px 110px 170px 86px;
 }
 
+.project-page .content {
+  overflow: hidden;
+}
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.project-card {
+  min-height: 136px;
+  padding: 11px 11px 10px;
+  background: #ffffff;
+  border: 1px solid #dfd5d2;
+  border-radius: 5px;
+  transition: transform 180ms var(--ease-soft), box-shadow 180ms var(--ease-soft);
+}
+
+.project-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 13px 30px rgba(31, 29, 28, 0.12);
+}
+
+.project-card header {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  align-items: start;
+  gap: 8px;
+}
+
+.project-card h2 {
+  margin: 2px 0 3px;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.project-card p {
+  margin: 0;
+  color: #5d5553;
+  font-size: 8px;
+}
+
+.project-avatar {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  background:
+    radial-gradient(circle at 52% 34%, #ffd5b5 0 18%, transparent 19%),
+    radial-gradient(circle at 50% 74%, #f3b386 0 35%, transparent 36%),
+    linear-gradient(135deg, #1c1a1a 0 36%, #ae5730 37% 62%, #f6c296 63% 100%);
+  border: 1px solid #d2c6c3;
+  border-radius: 50%;
+}
+
+.project-avatar.tone-1 {
+  background:
+    radial-gradient(circle at 52% 34%, #eec0a0 0 18%, transparent 19%),
+    radial-gradient(circle at 50% 74%, #c47d56 0 35%, transparent 36%),
+    linear-gradient(135deg, #171717 0 46%, #f3c095 47% 100%);
+}
+
+.project-avatar.tone-2 {
+  background:
+    radial-gradient(circle at 52% 34%, #dac1ad 0 18%, transparent 19%),
+    radial-gradient(circle at 50% 74%, #9f8170 0 35%, transparent 36%),
+    linear-gradient(135deg, #111111 0 48%, #c9c0bc 49% 100%);
+}
+
+.project-avatar.tone-3 {
+  background:
+    radial-gradient(circle at 52% 34%, #e7b18d 0 18%, transparent 19%),
+    radial-gradient(circle at 50% 74%, #ac6844 0 35%, transparent 36%),
+    linear-gradient(135deg, #26313a 0 42%, #e0a077 43% 100%);
+}
+
+.project-stage {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 19px;
+  padding: 0 8px;
+  font-size: 7px;
+  border-radius: 2px;
+}
+
+.project-stage .figma-icon {
+  width: 10px;
+  height: 10px;
+  flex-basis: 10px;
+}
+
+.project-stage.recording {
+  color: #5271ac;
+  background: #dfe8ff;
+}
+
+.project-stage.recording .figma-icon {
+  filter: brightness(0) saturate(100%) invert(45%) sepia(35%) saturate(1162%) hue-rotate(181deg) brightness(87%) contrast(88%);
+}
+
+.project-stage.editing {
+  color: #1d794e;
+  background: #d8f3df;
+}
+
+.project-stage.editing .figma-icon {
+  filter: brightness(0) saturate(100%) invert(35%) sepia(42%) saturate(931%) hue-rotate(101deg) brightness(91%) contrast(92%);
+}
+
+.project-stage.mixing {
+  color: #8f6500;
+  background: #ffe7aa;
+}
+
+.project-stage.mixing .figma-icon {
+  filter: brightness(0) saturate(100%) invert(43%) sepia(76%) saturate(759%) hue-rotate(16deg) brightness(88%) contrast(97%);
+}
+
+.project-stage.mastering {
+  color: #8f459e;
+  background: #f2dbf7;
+}
+
+.project-stage.mastering .figma-icon {
+  filter: brightness(0) saturate(100%) invert(35%) sepia(37%) saturate(1485%) hue-rotate(256deg) brightness(88%) contrast(91%);
+}
+
+.project-stage.selesai {
+  color: #df4438;
+  background: #ffd8d3;
+}
+
+.project-stage.revisi {
+  color: #554d4b;
+  background: #e9e1df;
+}
+
+.project-date {
+  margin-top: -7px;
+  color: #5d5553;
+  font-size: 7px;
+  text-align: right;
+}
+
+.project-progress-head {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  color: #6a605d;
+  font-size: 8px;
+}
+
+.project-progress-head strong {
+  color: #df4438;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.project-progress {
+  height: 5px;
+  margin-top: 5px;
+  overflow: hidden;
+  background: #e8dedb;
+}
+
+.project-progress span {
+  display: block;
+  height: 100%;
+  background: #df4438;
+}
+
+.project-card footer {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.project-card footer span {
+  display: block;
+  margin-bottom: 5px;
+  color: #5d5553;
+  font-size: 8px;
+}
+
+.operator-stack {
+  display: flex;
+  padding-left: 2px;
+}
+
+.operator-stack .project-avatar {
+  width: 20px;
+  height: 20px;
+  margin-left: -4px;
+  border-color: #ffffff;
+  box-shadow: 0 0 0 1px #d5cac7;
+}
+
+.operator-stack .project-avatar:first-child {
+  margin-left: 0;
+}
+
+.project-card footer button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0;
+  color: #df4438;
+  font-size: 9px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.project-card footer button span {
+  margin: 0;
+  color: #df4438;
+  font-size: 13px;
+}
+
 .quotation-actions {
   gap: 7px;
 }

@@ -62,6 +62,25 @@ const quotationStats = [
 
 const quotationFilters = ['Semua Penawaran (6)', 'Klien Menawarkan Harga (4)', 'Tungku Menawarkan Harga (3)', 'Diterima (3)', 'Ditolak (2)'];
 
+const projectStats = [
+  { title: 'Semua Project', value: '6', shape: 'package-box' },
+  { title: 'Recording', value: '4', shape: 'mic-box' },
+  { title: 'Editing', value: '3', shape: 'cut-box' },
+  { title: 'Mixing', value: '3', shape: 'mix-box' },
+  { title: 'Mastering', value: '2', shape: 'master-box' },
+];
+
+const projectFilters = ['Semua Project (6)', 'Recording (4)', 'Editing (3)', 'Mixing (3)', 'Mastering (2)'];
+
+const projectItems = [
+  { name: 'Project Name', client: 'Client Name', stage: 'Recording', date: '26 Sep 2026', progress: 15, note: 'Recording l...', tags: ['Recording'] },
+  { name: 'Project Name', client: 'Client Name', stage: 'Editing', date: '26 Sep 2026', progress: 30, note: 'Editing oleh...', tags: ['Editing'] },
+  { name: 'Project Name', client: 'Client Name', stage: 'Mixing', date: '26 Sep 2026', progress: 69, note: 'Mixing oleh...', tags: ['Mixing'] },
+  { name: 'Project Name', client: 'Client Name', stage: 'Mastering', date: '26 Sep 2026', progress: 87, note: 'Mastering o...', tags: ['Mastering'] },
+  { name: 'Project Name', client: 'Client Name', stage: 'Selesai', date: '26 Sep 2026', progress: 100, note: 'Menunggu...', tags: ['Recording'] },
+  { name: 'Project Name', client: 'Client Name', stage: 'Revisi', date: '26 Sep 2026', progress: 99, note: 'Sedang Rev...', tags: ['Recording'] },
+];
+
 const productionStages = [
   { name: 'Recording', icon: 'mic', unit: 'Jam', price: 150000 },
   { name: 'Editing', icon: 'cut', unit: 'Lagu', price: 200000 },
@@ -125,7 +144,7 @@ function Sidebar({ activeKey = 'dashboard' }) {
           <section className="nav-section" key={section.title}>
             <div className="nav-heading"><span>{section.title}</span><FigmaIcon name="chevron-down" className="nav-chevron" /></div>
             {section.items.map((item) => {
-              const href = item.key === 'packages' ? '/manager/packages' : item.key === 'booking' ? '/manager/booking' : item.key === 'quotation' ? '/manager/quotation' : '#';
+              const href = item.key === 'packages' ? '/manager/packages' : item.key === 'booking' ? '/manager/booking' : item.key === 'quotation' ? '/manager/quotation' : item.key === 'project' ? '/manager/project' : '#';
               return <a className={`nav-item ${activeKey === item.key ? 'active' : ''}`} href={href} key={item.key}><FigmaIcon name={item.icon} /><span>{item.label}</span>{item.badge && <em>{item.badge}</em>}</a>;
             })}
           </section>
@@ -556,6 +575,69 @@ function QuotationPage() {
   );
 }
 
+function ProjectAvatar({ tone = 0 }) {
+  return <span className={`project-avatar tone-${tone}`} aria-hidden="true" />;
+}
+
+function ProjectCard({ item, index }) {
+  const statusTag = item.stage === 'Selesai' || item.stage === 'Revisi' ? item.stage : item.stage;
+  const iconByStatus = { Selesai: 'mic', Revisi: 'mic' };
+  return (
+    <article className="project-card">
+      <header>
+        <ProjectAvatar tone={index % 4} />
+        <div><h2>{item.name}</h2><p>{item.client}</p></div>
+        <span className={`project-stage ${statusTag.toLowerCase()}`}>
+          <FigmaIcon name={iconByStatus[statusTag] || { Recording: 'mic', Editing: 'cut', Mixing: 'mix', Mastering: 'master' }[statusTag]} />
+          {statusTag}
+        </span>
+      </header>
+      <div className="project-date">{item.date}</div>
+      <div className="project-progress-head"><strong>{item.progress}%</strong><span>{item.note}</span></div>
+      <div className="project-progress"><span style={{ width: `${item.progress}%` }} /></div>
+      <footer>
+        <div><span>Operator:</span><div className="operator-stack">{[0, 1, 2, 3].map((tone) => <ProjectAvatar tone={tone} key={tone} />)}</div></div>
+        <button type="button">Lihat Detail <span>-&gt;</span></button>
+      </footer>
+    </article>
+  );
+}
+
+function ProjectPage() {
+  const [query, setQuery] = React.useState('');
+  const [filter, setFilter] = React.useState(projectFilters[0]);
+  const [viewMode, setViewMode] = React.useState('Kartu');
+  const [sortMode, setSortMode] = React.useState('A-Z');
+  const filteredProjects = projectItems
+    .filter((item) => {
+      const matchesQuery = item.name.toLowerCase().includes(query.toLowerCase()) || item.client.toLowerCase().includes(query.toLowerCase());
+      const matchesFilter = filter === projectFilters[0] || item.stage === filter.split(' ')[0];
+      return matchesQuery && matchesFilter;
+    })
+    .sort((a, b) => (sortMode === 'A-Z' ? a.name.localeCompare(b.name) : projectItems.indexOf(a) - projectItems.indexOf(b)));
+
+  return (
+    <div className="dashboard-frame package-page project-page">
+      <Sidebar activeKey="project" />
+      <main className="content">
+        <Header crumb="Operasional / Project" title="Project" />
+        <section className="package-stats">{projectStats.map((item) => <PackageStatCard item={item} key={item.title} />)}</section>
+        <section className="package-toolbar project-toolbar panel">
+          <label className="package-search"><FigmaIcon name="search" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Cari penawaran..." /></label>
+          <div className="view-mode"><span>Mode Lihat:</span>{['Kartu', 'Tabel'].map((mode) => <button className={viewMode === mode ? 'active' : ''} type="button" onClick={() => setViewMode(mode)} key={mode}><FigmaIcon name={mode === 'Kartu' ? 'grid' : 'table'} />{mode}</button>)}</div>
+          <div className="view-mode sort-mode">
+            <button className={sortMode === 'A-Z' ? 'active' : ''} type="button" onClick={() => setSortMode('A-Z')}><FigmaIcon name="sliders" />A-Z</button>
+            <button className={sortMode === 'Terbaru' ? 'active' : ''} type="button" onClick={() => setSortMode('Terbaru')}><FigmaIcon name="sliders" />Terbaru</button>
+          </div>
+        </section>
+        <div className="package-filter-row project-filters">{projectFilters.map((name) => <button className={filter === name ? 'active' : ''} type="button" onClick={() => setFilter(name)} key={name}>{name}</button>)}</div>
+        <section className="project-grid">{filteredProjects.map((item, index) => <ProjectCard item={item} index={index} key={`${item.stage}-${index}`} />)}</section>
+        <div className="page-bottom-line" />
+      </main>
+    </div>
+  );
+}
+
 function formatRupiah(value) {
   return `Rp ${value.toLocaleString('id-ID')}`;
 }
@@ -710,6 +792,7 @@ function App() {
   if (window.location.pathname.includes('/manager/packages')) return <PackageManagement />;
   if (window.location.pathname.includes('/manager/booking')) return <BookingPage />;
   if (window.location.pathname.includes('/manager/quotation')) return <QuotationPage />;
+  if (window.location.pathname.includes('/manager/project')) return <ProjectPage />;
   return <Dashboard />;
 }
 
