@@ -203,7 +203,13 @@ function Dashboard() {
 }
 
 function Tag({ name }) {
-  return <span className={`package-tag ${name.toLowerCase()}`}>{name}</span>;
+  const iconByTag = {
+    Recording: 'mic',
+    Editing: 'cut',
+    Mixing: 'mix',
+    Mastering: 'master',
+  };
+  return <span className={`package-tag ${name.toLowerCase()}`}><FigmaIcon name={iconByTag[name]} />{name}</span>;
 }
 
 function PackageCard({ item }) {

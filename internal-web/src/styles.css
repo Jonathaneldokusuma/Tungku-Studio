@@ -940,7 +940,7 @@ mark.red {
   height: 155px;
   padding: 16px 15px 12px;
   background: #ffffff;
-  border: 1px solid #dfd5d2;
+  border: 1px solid #df4438;
   border-radius: 5px;
 }
 
@@ -975,10 +975,17 @@ mark.red {
 .package-tag {
   display: inline-flex;
   align-items: center;
+  gap: 4px;
   height: 17px;
-  padding: 0 7px;
+  padding: 0 7px 0 5px;
   font-size: 7px;
   border-radius: 2px;
+}
+
+.package-tag .figma-icon {
+  width: 10px;
+  height: 10px;
+  flex-basis: 10px;
 }
 
 .package-tag.recording {
@@ -986,9 +993,17 @@ mark.red {
   background: #dfe8ff;
 }
 
+.package-tag.recording .figma-icon {
+  filter: brightness(0) saturate(100%) invert(45%) sepia(35%) saturate(1162%) hue-rotate(181deg) brightness(87%) contrast(88%);
+}
+
 .package-tag.editing {
   color: #1d794e;
   background: #d8f3df;
+}
+
+.package-tag.editing .figma-icon {
+  filter: brightness(0) saturate(100%) invert(35%) sepia(42%) saturate(931%) hue-rotate(101deg) brightness(91%) contrast(92%);
 }
 
 .package-tag.mixing {
@@ -996,9 +1011,17 @@ mark.red {
   background: #ffe7aa;
 }
 
+.package-tag.mixing .figma-icon {
+  filter: brightness(0) saturate(100%) invert(43%) sepia(76%) saturate(759%) hue-rotate(16deg) brightness(88%) contrast(97%);
+}
+
 .package-tag.mastering {
   color: #8f459e;
   background: #f2dbf7;
+}
+
+.package-tag.mastering .figma-icon {
+  filter: brightness(0) saturate(100%) invert(35%) sepia(37%) saturate(1485%) hue-rotate(256deg) brightness(88%) contrast(91%);
 }
 
 .package-card-foot {
@@ -1081,7 +1104,7 @@ mark.red {
 
 .package-table .package-tag {
   height: 17px;
-  padding: 0 7px;
+  padding: 0 7px 0 5px;
   font-size: 7px;
 }
 
