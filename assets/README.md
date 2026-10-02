@@ -11,6 +11,7 @@ Folder ini ada di root project supaya mudah dinavigasi saat mencocokkan UI denga
 - `mockups/design-rules.svg`: rules/design reference dari Figma.
 - `screenshots/`: screenshot hasil implementasi dan referensi pembanding.
 - `uploads/`: asset mentah dari user sebelum dirapikan.
+- `uploads/remaining-figma-export.svg`: raw export Figma besar yang belum dipisah per screen/component.
 
 ## Aturan Pakai
 
