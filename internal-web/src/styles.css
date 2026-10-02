@@ -928,20 +928,62 @@ mark.red {
 
 .package-grid.table-mode {
   grid-template-columns: 1fr;
-  gap: 10px;
+  gap: 8px;
 }
 
 .package-grid.table-mode .package-card {
   display: grid;
-  grid-template-columns: 1.1fr 1.5fr auto;
+  grid-template-columns: 235px minmax(260px, 1fr) 185px 260px;
+  grid-template-areas: "head desc foot tags";
   align-items: center;
-  height: 72px;
+  gap: 18px;
+  height: 76px;
+  padding: 0 18px;
 }
 
-.package-grid.table-mode .package-card p,
-.package-grid.table-mode .package-tags,
-.package-grid.table-mode .package-card-foot {
+.package-grid.table-mode .package-card-head {
+  grid-area: head;
+  align-items: center;
   margin: 0;
+}
+
+.package-grid.table-mode .package-card-head svg {
+  width: 14px;
+  height: 14px;
+  margin-left: auto;
+}
+
+.package-grid.table-mode .package-card p {
+  grid-area: desc;
+  min-height: 0;
+  margin: 0;
+  font-size: 9px;
+  line-height: 1.35;
+}
+
+.package-grid.table-mode .package-card-foot {
+  grid-area: foot;
+  display: grid;
+  gap: 7px;
+  padding: 0;
+  min-height: 0;
+}
+
+.package-grid.table-mode .package-card-foot strong {
+  order: 1;
+  font-size: 13px;
+}
+
+.package-grid.table-mode .package-card-foot span {
+  order: 2;
+  font-size: 8px;
+  white-space: nowrap;
+}
+
+.package-grid.table-mode .package-tags {
+  grid-area: tags;
+  justify-content: flex-end;
+  gap: 7px;
   min-height: 0;
 }
 
@@ -1029,11 +1071,9 @@ mark.red {
 }
 
 .page-bottom-line {
-  position: absolute;
-  right: 34px;
-  bottom: 15px;
-  left: 212px;
+  width: calc(100% - 52px);
   height: 4px;
+  margin: 18px 0 0 26px;
   background: #df4438;
 }
 
