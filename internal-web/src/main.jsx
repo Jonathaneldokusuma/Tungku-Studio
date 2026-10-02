@@ -1,6 +1,5 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { MoreVertical } from 'lucide-react';
 import './styles.css';
 import brandLogo from './assets/brand/logo.svg';
 import figmaIcons from './assets/icons/figma-icons.svg';
@@ -212,10 +211,17 @@ function Tag({ name }) {
   return <span className={`package-tag ${name.toLowerCase()}`}><FigmaIcon name={iconByTag[name]} />{name}</span>;
 }
 
-function PackageCard({ item }) {
+function PackageCard({ item, onDelete }) {
+  const [menuOpen, setMenuOpen] = React.useState(false);
   return (
     <article className="package-card">
-      <div className="package-card-head"><h2>{item.title}</h2><MoreVertical size={16} strokeWidth={1.8} /></div>
+      <div className="package-card-head">
+        <h2>{item.title}</h2>
+        <div className="card-menu-wrap">
+          <button className="card-menu-button" type="button" onClick={() => setMenuOpen((value) => !value)} aria-label={`Menu ${item.title}`}>⋮</button>
+          {menuOpen && <div className="card-menu"><button type="button" onClick={() => setMenuOpen(false)}>Edit</button><button type="button" onClick={() => onDelete(item.title)}>Hapus</button></div>}
+        </div>
+      </div>
       <p>{item.desc}</p>
       <div className="package-tags">{item.tags.map((tag) => <Tag name={tag} key={tag} />)}</div>
       <div className="package-card-foot"><strong>{item.price}</strong><span>{item.meta}</span></div>
@@ -396,7 +402,7 @@ function PackageManagement() {
         <div className="package-filter-row">
           {['Semua Paket', 'Recording', 'Editing', 'Mixing', 'Mastering'].map((item) => <button className={filter === item ? 'active' : ''} type="button" onClick={() => setFilter(item)} key={item}>{item} ({item === 'Semua Paket' ? packageItems.length : packageItems.filter((pkg) => pkg.tags.includes(item)).length})</button>)}
         </div>
-        {viewMode === 'Tabel' ? <PackageTable items={filteredPackages} total={packageItems.length} onDuplicate={duplicatePackage} onDelete={(title) => setPackageToDelete(packageItems.find((item) => item.title === title))} /> : <section className="package-grid">{filteredPackages.map((item) => <PackageCard item={item} key={item.title} />)}</section>}
+        {viewMode === 'Tabel' ? <PackageTable items={filteredPackages} total={packageItems.length} onDuplicate={duplicatePackage} onDelete={(title) => setPackageToDelete(packageItems.find((item) => item.title === title))} /> : <section className="package-grid">{filteredPackages.map((item) => <PackageCard item={item} onDelete={(title) => setPackageToDelete(packageItems.find((pkg) => pkg.title === title))} key={item.title} />)}</section>}
         <div className="page-bottom-line" />
       </main>
       {showCreateModal && <CreatePackageModal onClose={() => setShowCreateModal(false)} onCreate={createPackage} />}
