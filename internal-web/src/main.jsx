@@ -238,8 +238,8 @@ function PackageTable({ items, total, onDuplicate, onDelete }) {
             <span>{songs}</span>
             <b>{item.price}</b>
             <div className="table-actions">
-              <button className="action-add" type="button" aria-label={`Tambah ${item.title}`} onClick={() => onDuplicate(item)}><span /></button>
-              <button className="action-delete" type="button" aria-label={`Hapus ${item.title}`} onClick={() => onDelete(item.title)}><span /></button>
+              <button className="action-add" type="button" aria-label={`Tambah ${item.title}`} onClick={() => onDuplicate(item)}><FigmaIcon name="circle-add" /></button>
+              <button className="action-delete" type="button" aria-label={`Hapus ${item.title}`} onClick={() => onDelete(item.title)}><FigmaIcon name="delete" /></button>
             </div>
           </div>
         );

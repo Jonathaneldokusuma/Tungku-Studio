@@ -1114,29 +1114,10 @@ mark.red {
   box-shadow: inset 0 0 0 1px #62c98b;
 }
 
-.table-actions .action-add::before {
-  content: "";
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  border: 2px solid currentColor;
-  border-radius: 50%;
-}
-
-.table-actions .action-add span::before,
-.table-actions .action-add span::after {
-  content: "";
-  position: absolute;
-  left: 5px;
-  top: 9px;
-  width: 10px;
-  height: 2px;
-  background: currentColor;
-  border-radius: 2px;
-}
-
-.table-actions .action-add span::after {
-  transform: rotate(90deg);
+.table-actions .action-add .figma-icon {
+  width: 16px;
+  height: 16px;
+  filter: brightness(0) saturate(100%) invert(31%) sepia(74%) saturate(952%) hue-rotate(115deg) brightness(91%) contrast(89%);
 }
 
 .table-actions .action-delete {
@@ -1145,27 +1126,10 @@ mark.red {
   box-shadow: inset 0 0 0 1px #ff9ab2;
 }
 
-.table-actions .action-delete::before {
-  content: "";
-  position: absolute;
-  left: 6px;
-  top: 7px;
-  width: 8px;
-  height: 10px;
-  border: 2px solid currentColor;
-  border-top: 0;
-  border-radius: 0 0 1px 1px;
-}
-
-.table-actions .action-delete::after {
-  content: "";
-  position: absolute;
-  left: 5px;
-  top: 5px;
-  width: 10px;
-  height: 2px;
-  background: currentColor;
-  border-radius: 2px;
+.table-actions .action-delete .figma-icon {
+  width: 16px;
+  height: 16px;
+  filter: brightness(0) saturate(100%) invert(36%) sepia(72%) saturate(1695%) hue-rotate(323deg) brightness(91%) contrast(93%);
 }
 
 .package-table-foot {
