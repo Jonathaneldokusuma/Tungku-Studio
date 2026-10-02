@@ -343,7 +343,7 @@ function BookingPage() {
     <div className="dashboard-frame booking-page">
       <Sidebar activeKey="booking" />
       <main className="content">
-        <Header crumb="Operasional / Booking" title="Booking" showProjectButton={false} />
+        <Header crumb="Operasional / Booking" title="Booking" />
         <section className="booking-layout"><MiniCalendar viewDate={viewDate} realToday={realToday} events={bookingEvents} onMonthChange={setViewDate} onDatePick={setViewDate} /><WeekSchedule viewDate={viewDate} events={bookingEvents} onWeekChange={changeWeek} /></section>
       </main>
     </div>
