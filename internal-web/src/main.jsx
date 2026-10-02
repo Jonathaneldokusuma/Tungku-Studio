@@ -117,7 +117,7 @@ function Sidebar({ activeKey = 'dashboard' }) {
   );
 }
 
-function Header({ crumb = 'Utama / Dashboard', title = 'Dashboard' }) {
+function Header({ crumb = 'Utama / Dashboard', title = 'Dashboard', showProjectButton = true }) {
   const [query, setQuery] = React.useState('');
   const [createdCount, setCreatedCount] = React.useState(0);
 
@@ -125,7 +125,7 @@ function Header({ crumb = 'Utama / Dashboard', title = 'Dashboard' }) {
     <header className="topbar">
       <div className="crumb"><span>{crumb}</span><strong>{title}</strong></div>
       <div className="top-actions">
-        <button type="button" onClick={() => setCreatedCount((count) => count + 1)}>{createdCount ? `Draft ${createdCount}` : 'Buat Project'}</button>
+        {showProjectButton && <button type="button" onClick={() => setCreatedCount((count) => count + 1)}>{createdCount ? `Draft ${createdCount}` : 'Buat Project'}</button>}
         <label className="search"><FigmaIcon name="search" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Cari project, klien, operator..." /></label>
         <button className="icon-button" type="button" aria-label="Filter"><FigmaIcon name="sliders" className="top-icon" /></button>
         <button className="icon-button" type="button" aria-label="Notifikasi"><FigmaIcon name="bell" className="top-icon" /></button>
@@ -343,7 +343,7 @@ function BookingPage() {
     <div className="dashboard-frame booking-page">
       <Sidebar activeKey="booking" />
       <main className="content">
-        <Header crumb="Operasional / Booking" title="Booking" />
+        <Header crumb="Operasional / Booking" title="Booking" showProjectButton={false} />
         <section className="booking-layout"><MiniCalendar viewDate={viewDate} realToday={realToday} events={bookingEvents} onMonthChange={setViewDate} onDatePick={setViewDate} /><WeekSchedule viewDate={viewDate} events={bookingEvents} onWeekChange={changeWeek} /></section>
       </main>
     </div>
