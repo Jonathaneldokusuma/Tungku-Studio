@@ -641,7 +641,7 @@ function ProjectDetailModal({ item, onClose }) {
           <div><span>Detail Project</span><h2>{item.name}</h2><p>{item.client}</p></div>
           <span className={`project-stage ${item.stage.toLowerCase()}`}><FigmaIcon name={{ Recording: 'mic', Editing: 'cut', Mixing: 'mix', Mastering: 'master', Selesai: 'mic', Revisi: 'mic' }[item.stage]} />{item.stage}</span>
         </header>
-        <div className="detail-progress"><div><strong>{item.progress}%</strong></div><mark><i style={{ width: `${item.progress}%` }} /></mark></div>
+        <div className="project-detail-progress"><strong>{item.progress}%</strong><mark><i style={{ width: `${item.progress}%` }} /></mark></div>
         <div className="detail-grid">
           <article><span>Tanggal</span><strong>{item.date}</strong></article>
           <article><span>Operator</span><div className="operator-stack">{[0, 1, 2, 3].map((tone) => <ProjectAvatar tone={tone} key={tone} />)}</div></article>

@@ -2138,6 +2138,35 @@ mark.red {
   background: #df4438;
 }
 
+.project-detail-progress {
+  display: grid;
+  gap: 4px;
+  width: 238px;
+  margin-top: 14px;
+}
+
+.project-detail-progress strong {
+  color: #df4438;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.project-detail-progress mark {
+  display: block;
+  height: 5px;
+  width: 238px;
+  overflow: hidden;
+  background: #e8dedb;
+  border-radius: 999px;
+}
+
+.project-detail-progress i {
+  display: block;
+  height: 100%;
+  background: #df4438;
+}
+
 .detail-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
