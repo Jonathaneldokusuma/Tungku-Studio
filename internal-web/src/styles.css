@@ -160,7 +160,7 @@ label:focus-visible {
 
 .nav-item.active {
   color: #ffffff;
-  background: #df4438;
+  background: transparent;
 }
 
 .nav-item.active .figma-icon {
@@ -177,7 +177,7 @@ label:focus-visible {
   color: #ffffff;
   font-size: 8px;
   font-style: normal;
-  background: #df4438;
+  background: transparent;
   border-radius: 50%;
 }
 
@@ -283,7 +283,7 @@ label:focus-visible {
   color: #ffffff;
   font-size: 10px;
   font-weight: 600;
-  background: #df4438;
+  background: transparent;
   border: 0;
   border-radius: 3px;
   cursor: pointer;
@@ -703,7 +703,7 @@ label:focus-visible {
 }
 
 .red {
-  background: #df4438;
+  background: transparent;
 }
 
 .dark {
