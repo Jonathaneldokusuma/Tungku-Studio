@@ -215,7 +215,7 @@ function packageDuration(meta) {
   return { duration: duration || 'Tidak rekaman', songs: songs || '1 Lagu' };
 }
 
-function PackageTable({ items }) {
+function PackageTable({ items, total, onDuplicate, onDelete }) {
   return (
     <section className="package-table panel">
       <div className="package-table-head">
@@ -238,13 +238,13 @@ function PackageTable({ items }) {
             <span>{songs}</span>
             <b>{item.price}</b>
             <div className="table-actions">
-              <button type="button" aria-label={`Tambah ${item.title}`}><FigmaIcon name="circle-add" /></button>
-              <button type="button" aria-label={`Hapus ${item.title}`}><FigmaIcon name="delete" /></button>
+              <button type="button" aria-label={`Tambah ${item.title}`} onClick={() => onDuplicate(item)}><FigmaIcon name="circle-add" /></button>
+              <button type="button" aria-label={`Hapus ${item.title}`} onClick={() => onDelete(item.title)}><FigmaIcon name="delete" /></button>
             </div>
           </div>
         );
       })}
-      <div className="package-table-foot"><div className="pager"><button type="button">&lt;</button><span>1</span><button type="button">&gt;</button></div><span>{items.length} dari {packages.length} paket</span></div>
+      <div className="package-table-foot"><div className="pager"><button type="button">&lt;</button><span>1</span><button type="button">&gt;</button></div><span>{items.length} dari {total} paket</span></div>
     </section>
   );
 }
@@ -253,11 +253,21 @@ function PackageManagement() {
   const [filter, setFilter] = React.useState('Semua Paket');
   const [viewMode, setViewMode] = React.useState('Tabel');
   const [query, setQuery] = React.useState('');
-  const filteredPackages = packages.filter((item) => {
+  const [packageItems, setPackageItems] = React.useState(packages);
+  const filteredPackages = packageItems.filter((item) => {
     const matchesQuery = item.title.toLowerCase().includes(query.toLowerCase());
     const matchesFilter = filter === 'Semua Paket' || item.tags.includes(filter);
     return matchesQuery && matchesFilter;
   });
+  const addPackage = () => {
+    setPackageItems((items) => [...items, { ...packages[0], title: `Paket Baru ${items.length + 1}`, price: 'Rp 0' }]);
+  };
+  const duplicatePackage = (item) => {
+    setPackageItems((items) => [...items, { ...item, title: `${item.title} Copy` }]);
+  };
+  const deletePackage = (title) => {
+    setPackageItems((items) => items.filter((item) => item.title !== title));
+  };
 
   return (
     <div className="dashboard-frame package-page">
@@ -268,12 +278,12 @@ function PackageManagement() {
         <section className="package-toolbar panel">
           <label className="package-search"><FigmaIcon name="search" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Cari nama paket..." /></label>
           <div className="view-mode"><span>Mode Lihat:</span>{['Kartu', 'Tabel'].map((mode) => <button className={viewMode === mode ? 'active' : ''} type="button" onClick={() => setViewMode(mode)} key={mode}><FigmaIcon name={mode === 'Kartu' ? 'grid' : 'table'} />{mode}</button>)}</div>
-          <button className="add-package" type="button"><FigmaIcon name="add" />Buat Paket</button>
+          <button className="add-package" type="button" onClick={addPackage}><FigmaIcon name="add" />Buat Paket</button>
         </section>
         <div className="package-filter-row">
-          {['Semua Paket', 'Recording', 'Editing', 'Mixing', 'Mastering'].map((item) => <button className={filter === item ? 'active' : ''} type="button" onClick={() => setFilter(item)} key={item}>{item} ({item === 'Semua Paket' ? packages.length : packages.filter((pkg) => pkg.tags.includes(item)).length})</button>)}
+          {['Semua Paket', 'Recording', 'Editing', 'Mixing', 'Mastering'].map((item) => <button className={filter === item ? 'active' : ''} type="button" onClick={() => setFilter(item)} key={item}>{item} ({item === 'Semua Paket' ? packageItems.length : packageItems.filter((pkg) => pkg.tags.includes(item)).length})</button>)}
         </div>
-        {viewMode === 'Tabel' ? <PackageTable items={filteredPackages} /> : <section className="package-grid">{filteredPackages.map((item) => <PackageCard item={item} key={item.title} />)}</section>}
+        {viewMode === 'Tabel' ? <PackageTable items={filteredPackages} total={packageItems.length} onDuplicate={duplicatePackage} onDelete={deletePackage} /> : <section className="package-grid">{filteredPackages.map((item) => <PackageCard item={item} key={item.title} />)}</section>}
         <div className="page-bottom-line" />
       </main>
     </div>
