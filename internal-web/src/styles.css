@@ -1888,9 +1888,8 @@ mark.red {
 }
 
 .project-progress-head {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
+  display: block;
+  margin-top: 16px;
   color: #6a605d;
   font-size: 8px;
 }
@@ -1903,9 +1902,10 @@ mark.red {
 
 .project-progress {
   height: 5px;
-  margin-top: 5px;
+  margin-top: 4px;
   overflow: hidden;
   background: #e8dedb;
+  border-radius: 999px;
 }
 
 .project-progress span {
@@ -2104,10 +2104,7 @@ mark.red {
 }
 
 .detail-progress div {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  display: block;
   margin-bottom: 4px;
 }
 
@@ -2115,16 +2112,6 @@ mark.red {
   color: #df4438;
   font-size: 14px;
   font-weight: 500;
-}
-
-.detail-progress span {
-  max-width: 160px;
-  overflow: hidden;
-  color: #6a605d;
-  font-size: 8px;
-  text-align: right;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .detail-progress mark {
