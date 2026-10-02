@@ -5,6 +5,7 @@ Folder ini ada di root project supaya mudah dinavigasi saat mencocokkan UI denga
 ## Struktur
 
 - `brand/`: logo, brand mark, dan identitas Tungku Studio.
+- `brand/logo.svg`: logo utama Tungku Studio dari Figma.
 - `icons/`: icon set dari Figma atau icon satuan.
 - `mockups/`: export mockup Figma sebagai referensi visual.
 - `mockups/design-rules.svg`: rules/design reference dari Figma.

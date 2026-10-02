@@ -6,6 +6,7 @@ import {
   Search, Settings, SlidersHorizontal, Table2, Users, Mic, Scissors, Sliders, AudioWaveform,
 } from 'lucide-react';
 import './styles.css';
+import brandLogo from './assets/brand/logo.svg';
 
 const menuSections = [
   { title: 'UTAMA', items: [{ key: 'dashboard', label: 'Dashboard', icon: 'dashboard' }] },
@@ -87,7 +88,7 @@ function FigmaIcon({ name, className = '' }) {
 function Sidebar({ activeKey = 'dashboard' }) {
   return (
     <aside className="sidebar">
-      <div className="brand"><div className="brand-mark"><FigmaIcon name="packages" /></div><div><h1>Tungku Studio</h1><p>Enterprise Resource Planning</p></div></div>
+      <div className="brand"><div className="brand-mark"><img src={brandLogo} alt="" /></div><div><h1>Tungku Studio</h1><p>Enterprise Resource Planning</p></div></div>
       <nav className="nav">
         {menuSections.map((section) => (
           <section className="nav-section" key={section.title}>
