@@ -267,12 +267,14 @@ function CreatePackageModal({ onClose, onCreate }) {
   const [recordingHours, setRecordingHours] = React.useState(3);
   const [songCount, setSongCount] = React.useState(1);
   const [manualPrice, setManualPrice] = React.useState(false);
+  const [manualPriceValue, setManualPriceValue] = React.useState('');
 
   const totalPrice = productionStages.reduce((total, stage) => {
     if (!selectedStages.includes(stage.name)) return total;
     const qty = stage.name === 'Recording' ? recordingHours : songCount;
     return total + (stage.price * qty);
   }, 0);
+  const finalPrice = manualPrice && Number(manualPriceValue) > 0 ? Number(manualPriceValue) : totalPrice;
 
   const toggleStage = (stage) => {
     setSelectedStages((stages) => stages.includes(stage) ? stages.filter((item) => item !== stage) : [...stages, stage]);
@@ -283,7 +285,7 @@ function CreatePackageModal({ onClose, onCreate }) {
     onCreate({
       title,
       desc: description.trim() || 'Paket baru untuk kebutuhan produksi musik.',
-      price: formatRupiah(totalPrice),
+      price: formatRupiah(finalPrice),
       meta: `${selectedStages.includes('Recording') ? `${recordingHours} Jam Rekaman` : '0 Jam Rekaman'} | ${songCount} Lagu`,
       tags: selectedStages.length ? selectedStages : ['Recording'],
     });
@@ -323,9 +325,10 @@ function CreatePackageModal({ onClose, onCreate }) {
                 const qty = stage.name === 'Recording' ? recordingHours : songCount;
                 return <div className="price-row" key={stage.name}><div><strong>{stage.name}</strong><span>{qty} {stage.unit} x {formatRupiah(stage.price)}</span></div><b>{formatRupiah(qty * stage.price)}</b></div>;
               })}
-              <div className="price-total"><span>Harga Paket</span><strong>{formatRupiah(totalPrice)}</strong></div>
+              <div className="price-total"><span>Harga Paket</span><strong>{formatRupiah(finalPrice)}</strong></div>
             </div>
             <div className="manual-row"><span>Atur Harga Manual</span><button className={manualPrice ? 'active' : ''} type="button" onClick={() => setManualPrice((value) => !value)} aria-label="Atur Harga Manual" /></div>
+            {manualPrice && <label className="manual-price-input">Harga Manual<input type="number" min="0" value={manualPriceValue} onChange={(event) => setManualPriceValue(event.target.value)} placeholder="1250000" /></label>}
           </div>
         </div>
         <footer className="modal-actions"><button type="button" onClick={onClose}>Batal</button><button type="button" onClick={submitPackage}>Buat Paket</button></footer>
