@@ -108,10 +108,18 @@ function Sidebar({ activeKey = 'dashboard' }) {
 }
 
 function Header({ crumb = 'Utama / Dashboard', title = 'Dashboard' }) {
+  const [query, setQuery] = React.useState('');
+  const [createdCount, setCreatedCount] = React.useState(0);
+
   return (
     <header className="topbar">
       <div className="crumb"><span>{crumb}</span><strong>{title}</strong></div>
-      <div className="top-actions"><button>Buat Project</button><label className="search"><FigmaIcon name="search" /><input placeholder="Cari project, klien, operator..." /></label><FigmaIcon name="sliders" className="top-icon" /><FigmaIcon name="bell" className="top-icon" /></div>
+      <div className="top-actions">
+        <button type="button" onClick={() => setCreatedCount((count) => count + 1)}>{createdCount ? `Draft ${createdCount}` : 'Buat Project'}</button>
+        <label className="search"><FigmaIcon name="search" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Cari project, klien, operator..." /></label>
+        <button className="icon-button" type="button" aria-label="Filter"><FigmaIcon name="sliders" className="top-icon" /></button>
+        <button className="icon-button" type="button" aria-label="Notifikasi"><FigmaIcon name="bell" className="top-icon" /></button>
+      </div>
     </header>
   );
 }
@@ -155,13 +163,15 @@ function FinanceChart() {
 }
 
 function PiePanel({ kind }) {
+  const [selected, setSelected] = React.useState(false);
   const isDonut = kind === 'donut';
   const labels = isDonut ? [['Maintenance', '57%', 'red'], ['Pembelian Alat', '32%', 'dark'], ['Operasional', '11%', 'gold']] : [['Paket A', '57%', 'red'], ['Paket B', '32%', 'dark'], ['Paket C', '11%', 'gold']];
-  return <section className="panel pie-panel"><div className="panel-title"><h2>{isDonut ? 'Pengeluaran Bulan Ini' : 'Paket Terlaris Bulanan'}</h2><span>-&gt;</span></div><div className={`pie ${isDonut ? 'donut' : ''}`} /><div className="pie-labels">{labels.map(([name, pct, color]) => <div key={name}><span className={color} /><p>{name}</p><strong>{pct}</strong></div>)}</div></section>;
+  return <section className={`panel pie-panel ${selected ? 'is-selected' : ''}`}><div className="panel-title"><h2>{isDonut ? 'Pengeluaran Bulan Ini' : 'Paket Terlaris Bulanan'}</h2><button className="panel-action" type="button" onClick={() => setSelected((value) => !value)}>-&gt;</button></div><div className={`pie ${isDonut ? 'donut' : ''}`} /><div className="pie-labels">{labels.map(([name, pct, color]) => <div key={name}><span className={color} /><p>{name}</p><strong>{pct}</strong></div>)}</div></section>;
 }
 
 function SmallPanel({ title, children }) {
-  return <section className="panel small-panel"><div className="panel-title"><h2>{title}</h2><span>-&gt;</span></div>{children}</section>;
+  const [expanded, setExpanded] = React.useState(false);
+  return <section className={`panel small-panel ${expanded ? 'is-expanded' : ''}`}><div className="panel-title"><h2>{title}</h2><button className="panel-action" type="button" onClick={() => setExpanded((value) => !value)}>-&gt;</button></div>{children}</section>;
 }
 
 function Dashboard() {
@@ -199,6 +209,15 @@ function PackageCard({ item }) {
 }
 
 function PackageManagement() {
+  const [filter, setFilter] = React.useState('Semua Paket');
+  const [viewMode, setViewMode] = React.useState('Kartu');
+  const [query, setQuery] = React.useState('');
+  const filteredPackages = packages.filter((item) => {
+    const matchesQuery = item.title.toLowerCase().includes(query.toLowerCase());
+    const matchesFilter = filter === 'Semua Paket' || item.tags.includes(filter);
+    return matchesQuery && matchesFilter;
+  });
+
   return (
     <div className="dashboard-frame package-page">
       <Sidebar activeKey="packages" />
@@ -206,14 +225,14 @@ function PackageManagement() {
         <Header crumb="Penjualan / Manajemen Paket" title="Manajemen Paket" />
         <section className="package-stats">{packageStats.map((item) => <PackageStatCard item={item} key={item.title} />)}</section>
         <section className="package-toolbar panel">
-          <label className="package-search"><FigmaIcon name="search" /><input placeholder="Cari nama paket..." /></label>
-          <div className="view-mode"><span>Mode Lihat:</span><button className="active" type="button"><FigmaIcon name="grid" />Kartu</button><button type="button"><FigmaIcon name="table" />Tabel</button></div>
+          <label className="package-search"><FigmaIcon name="search" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Cari nama paket..." /></label>
+          <div className="view-mode"><span>Mode Lihat:</span>{['Kartu', 'Tabel'].map((mode) => <button className={viewMode === mode ? 'active' : ''} type="button" onClick={() => setViewMode(mode)} key={mode}><FigmaIcon name={mode === 'Kartu' ? 'grid' : 'table'} />{mode}</button>)}</div>
           <button className="add-package" type="button"><FigmaIcon name="add" />Buat Paket</button>
         </section>
         <div className="package-filter-row">
-          {['Semua Paket (6)', 'Recording (4)', 'Editing (3)', 'Mixing (3)', 'Mastering (2)'].map((filter, index) => <button className={index === 0 ? 'active' : ''} type="button" key={filter}>{filter}</button>)}
+          {['Semua Paket', 'Recording', 'Editing', 'Mixing', 'Mastering'].map((item) => <button className={filter === item ? 'active' : ''} type="button" onClick={() => setFilter(item)} key={item}>{item} ({item === 'Semua Paket' ? packages.length : packages.filter((pkg) => pkg.tags.includes(item)).length})</button>)}
         </div>
-        <section className="package-grid">{packages.map((item) => <PackageCard item={item} key={item.title} />)}</section>
+        <section className={`package-grid ${viewMode === 'Tabel' ? 'table-mode' : ''}`}>{filteredPackages.map((item) => <PackageCard item={item} key={item.title} />)}</section>
         <div className="page-bottom-line" />
       </main>
     </div>
