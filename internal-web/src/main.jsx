@@ -603,6 +603,34 @@ function ProjectCard({ item, index }) {
   );
 }
 
+function ProjectTable({ items }) {
+  return (
+    <section className="project-table panel">
+      <div className="project-table-head">
+        <span>Nama Project</span>
+        <span>Nama Klien</span>
+        <span>Tahapan</span>
+        <span>Progress</span>
+        <span>Operator</span>
+        <span>Tanggal</span>
+        <span>Aksi</span>
+      </div>
+      {items.map((item, index) => (
+        <div className="project-table-row" key={`${item.stage}-${index}`}>
+          <strong>{item.name}</strong>
+          <span>{item.client}</span>
+          <span className={`project-stage ${item.stage.toLowerCase()}`}><FigmaIcon name={{ Recording: 'mic', Editing: 'cut', Mixing: 'mix', Mastering: 'master', Selesai: 'mic', Revisi: 'mic' }[item.stage]} />{item.stage}</span>
+          <div className="table-progress"><div><b>{item.progress}%</b><span>{item.note}</span></div><mark><i style={{ width: `${item.progress}%` }} /></mark></div>
+          <div className="operator-stack">{[0, 1, 2, 3].map((tone) => <ProjectAvatar tone={tone} key={tone} />)}</div>
+          <span>{item.date}</span>
+          <button className="project-detail-button" type="button">Lihat Detail <span>-&gt;</span></button>
+        </div>
+      ))}
+      <div className="package-table-foot"><div className="pager"><button type="button">&lt;</button><span>1</span><button type="button">&gt;</button></div><span>{items.length} dari {projectItems.length} project</span></div>
+    </section>
+  );
+}
+
 function ProjectPage() {
   const [query, setQuery] = React.useState('');
   const [filter, setFilter] = React.useState(projectFilters[0]);
@@ -631,7 +659,7 @@ function ProjectPage() {
           </div>
         </section>
         <div className="package-filter-row project-filters">{projectFilters.map((name) => <button className={filter === name ? 'active' : ''} type="button" onClick={() => setFilter(name)} key={name}>{name}</button>)}</div>
-        <section className="project-grid">{filteredProjects.map((item, index) => <ProjectCard item={item} index={index} key={`${item.stage}-${index}`} />)}</section>
+        {viewMode === 'Kartu' ? <section className="project-grid">{filteredProjects.map((item, index) => <ProjectCard item={item} index={index} key={`${item.stage}-${index}`} />)}</section> : <ProjectTable items={filteredProjects} />}
         <div className="page-bottom-line" />
       </main>
     </div>

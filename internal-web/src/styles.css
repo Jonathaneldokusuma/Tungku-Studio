@@ -1963,6 +1963,98 @@ mark.red {
   font-size: 13px;
 }
 
+.project-table {
+  overflow: hidden;
+  border-radius: 5px;
+}
+
+.project-table-head,
+.project-table-row {
+  display: grid;
+  grid-template-columns: 180px 150px 160px 230px 120px 110px 100px;
+  align-items: center;
+  column-gap: 12px;
+  padding: 0 18px;
+}
+
+.project-table-head {
+  height: 39px;
+  color: #1f1d1c;
+  font-size: 8px;
+  font-weight: 600;
+  border-bottom: 1px solid #aaa19e;
+}
+
+.project-table-row {
+  min-height: 58px;
+  color: #383230;
+  font-size: 9px;
+  border-bottom: 1px solid #e7dfdc;
+}
+
+.project-table-row strong {
+  color: #df4438;
+  font-size: 9px;
+  font-weight: 500;
+}
+
+.project-table-row .project-stage {
+  justify-self: start;
+}
+
+.project-table-row .operator-stack .project-avatar {
+  width: 20px;
+  height: 20px;
+}
+
+.table-progress {
+  display: grid;
+  gap: 5px;
+}
+
+.table-progress div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.table-progress b {
+  color: #df4438;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.table-progress span {
+  color: #6a605d;
+  font-size: 8px;
+}
+
+.table-progress mark {
+  display: block;
+  height: 5px;
+  overflow: hidden;
+  background: #e8dedb;
+}
+
+.table-progress i {
+  display: block;
+  height: 100%;
+  background: #df4438;
+}
+
+.project-detail-button {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 7px;
+  padding: 0;
+  color: #df4438;
+  font-size: 9px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
 .quotation-actions {
   gap: 7px;
 }
