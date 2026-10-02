@@ -66,6 +66,8 @@ function FigmaIcon({ name, className = '' }) {
     'chart-up': [241, 140],
     'chart-down': [353, 140],
     bell: [577, 140],
+    delete: [689, 140],
+    'circle-add': [801, 140],
     'chevron-down': [129, 263],
     settings: [241, 263],
     operator: [353, 263],
@@ -208,9 +210,48 @@ function PackageCard({ item }) {
   );
 }
 
+function packageDuration(meta) {
+  const [duration = '', songs = ''] = meta.split('|').map((part) => part.trim());
+  return { duration: duration || 'Tidak rekaman', songs: songs || '1 Lagu' };
+}
+
+function PackageTable({ items }) {
+  return (
+    <section className="package-table panel">
+      <div className="package-table-head">
+        <span>Nama Project</span>
+        <span>Deskripsi</span>
+        <span>Tahapan</span>
+        <span>Durasi Rekaman</span>
+        <span>Banyak Lagu</span>
+        <span>Harga</span>
+        <span>Aksi</span>
+      </div>
+      {items.map((item) => {
+        const { duration, songs } = packageDuration(item.meta);
+        return (
+          <div className="package-table-row" key={item.title}>
+            <strong>{item.title}</strong>
+            <p>{item.desc}</p>
+            <div className="package-tags">{item.tags.map((tag) => <Tag name={tag} key={tag} />)}</div>
+            <span>{duration.replace('0 Jam Rekaman', 'Tidak rekaman')}</span>
+            <span>{songs}</span>
+            <b>{item.price}</b>
+            <div className="table-actions">
+              <button type="button" aria-label={`Tambah ${item.title}`}><FigmaIcon name="circle-add" /></button>
+              <button type="button" aria-label={`Hapus ${item.title}`}><FigmaIcon name="delete" /></button>
+            </div>
+          </div>
+        );
+      })}
+      <div className="package-table-foot"><div className="pager"><button type="button">&lt;</button><span>1</span><button type="button">&gt;</button></div><span>{items.length} dari {packages.length} paket</span></div>
+    </section>
+  );
+}
+
 function PackageManagement() {
   const [filter, setFilter] = React.useState('Semua Paket');
-  const [viewMode, setViewMode] = React.useState('Kartu');
+  const [viewMode, setViewMode] = React.useState('Tabel');
   const [query, setQuery] = React.useState('');
   const filteredPackages = packages.filter((item) => {
     const matchesQuery = item.title.toLowerCase().includes(query.toLowerCase());
@@ -232,7 +273,7 @@ function PackageManagement() {
         <div className="package-filter-row">
           {['Semua Paket', 'Recording', 'Editing', 'Mixing', 'Mastering'].map((item) => <button className={filter === item ? 'active' : ''} type="button" onClick={() => setFilter(item)} key={item}>{item} ({item === 'Semua Paket' ? packages.length : packages.filter((pkg) => pkg.tags.includes(item)).length})</button>)}
         </div>
-        <section className={`package-grid ${viewMode === 'Tabel' ? 'table-mode' : ''}`}>{filteredPackages.map((item) => <PackageCard item={item} key={item.title} />)}</section>
+        {viewMode === 'Tabel' ? <PackageTable items={filteredPackages} /> : <section className="package-grid">{filteredPackages.map((item) => <PackageCard item={item} key={item.title} />)}</section>}
         <div className="page-bottom-line" />
       </main>
     </div>

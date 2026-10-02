@@ -819,7 +819,7 @@ mark.red {
 
 .package-toolbar {
   display: grid;
-  grid-template-columns: minmax(300px, 1fr) auto auto;
+  grid-template-columns: minmax(520px, 1fr) auto auto;
   align-items: center;
   gap: 18px;
   height: 62px;
@@ -890,6 +890,16 @@ mark.red {
   background: #df4438;
 }
 
+.view-mode button.active {
+  color: #df4438;
+  background: #fff7f6;
+  box-shadow: inset 0 0 0 1px #df4438;
+}
+
+.view-mode button.active .figma-icon {
+  filter: brightness(0) saturate(100%) invert(40%) sepia(70%) saturate(1510%) hue-rotate(334deg) brightness(88%) contrast(96%);
+}
+
 .add-package {
   font-weight: 600;
 }
@@ -924,67 +934,6 @@ mark.red {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 20px;
-}
-
-.package-grid.table-mode {
-  grid-template-columns: 1fr;
-  gap: 8px;
-}
-
-.package-grid.table-mode .package-card {
-  display: grid;
-  grid-template-columns: 235px minmax(260px, 1fr) 185px 260px;
-  grid-template-areas: "head desc foot tags";
-  align-items: center;
-  gap: 18px;
-  height: 76px;
-  padding: 0 18px;
-}
-
-.package-grid.table-mode .package-card-head {
-  grid-area: head;
-  align-items: center;
-  margin: 0;
-}
-
-.package-grid.table-mode .package-card-head svg {
-  width: 14px;
-  height: 14px;
-  margin-left: auto;
-}
-
-.package-grid.table-mode .package-card p {
-  grid-area: desc;
-  min-height: 0;
-  margin: 0;
-  font-size: 9px;
-  line-height: 1.35;
-}
-
-.package-grid.table-mode .package-card-foot {
-  grid-area: foot;
-  display: grid;
-  gap: 7px;
-  padding: 0;
-  min-height: 0;
-}
-
-.package-grid.table-mode .package-card-foot strong {
-  order: 1;
-  font-size: 13px;
-}
-
-.package-grid.table-mode .package-card-foot span {
-  order: 2;
-  font-size: 8px;
-  white-space: nowrap;
-}
-
-.package-grid.table-mode .package-tags {
-  grid-area: tags;
-  justify-content: flex-end;
-  gap: 7px;
-  min-height: 0;
 }
 
 .package-card {
@@ -1075,6 +1024,132 @@ mark.red {
   height: 4px;
   margin: 18px 0 0 26px;
   background: #df4438;
+}
+
+.package-table {
+  overflow: hidden;
+  border-radius: 5px;
+}
+
+.package-table-head,
+.package-table-row {
+  display: grid;
+  grid-template-columns: 172px 300px 300px 112px 100px 110px 66px;
+  align-items: center;
+  column-gap: 14px;
+  padding: 0 18px;
+}
+
+.package-table-head {
+  height: 39px;
+  color: #1f1d1c;
+  font-size: 8px;
+  font-weight: 600;
+  border-bottom: 1px solid #aaa19e;
+}
+
+.package-table-row {
+  min-height: 54px;
+  color: #383230;
+  font-size: 9px;
+  border-bottom: 1px solid #e7dfdc;
+}
+
+.package-table-row strong {
+  color: #df4438;
+  font-size: 9px;
+  font-weight: 500;
+}
+
+.package-table-row p {
+  margin: 0;
+  color: #554d4b;
+  font-size: 9px;
+  line-height: 1.25;
+}
+
+.package-table-row b {
+  color: #df4438;
+  font-size: 9px;
+  font-weight: 500;
+}
+
+.package-table .package-tags {
+  gap: 6px;
+  min-height: 0;
+}
+
+.package-table .package-tag {
+  height: 17px;
+  padding: 0 7px;
+  font-size: 7px;
+}
+
+.table-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.table-actions button {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.table-actions .figma-icon {
+  width: 17px;
+  height: 17px;
+}
+
+.table-actions button:first-child {
+  background: #bdf0ce;
+}
+
+.table-actions button:last-child {
+  background: #ffd5df;
+}
+
+.package-table-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  padding: 0 18px;
+  color: #857370;
+  font-size: 8px;
+}
+
+.pager {
+  display: inline-flex;
+  height: 26px;
+  overflow: hidden;
+  border: 1px solid #e1d8d6;
+  border-radius: 5px;
+}
+
+.pager button,
+.pager span {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  color: #4f4543;
+  background: #ffffff;
+  border: 0;
+  border-right: 1px solid #e1d8d6;
+}
+
+.pager span {
+  background: #f3e7e4;
+}
+
+.pager button:last-child {
+  border-right: 0;
 }
 
 .figma-mockup-page {
