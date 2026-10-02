@@ -1,7 +1,9 @@
 /vendor/
 node_modules/
 client-web/dist/
+internal-web/dist/
 client-web-screenshot.png
+internal-web-manager-screenshot.png
 npm-debug.log
 yarn-error.log
 
