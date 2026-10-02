@@ -211,7 +211,7 @@ function Tag({ name }) {
   return <span className={`package-tag ${name.toLowerCase()}`}><FigmaIcon name={iconByTag[name]} />{name}</span>;
 }
 
-function PackageCard({ item, onDelete }) {
+function PackageCard({ item, onEdit, onDelete }) {
   const [menuOpen, setMenuOpen] = React.useState(false);
   return (
     <article className="package-card">
@@ -219,7 +219,7 @@ function PackageCard({ item, onDelete }) {
         <h2>{item.title}</h2>
         <div className="card-menu-wrap">
           <button className="card-menu-button" type="button" onClick={() => setMenuOpen((value) => !value)} aria-label={`Menu ${item.title}`}>⋮</button>
-          {menuOpen && <div className="card-menu"><button type="button" onClick={() => setMenuOpen(false)}>Edit</button><button type="button" onClick={() => onDelete(item.title)}>Hapus</button></div>}
+          {menuOpen && <div className="card-menu"><button type="button" onClick={() => onEdit(item)}>Edit</button><button type="button" onClick={() => onDelete(item.title)}>Hapus</button></div>}
         </div>
       </div>
       <p>{item.desc}</p>
@@ -272,12 +272,13 @@ function formatRupiah(value) {
   return `Rp ${value.toLocaleString('id-ID')}`;
 }
 
-function CreatePackageModal({ onClose, onCreate }) {
-  const [name, setName] = React.useState('');
-  const [description, setDescription] = React.useState('');
-  const [selectedStages, setSelectedStages] = React.useState(['Recording', 'Editing', 'Mixing', 'Mastering']);
-  const [recordingHours, setRecordingHours] = React.useState(3);
-  const [songCount, setSongCount] = React.useState(1);
+function CreatePackageModal({ initialPackage, onClose, onSubmit }) {
+  const initialDuration = initialPackage ? packageDuration(initialPackage.meta) : null;
+  const [name, setName] = React.useState(initialPackage?.title || '');
+  const [description, setDescription] = React.useState(initialPackage?.desc || '');
+  const [selectedStages, setSelectedStages] = React.useState(initialPackage?.tags || ['Recording', 'Editing', 'Mixing', 'Mastering']);
+  const [recordingHours, setRecordingHours] = React.useState(initialDuration ? Number.parseInt(initialDuration.duration, 10) || 0 : 3);
+  const [songCount, setSongCount] = React.useState(initialDuration ? Number.parseInt(initialDuration.songs, 10) || 1 : 1);
   const [manualPrice, setManualPrice] = React.useState(false);
   const [manualPriceValue, setManualPriceValue] = React.useState('');
 
@@ -294,7 +295,8 @@ function CreatePackageModal({ onClose, onCreate }) {
 
   const submitPackage = () => {
     const title = name.trim() || `Paket Baru`;
-    onCreate({
+    onSubmit({
+      originalTitle: initialPackage?.title,
       title,
       desc: description.trim() || 'Paket baru untuk kebutuhan produksi musik.',
       price: formatRupiah(finalPrice),
@@ -308,7 +310,7 @@ function CreatePackageModal({ onClose, onCreate }) {
     <div className="modal-backdrop">
       <section className="package-modal" role="dialog" aria-modal="true" aria-label="Buat Paket Baru">
         <button className="modal-close" type="button" onClick={onClose}>x</button>
-        <h2>Buat Paket Baru</h2>
+        <h2>{initialPackage ? 'Edit Paket' : 'Buat Paket Baru'}</h2>
         <div className="modal-grid">
           <div className="modal-left">
             <label>Nama Paket<sup>*</sup><input value={name} onChange={(event) => setName(event.target.value)} placeholder="Example text" /></label>
@@ -343,7 +345,7 @@ function CreatePackageModal({ onClose, onCreate }) {
             {manualPrice && <label className="manual-price-input">Harga Manual<input type="number" min="0" value={manualPriceValue} onChange={(event) => setManualPriceValue(event.target.value)} placeholder="1250000" /></label>}
           </div>
         </div>
-        <footer className="modal-actions"><button type="button" onClick={onClose}>Batal</button><button type="button" onClick={submitPackage}>Buat Paket</button></footer>
+        <footer className="modal-actions"><button type="button" onClick={onClose}>Batal</button><button type="button" onClick={submitPackage}>{initialPackage ? 'Simpan Paket' : 'Buat Paket'}</button></footer>
       </section>
     </div>
   );
@@ -370,6 +372,7 @@ function PackageManagement() {
   const [query, setQuery] = React.useState('');
   const [packageItems, setPackageItems] = React.useState(packages);
   const [showCreateModal, setShowCreateModal] = React.useState(false);
+  const [packageToEdit, setPackageToEdit] = React.useState(null);
   const [packageToDelete, setPackageToDelete] = React.useState(null);
   const filteredPackages = packageItems.filter((item) => {
     const matchesQuery = item.title.toLowerCase().includes(query.toLowerCase());
@@ -379,7 +382,10 @@ function PackageManagement() {
   const addPackage = () => {
     setShowCreateModal(true);
   };
-  const createPackage = (item) => setPackageItems((items) => [...items, item]);
+  const savePackage = (item) => {
+    setPackageItems((items) => item.originalTitle ? items.map((pkg) => pkg.title === item.originalTitle ? { title: item.title, desc: item.desc, price: item.price, meta: item.meta, tags: item.tags } : pkg) : [...items, { title: item.title, desc: item.desc, price: item.price, meta: item.meta, tags: item.tags }]);
+    setPackageToEdit(null);
+  };
   const duplicatePackage = (item) => {
     setPackageItems((items) => [...items, { ...item, title: `${item.title} Copy` }]);
   };
@@ -402,10 +408,11 @@ function PackageManagement() {
         <div className="package-filter-row">
           {['Semua Paket', 'Recording', 'Editing', 'Mixing', 'Mastering'].map((item) => <button className={filter === item ? 'active' : ''} type="button" onClick={() => setFilter(item)} key={item}>{item} ({item === 'Semua Paket' ? packageItems.length : packageItems.filter((pkg) => pkg.tags.includes(item)).length})</button>)}
         </div>
-        {viewMode === 'Tabel' ? <PackageTable items={filteredPackages} total={packageItems.length} onDuplicate={duplicatePackage} onDelete={(title) => setPackageToDelete(packageItems.find((item) => item.title === title))} /> : <section className="package-grid">{filteredPackages.map((item) => <PackageCard item={item} onDelete={(title) => setPackageToDelete(packageItems.find((pkg) => pkg.title === title))} key={item.title} />)}</section>}
+        {viewMode === 'Tabel' ? <PackageTable items={filteredPackages} total={packageItems.length} onDuplicate={duplicatePackage} onDelete={(title) => setPackageToDelete(packageItems.find((item) => item.title === title))} /> : <section className="package-grid">{filteredPackages.map((item) => <PackageCard item={item} onEdit={setPackageToEdit} onDelete={(title) => setPackageToDelete(packageItems.find((pkg) => pkg.title === title))} key={item.title} />)}</section>}
         <div className="page-bottom-line" />
       </main>
-      {showCreateModal && <CreatePackageModal onClose={() => setShowCreateModal(false)} onCreate={createPackage} />}
+      {showCreateModal && <CreatePackageModal onClose={() => setShowCreateModal(false)} onSubmit={(item) => { savePackage(item); setShowCreateModal(false); }} />}
+      {packageToEdit && <CreatePackageModal initialPackage={packageToEdit} onClose={() => setPackageToEdit(null)} onSubmit={savePackage} />}
       {packageToDelete && <DeletePackageModal item={packageToDelete} onClose={() => setPackageToDelete(null)} onConfirm={deletePackage} />}
     </div>
   );
