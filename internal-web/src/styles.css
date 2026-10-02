@@ -11,7 +11,7 @@ body,
 }
 
 body {
-  overflow: hidden;
+  overflow: auto;
   background: #eee5e2;
   color: #231f20;
   font-family: Inter, "Segoe UI", Arial, sans-serif;
@@ -25,10 +25,8 @@ input {
 .dashboard-frame {
   display: grid;
   grid-template-columns: 194px 1fr;
-  width: 100vw;
-  height: 100vh;
-  min-width: 1180px;
-  min-height: 650px;
+  width: 1600px;
+  height: 900px;
   background: #eee5e2;
 }
 
@@ -769,10 +767,8 @@ mark.red {
 
 @media (max-width: 1300px) {
   .dashboard-frame {
-    transform: scale(calc(100vw / 1300));
+    transform: scale(calc(100vw / 1600));
     transform-origin: top left;
-    width: 1300px;
-    height: calc(100vh / (100vw / 1300));
   }
 }
 
