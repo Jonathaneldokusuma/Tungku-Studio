@@ -2,6 +2,11 @@
   box-sizing: border-box;
 }
 
+:root {
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
 html,
 body,
 #root {
@@ -145,6 +150,12 @@ label:focus-visible {
   font-size: 10px;
   text-decoration: none;
   border-radius: 3px;
+  transition: color 160ms var(--ease-soft), background 160ms var(--ease-soft), transform 160ms var(--ease-soft);
+}
+
+.nav-item:hover {
+  background: #f8eeee;
+  transform: translateX(2px);
 }
 
 .nav-item.active {
@@ -276,6 +287,24 @@ label:focus-visible {
   border: 0;
   border-radius: 3px;
   cursor: pointer;
+  transition: background 160ms var(--ease-soft), transform 160ms var(--ease-soft), box-shadow 160ms var(--ease-soft);
+}
+
+.top-actions button:hover,
+.add-package:hover,
+.modal-actions button:last-child:hover,
+.delete-modal button:last-child:hover {
+  background: #c93d32;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(223, 68, 56, 0.18);
+}
+
+.top-actions button:active,
+.add-package:active,
+.modal-actions button:last-child:active,
+.delete-modal button:last-child:active {
+  transform: translateY(0);
+  box-shadow: none;
 }
 
 .top-actions .icon-button {
@@ -325,6 +354,15 @@ label:focus-visible {
   position: relative;
   height: 86px;
   padding: 12px 12px 10px;
+  transition: transform 180ms var(--ease-soft), box-shadow 180ms var(--ease-soft), border-color 180ms var(--ease-soft);
+}
+
+.stat-card:hover,
+.panel:hover,
+.package-stat-card:hover,
+.package-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(31, 29, 28, 0.08);
 }
 
 .pill {
@@ -483,6 +521,7 @@ label:focus-visible {
 
 .panel {
   overflow: hidden;
+  transition: transform 180ms var(--ease-soft), box-shadow 180ms var(--ease-soft), border-color 180ms var(--ease-soft);
 }
 
 .finance {
@@ -518,6 +557,11 @@ label:focus-visible {
   border: 0;
   border-radius: 3px;
   cursor: pointer;
+  transition: background 160ms var(--ease-soft), transform 160ms var(--ease-soft);
+}
+
+.panel-action:hover {
+  transform: translateX(2px);
 }
 
 .panel.is-selected {
@@ -693,6 +737,13 @@ label:focus-visible {
   min-height: 53px;
   padding: 0 18px;
   border-bottom: 1px solid #f0e9e7;
+  transition: background 160ms var(--ease-soft);
+}
+
+.record-row:hover,
+.activity:hover,
+.package-table-row:hover {
+  background: #fff8f7;
 }
 
 .record-row strong,
@@ -728,6 +779,12 @@ mark {
   color: #6a4035;
   font-size: 8px;
   border-radius: 3px;
+  transition: transform 160ms var(--ease-soft);
+}
+
+mark:hover,
+.package-tag:hover {
+  transform: translateY(-1px);
 }
 
 mark.purple {
@@ -923,6 +980,7 @@ mark.red {
   font-size: 8px;
   background: #ffdeda;
   border-radius: 999px;
+  transition: background 160ms var(--ease-soft), color 160ms var(--ease-soft), transform 160ms var(--ease-soft);
 }
 
 .package-filter-row button.active {
@@ -945,6 +1003,7 @@ mark.red {
   background: #ffffff;
   border: 1px solid #df4438;
   border-radius: 5px;
+  transition: transform 180ms var(--ease-soft), box-shadow 180ms var(--ease-soft), border-color 180ms var(--ease-soft);
 }
 
 .package-card-head {
@@ -973,6 +1032,7 @@ mark.red {
   border: 0;
   border-radius: 3px;
   cursor: pointer;
+  transition: background 160ms var(--ease-soft), transform 160ms var(--ease-soft);
 }
 
 .card-menu-button:hover {
@@ -990,6 +1050,7 @@ mark.red {
   border: 1px solid #dfd5d2;
   border-radius: 4px;
   box-shadow: 0 12px 28px rgba(31, 29, 28, 0.16);
+  animation: menu-pop 140ms var(--ease-out);
 }
 
 .card-menu button {
@@ -1043,6 +1104,7 @@ mark.red {
   padding: 0 7px 0 5px;
   font-size: 7px;
   border-radius: 2px;
+  transition: transform 160ms var(--ease-soft), filter 160ms var(--ease-soft);
 }
 
 .package-tag .figma-icon {
@@ -1189,6 +1251,7 @@ mark.red {
   border: 0;
   border-radius: 3px;
   cursor: pointer;
+  transition: transform 140ms var(--ease-soft), box-shadow 140ms var(--ease-soft), filter 140ms var(--ease-soft);
 }
 
 .table-actions button:hover {
@@ -1263,6 +1326,7 @@ mark.red {
   display: grid;
   place-items: center;
   background: rgba(31, 29, 28, 0.62);
+  animation: backdrop-fade 180ms var(--ease-soft);
 }
 
 .package-modal {
@@ -1276,6 +1340,7 @@ mark.red {
   background: #ffffff;
   border-radius: 6px;
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+  animation: modal-pop 220ms var(--ease-out);
 }
 
 .package-modal h2 {
@@ -1370,6 +1435,12 @@ mark.red {
   border: 1px solid #857370;
   border-radius: 0;
   cursor: pointer;
+  transition: border-color 160ms var(--ease-soft), box-shadow 160ms var(--ease-soft), transform 160ms var(--ease-soft), background 160ms var(--ease-soft);
+}
+
+.stage-picker button:hover {
+  transform: translateY(-2px);
+  background: #fffafa;
 }
 
 .stage-picker button.active {
@@ -1491,6 +1562,7 @@ mark.red {
   border: 0;
   border-radius: 999px;
   cursor: pointer;
+  transition: background 180ms var(--ease-soft);
 }
 
 .manual-row button::after {
@@ -1502,6 +1574,7 @@ mark.red {
   height: 20px;
   background: #ffffff;
   border-radius: 50%;
+  transition: left 180ms var(--ease-soft);
 }
 
 .manual-row button.active {
@@ -1560,6 +1633,44 @@ mark.red {
   background: #ffffff;
   border-radius: 6px;
   box-shadow: 0 20px 70px rgba(0, 0, 0, 0.26);
+  animation: modal-pop 180ms var(--ease-out);
+}
+
+@keyframes backdrop-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modal-pop {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes menu-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 .delete-modal h2 {
