@@ -1986,7 +1986,8 @@ mark.red {
 }
 
 .project-table-row {
-  min-height: 44px;
+  min-height: 0;
+  height: 44px;
   color: #383230;
   font-size: 9px;
   border-bottom: 1px solid #e7dfdc;
@@ -2012,21 +2013,23 @@ mark.red {
   height: 20px;
 }
 
-.table-progress {
+.project-table .table-progress {
   display: grid;
+  align-self: center;
   justify-items: start;
   gap: 3px;
+  height: 20px;
   width: 82px;
 }
 
-.table-progress b {
+.project-table .table-progress b {
   color: #df4438;
   font-size: 11px;
   font-weight: 500;
   line-height: 1;
 }
 
-.table-progress mark {
+.project-table .table-progress mark {
   display: block;
   height: 4px;
   width: 82px;
@@ -2035,7 +2038,7 @@ mark.red {
   border-radius: 999px;
 }
 
-.table-progress i {
+.project-table .table-progress i {
   display: block;
   height: 100%;
   background: #df4438;
