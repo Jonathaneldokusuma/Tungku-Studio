@@ -6,6 +6,7 @@ import {
   Package, Plus, ReceiptText, Search, Settings, SlidersHorizontal, Table2, Users,
 } from 'lucide-react';
 import './styles.css';
+import managementPaketMockup from './assets/management-paket.svg';
 
 const menuSections = [
   { title: 'UTAMA', items: [{ key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard }] },
@@ -149,20 +150,8 @@ function PackageCard({ item }) {
 
 function PackageManagement() {
   return (
-    <div className="dashboard-frame package-page">
-      <Sidebar activeKey="packages" />
-      <main className="content">
-        <Header crumb="Penjualan / Manajemen Paket" title="Manajemen Paket" />
-        <section className="package-stats">{packageStats.map((item) => <PackageStatCard item={item} key={item.title} />)}</section>
-        <section className="package-toolbar">
-          <label className="package-search"><Search size={14} strokeWidth={1.7} /><input placeholder="Cari nama paket..." /></label>
-          <div className="view-mode"><span>Mode Lihat:</span><button className="active"><Grid2X2 size={13} /> Kartu</button><button><Table2 size={13} /> Tabel</button></div>
-          <button className="add-package"><Plus size={13} /> Buat Paket</button>
-        </section>
-        <div className="package-filter-row">{['Semua Paket (6)', 'Recording (4)', 'Editing (3)', 'Mixing (3)', 'Mastering (2)'].map((filter, index) => <button className={index === 0 ? 'active' : ''} key={filter}>{filter}</button>)}</div>
-        <section className="package-grid">{packages.map((item) => <PackageCard item={item} key={item.title} />)}</section>
-        <div className="page-bottom-line" />
-      </main>
+    <div className="figma-mockup-page">
+      <img src={managementPaketMockup} alt="Manajemen Paket" />
     </div>
   );
 }

@@ -955,3 +955,19 @@ mark.red {
   background: #df4438;
 }
 
+.figma-mockup-page {
+  display: grid;
+  place-items: start center;
+  width: 100vw;
+  height: 100vh;
+  overflow: auto;
+  background: #efe6e3;
+}
+
+.figma-mockup-page img {
+  display: block;
+  width: 100vw;
+  min-width: 1280px;
+  height: auto;
+}
+
