@@ -1034,9 +1034,9 @@ mark.red {
 .package-table-head,
 .package-table-row {
   display: grid;
-  grid-template-columns: 170px 300px 275px 110px 92px 100px 72px;
+  grid-template-columns: 150px 270px 260px 96px 78px 92px 58px;
   align-items: center;
-  column-gap: 12px;
+  column-gap: 10px;
   padding: 0 18px;
 }
 
@@ -1049,7 +1049,7 @@ mark.red {
 }
 
 .package-table-row {
-  min-height: 54px;
+  min-height: 52px;
   color: #383230;
   font-size: 9px;
   border-bottom: 1px solid #e7dfdc;
@@ -1088,15 +1088,15 @@ mark.red {
 .table-actions {
   display: flex;
   justify-content: flex-start;
-  gap: 7px;
+  gap: 6px;
 }
 
 .table-actions button {
   position: relative;
   display: grid;
   place-items: center;
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   padding: 0;
   background: transparent;
   border: 0;
@@ -1127,8 +1127,8 @@ mark.red {
 .table-actions .action-add span::after {
   content: "";
   position: absolute;
-  left: 6px;
-  top: 10px;
+  left: 5px;
+  top: 9px;
   width: 10px;
   height: 2px;
   background: currentColor;
@@ -1148,8 +1148,8 @@ mark.red {
 .table-actions .action-delete::before {
   content: "";
   position: absolute;
-  left: 7px;
-  top: 8px;
+  left: 6px;
+  top: 7px;
   width: 8px;
   height: 10px;
   border: 2px solid currentColor;
@@ -1160,7 +1160,7 @@ mark.red {
 .table-actions .action-delete::after {
   content: "";
   position: absolute;
-  left: 6px;
+  left: 5px;
   top: 5px;
   width: 10px;
   height: 2px;
@@ -1172,7 +1172,7 @@ mark.red {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 64px;
+  height: 58px;
   padding: 0 18px;
   color: #857370;
   font-size: 8px;
