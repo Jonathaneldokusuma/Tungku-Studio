@@ -2,79 +2,91 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
 
-import browserControls from './assets/browser-controls.svg';
-import curveL from './assets/curve-l.svg';
-import curveR from './assets/curve-r.svg';
-import iconBack from './assets/icon-back.svg';
-import iconClose from './assets/icon-close.svg';
-import iconFavorite from './assets/icon-favorite.svg';
-import iconForward from './assets/icon-forward.svg';
-import iconHome from './assets/icon-home.svg';
-import iconMore from './assets/icon-more.svg';
-import iconPlus from './assets/icon-plus.svg';
-import iconRefresh from './assets/icon-refresh.svg';
-import iconSecure from './assets/icon-secure.svg';
-import imageUserProfile from './assets/image-user-profile.png';
-import rectangle1 from './assets/rectangle-1.png';
+import logo from './assets/logo.svg';
+import figmaIcons from './assets/figma-icons.svg';
 
-function BrowserUrlControls() {
-  return (
-    <div className="browser" data-node-id="124:344" data-name="Browser & URL Controls">
-      <div className="browser-top" data-node-id="124:268" data-name="Toolbar - Browser Controls">
-        <div className="browser-window-controls" data-node-id="124:273" data-name="Browser Controls">
-          <img src={browserControls} alt="" />
-        </div>
-
-        <div className="tab-group" data-node-id="124:271" data-name="Tab & Plus">
-          <div className="tab" data-node-id="124:288" data-name="Browser Tab / With Plus">
-            <img className="curve curve-left" src={curveL} alt="" />
-            <div className="tab-content" data-node-id="124:292" data-name="Favicon, Text, & Icons">
-              <span className="favicon" data-node-id="124:300">
-                <img src={rectangle1} alt="" />
-              </span>
-              <span className="tab-title" data-node-id="124:294">Tungku ERP</span>
-              <img className="tab-close" src={iconClose} alt="" data-node-id="124:323" />
-            </div>
-            <span className="curve-right-wrap">
-              <img className="curve curve-right" src={curveR} alt="" />
-            </span>
-          </div>
-          <img className="tab-plus" src={iconPlus} alt="" data-node-id="124:321" />
-        </div>
-      </div>
-
-      <div className="browser-toolbar" data-node-id="124:302" data-name="Toolbar - URL Controls">
-        <div className="left-icons" data-node-id="124:316" data-name="Left Locked Icons">
-          <img src={iconBack} alt="" />
-          <img src={iconForward} alt="" />
-          <img src={iconRefresh} alt="" />
-          <img src={iconHome} alt="" />
-        </div>
-
-        <div className="url-bar" data-node-id="124:308" data-name="URL Bar">
-          <img className="secure" src={iconSecure} alt="" data-node-id="124:315" />
-          <div className="url-text" data-node-id="124:311">
-            <span className="url-domain">tungku.com</span><span className="url-path">/dashboard</span>
-          </div>
-          <img className="favorite" src={iconFavorite} alt="" data-node-id="124:310" />
-        </div>
-
-        <div className="right-icons" data-node-id="124:305" data-name="Right Locked Icons">
-          <img className="profile" src={imageUserProfile} alt="" data-node-id="124:307" />
-          <img className="more" src={iconMore} alt="" data-node-id="124:306" />
-        </div>
-      </div>
-    </div>
-  );
+function FigmaIcon({ name }) {
+  const positions = {
+    mic: [689, 263],
+    cut: [801, 263],
+    mix: [913, 263],
+    master: [1025, 263],
+    booking: [353, 17],
+    quotation: [801, 386],
+    project: [577, 17],
+    'thumb-up': [353, 509],
+  };
+  const [x, y] = positions[name] || positions.project;
+  return <svg className="figma-icon" viewBox="0 0 96 96" aria-hidden="true"><image href={figmaIcons} x={-x} y={-y} width="1139" height="868" /></svg>;
 }
 
-function Packet() {
+function AuthPage({ mode = 'login' }) {
+  const isRegister = mode === 'register';
+  const [role, setRole] = React.useState('Client');
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    window.location.href = '/dashboard';
+  };
+
   return (
-    <main className="packet" data-node-id="661:8023" data-name="Packet">
-      <BrowserUrlControls />
+    <main className="auth-page">
+      <section className="auth-hero">
+        <div className="auth-brand"><img src={logo} alt="" /><div><strong>Tungku Studio</strong><span>Client Portal</span></div></div>
+        <div className="auth-copy">
+          <span>{isRegister ? 'Mulai Project' : 'Selamat Datang'}</span>
+          <h1>{isRegister ? 'Buat akun untuk booking studio.' : 'Masuk untuk pantau project musikmu.'}</h1>
+          <p>{isRegister ? 'Daftar sebagai client, pilih paket, booking jadwal, dan ikuti proses produksi dari recording sampai mastering.' : 'Cek jadwal booking, status penawaran, invoice, dan progress lagu dalam satu tempat.'}</p>
+        </div>
+        <div className="auth-preview">
+          {[
+            ['Recording', 'mic'],
+            ['Editing', 'cut'],
+            ['Mixing', 'mix'],
+            ['Mastering', 'master'],
+          ].map(([label, icon]) => <article key={label}><FigmaIcon name={icon} /><span>{label}</span></article>)}
+        </div>
+      </section>
+      <section className="auth-card">
+        <div className="auth-card-head">
+          <span>{isRegister ? 'Register User' : 'Login User'}</span>
+          <h2>{isRegister ? 'Daftar Akun' : 'Masuk Akun'}</h2>
+          <p>{isRegister ? 'Lengkapi data untuk membuat akun client.' : 'Gunakan email dan password yang sudah terdaftar.'}</p>
+        </div>
+        <form className="auth-form" onSubmit={handleSubmit}>
+          {isRegister && <label>Nama Lengkap<input type="text" placeholder="Nama lengkap" required /></label>}
+          <label>Email<input type="email" placeholder="contoh@gmail.com" required /></label>
+          {isRegister && <label>No. Telepon<input type="tel" placeholder="+62" required /></label>}
+          <label>Password<input type="password" placeholder="Password" required /></label>
+          {isRegister && <label>Konfirmasi Password<input type="password" placeholder="Ulangi password" required /></label>}
+          <div className="auth-role">{['Client', 'Manager'].map((item) => <button className={role === item ? 'active' : ''} type="button" onClick={() => setRole(item)} key={item}>{item}</button>)}</div>
+          {!isRegister && <a className="auth-forgot" href="/register">Lupa password?</a>}
+          <button className="auth-submit" type="submit">{isRegister ? 'Daftar' : 'Masuk'}</button>
+        </form>
+        <p className="auth-switch">{isRegister ? 'Sudah punya akun?' : 'Belum punya akun?'} <a href={isRegister ? '/login' : '/register'}>{isRegister ? 'Masuk' : 'Daftar'}</a></p>
+      </section>
     </main>
   );
 }
 
-createRoot(document.getElementById('root')).render(<Packet />);
+function ClientDashboard() {
+  return (
+    <main className="client-dashboard">
+      <header><div className="auth-brand"><img src={logo} alt="" /><div><strong>Tungku Studio</strong><span>Client Portal</span></div></div><a href="/login">Keluar</a></header>
+      <section>
+        <article><FigmaIcon name="booking" /><span>Booking Aktif</span><strong>2</strong></article>
+        <article><FigmaIcon name="project" /><span>Project Berjalan</span><strong>1</strong></article>
+        <article><FigmaIcon name="quotation" /><span>Penawaran</span><strong>3</strong></article>
+        <article><FigmaIcon name="thumb-up" /><span>Selesai</span><strong>4</strong></article>
+      </section>
+    </main>
+  );
+}
 
+function App() {
+  const path = window.location.pathname;
+  if (path.includes('/register')) return <AuthPage mode="register" />;
+  if (path.includes('/dashboard')) return <ClientDashboard />;
+  return <AuthPage mode="login" />;
+}
+
+createRoot(document.getElementById('root')).render(<App />);
