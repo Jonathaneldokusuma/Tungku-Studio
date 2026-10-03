@@ -1910,7 +1910,7 @@ mark.red {
   height: 5px;
   margin-top: 4px;
   overflow: hidden;
-  background: #df4438;
+  background: transparent;
   border-radius: 999px;
 }
 
@@ -2040,7 +2040,7 @@ mark.red {
   height: 4px;
   width: 82px;
   overflow: hidden;
-  background: #df4438;
+  background: transparent;
   border-radius: 999px;
 }
 
@@ -2128,7 +2128,7 @@ mark.red {
   display: block;
   height: 5px;
   overflow: hidden;
-  background: #df4438;
+  background: transparent;
   border-radius: 999px;
 }
 
@@ -2157,7 +2157,7 @@ mark.red {
   height: 5px;
   width: 238px;
   overflow: hidden;
-  background: #df4438;
+  background: transparent;
   border-radius: 999px;
 }
 
