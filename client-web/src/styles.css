@@ -271,7 +271,7 @@ input {
   text-decoration: none;
 }
 
-.client-nav-actions label {
+.client-search {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -281,20 +281,20 @@ input {
   border: 1px solid #a99b97;
 }
 
-.client-nav-actions label .figma-icon {
+.client-search .figma-icon {
   width: 13px;
   height: 13px;
   filter: grayscale(1) brightness(0.35);
 }
 
-.client-nav-actions input {
+.client-search input {
   width: 100%;
   border: 0;
   outline: 0;
   font-size: 10px;
 }
 
-.client-nav-actions > .figma-icon {
+.nav-icon-link .figma-icon {
   width: 17px;
   height: 17px;
   filter: grayscale(1) brightness(0.25);
@@ -664,6 +664,246 @@ input {
   font-size: 8px;
 }
 
+.client-panel-page {
+  display: grid;
+  gap: 22px;
+}
+
+.page-title {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.page-title h1 {
+  margin: 0;
+  color: #141111;
+  font-size: 28px;
+  font-weight: 500;
+}
+
+.page-title p {
+  margin: 0;
+  color: #665b58;
+  font-size: 13px;
+}
+
+.booking-layout,
+.create-project-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.65fr);
+  gap: 18px;
+}
+
+.booking-calendar,
+.client-info-card,
+.project-form,
+.info-tile,
+.transaction-list article {
+  background: #ffffff;
+  border: 1px solid #d6c7c3;
+  border-radius: 4px;
+}
+
+.booking-calendar {
+  padding: 22px;
+}
+
+.booking-calendar h2 {
+  margin: 0 0 18px;
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.booking-calendar > div:first-of-type,
+.date-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.booking-calendar span {
+  color: #6a605d;
+  font-size: 11px;
+  text-align: center;
+}
+
+.date-grid {
+  margin-top: 12px;
+}
+
+.date-grid button {
+  height: 42px;
+  background: #fbf8f7;
+  border: 1px solid #e3d8d4;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.date-grid button.booked {
+  color: #df4438;
+  background: #ffd9d5;
+  border-color: #ffbbb3;
+}
+
+.client-info-card {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  padding: 22px;
+}
+
+.client-info-card h3,
+.client-info-card p {
+  margin: 0;
+}
+
+.client-info-card strong {
+  color: #df4438;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.client-info-card span {
+  color: #554a47;
+  font-size: 12px;
+}
+
+.client-info-card a,
+.project-form button {
+  display: inline-grid;
+  place-items: center;
+  height: 38px;
+  margin-top: 12px;
+  color: #ffffff;
+  background: #df4438;
+  border: 0;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.project-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 17px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.info-tile {
+  display: grid;
+  gap: 12px;
+  min-height: 92px;
+  padding: 16px;
+}
+
+.info-tile span {
+  color: #665b58;
+  font-size: 11px;
+}
+
+.info-tile strong {
+  color: #231f20;
+  font-size: 15px;
+  font-weight: 500;
+  word-break: break-word;
+}
+
+.transaction-list {
+  display: grid;
+  gap: 10px;
+}
+
+.transaction-list article {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 18px;
+  min-height: 68px;
+  padding: 14px 18px;
+}
+
+.transaction-list strong,
+.transaction-list b {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.transaction-list span {
+  display: block;
+  margin-top: 4px;
+  color: #665b58;
+  font-size: 11px;
+}
+
+.transaction-list mark {
+  padding: 6px 10px;
+  color: #df4438;
+  background: #ffd9d5;
+  border-radius: 3px;
+  font-size: 11px;
+}
+
+.transaction-list mark.paid {
+  color: #137a45;
+  background: #cdeed9;
+}
+
+.package-grid.compact {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.select-package {
+  display: block;
+  padding: 0;
+  background: transparent;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.select-package.selected {
+  border-color: #df4438;
+}
+
+.project-form {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  padding: 18px;
+}
+
+.project-form label {
+  display: grid;
+  gap: 7px;
+  color: #231f20;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.project-form input,
+.project-form textarea {
+  width: 100%;
+  border: 1px solid #b9aaa6;
+  border-radius: 0;
+  padding: 10px;
+  font: inherit;
+  font-size: 12px;
+}
+
+.project-form textarea {
+  min-height: 112px;
+  resize: vertical;
+}
+
 @media (max-width: 820px) {
   .auth-page {
     grid-template-columns: 1fr;
@@ -695,7 +935,7 @@ input {
     overflow-x: auto;
   }
 
-  .client-nav-actions label {
+  .client-search {
     display: none;
   }
 
@@ -705,7 +945,11 @@ input {
 
   .client-stats,
   .project-showcase,
-  .package-grid {
+  .package-grid,
+  .booking-layout,
+  .create-project-layout,
+  .project-list,
+  .detail-grid {
     grid-template-columns: 1fr;
   }
 
