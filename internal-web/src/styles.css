@@ -160,7 +160,7 @@ label:focus-visible {
 
 .nav-item.active {
   color: #ffffff;
-  background: transparent;
+  background: #df4438;
 }
 
 .nav-item.active .figma-icon {
@@ -177,8 +177,13 @@ label:focus-visible {
   color: #ffffff;
   font-size: 8px;
   font-style: normal;
-  background: transparent;
+  background: #df4438;
   border-radius: 50%;
+}
+
+.nav-item.active em {
+  color: #df4438;
+  background: #ffffff;
 }
 
 .account {
