@@ -157,13 +157,12 @@ function Sidebar({ activeKey = 'dashboard' }) {
 
 function Header({ crumb = 'Utama / Dashboard', title = 'Dashboard', showProjectButton = true }) {
   const [query, setQuery] = React.useState('');
-  const [createdCount, setCreatedCount] = React.useState(0);
 
   return (
     <header className="topbar">
       <div className="crumb"><span>{crumb}</span><strong>{title}</strong></div>
       <div className="top-actions">
-        {showProjectButton && <button type="button" onClick={() => setCreatedCount((count) => count + 1)}>{createdCount ? `Draft ${createdCount}` : 'Buat Project'}</button>}
+        {showProjectButton && <button type="button" onClick={() => { window.location.href = '/manager/project/create'; }}>Buat Project</button>}
         <label className="search"><FigmaIcon name="search" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Cari project, klien, operator..." /></label>
         <button className="icon-button" type="button" aria-label="Filter"><FigmaIcon name="sliders" className="top-icon" /></button>
         <button className="icon-button" type="button" aria-label="Notifikasi"><FigmaIcon name="bell" className="top-icon" /></button>
@@ -691,6 +690,68 @@ function ProjectPage() {
   );
 }
 
+function ProjectCreatePackageCard({ item, selected, onSelect }) {
+  return (
+    <article className={`create-package-card ${selected ? 'selected' : ''}`} onClick={() => onSelect(item)} role="button" tabIndex={0} onKeyDown={(event) => { if (event.key === 'Enter') onSelect(item); }}>
+      <div className="package-card-head">
+        <h2>{item.title}</h2>
+        <button className="card-menu-button" type="button" aria-label={`Pilih ${item.title}`}>...</button>
+      </div>
+      <p>{item.desc}</p>
+      <div className="package-tags">{item.tags.map((tag) => <Tag name={tag} key={tag} />)}</div>
+      <div className="package-card-foot"><strong>{item.price}</strong><span>{item.meta}</span></div>
+    </article>
+  );
+}
+
+function ProjectInfoForm({ title, values, onChange }) {
+  return (
+    <section className="project-create-form panel">
+      <h2>{title}</h2>
+      <label>Nama Lengkap<sup>*</sup><input value={values.name} onChange={(event) => onChange('name', event.target.value)} placeholder="Nama lengkap" /></label>
+      <label>Email<sup>*</sup><input value={values.email} onChange={(event) => onChange('email', event.target.value)} placeholder="contoh@gmail.com" /></label>
+      <div className="split-inputs">
+        <label>No. Telepon<sup>*</sup><input value={values.phone} onChange={(event) => onChange('phone', event.target.value)} placeholder="+62" /></label>
+        <label>Email<sup>*</sup><input value={values.altEmail} onChange={(event) => onChange('altEmail', event.target.value)} placeholder="contoh@gmail.com" /></label>
+      </div>
+    </section>
+  );
+}
+
+function ProjectCreatePage() {
+  const [selectedPackage, setSelectedPackage] = React.useState(packages[0]);
+  const [packageInfo, setPackageInfo] = React.useState({ name: '', email: '', phone: '+62', altEmail: '' });
+  const [clientInfo, setClientInfo] = React.useState({ name: '', email: '', phone: '+62', altEmail: '' });
+  const updatePackageInfo = (key, value) => setPackageInfo((current) => ({ ...current, [key]: value }));
+  const updateClientInfo = (key, value) => setClientInfo((current) => ({ ...current, [key]: value }));
+
+  const submitProject = () => {
+    alert(`Project dibuat dengan ${selectedPackage.title}`);
+  };
+
+  return (
+    <div className="dashboard-frame project-create-page">
+      <Sidebar activeKey="project" />
+      <main className="content">
+        <Header crumb="Operasional / Project" title="Buat Project" showProjectButton={false} />
+        <section className="project-create-layout">
+          <section className="project-package-list panel">
+            <div className="create-section-head"><h1>Paket Tersedia</h1><span>{packages.length} paket</span></div>
+            <div className="create-package-grid">
+              {packages.map((item) => <ProjectCreatePackageCard item={item} selected={selectedPackage.title === item.title} onSelect={setSelectedPackage} key={item.title} />)}
+            </div>
+          </section>
+          <aside className="project-create-side">
+            <ProjectInfoForm title="Informasi Paket" values={packageInfo} onChange={updatePackageInfo} />
+            <ProjectInfoForm title="Informasi Klien" values={clientInfo} onChange={updateClientInfo} />
+            <button className="create-project-submit" type="button" onClick={submitProject}>Buat Project</button>
+          </aside>
+        </section>
+      </main>
+    </div>
+  );
+}
+
 function formatRupiah(value) {
   return `Rp ${value.toLocaleString('id-ID')}`;
 }
@@ -845,6 +906,7 @@ function App() {
   if (window.location.pathname.includes('/manager/packages')) return <PackageManagement />;
   if (window.location.pathname.includes('/manager/booking')) return <BookingPage />;
   if (window.location.pathname.includes('/manager/quotation')) return <QuotationPage />;
+  if (window.location.pathname.includes('/manager/project/create')) return <ProjectCreatePage />;
   if (window.location.pathname.includes('/manager/project')) return <ProjectPage />;
   return <Dashboard />;
 }
