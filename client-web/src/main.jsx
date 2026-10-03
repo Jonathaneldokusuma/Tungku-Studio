@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import './styles.css';
 
 import logo from './assets/logo.svg';
+import logoMark from './assets/logo-mark-cropped.png';
 import figmaIcons from './assets/figma-icons.svg';
 
 function FigmaIcon({ name }) {
@@ -30,7 +31,7 @@ function AuthPage({ mode = 'login' }) {
   return (
     <main className="auth-page">
       <section className="auth-logo-panel">
-        <img src={logo} alt="Tungku Studio" />
+        <img src={logoMark} alt="Tungku Studio" />
       </section>
       <section className="auth-card">
         <div className="auth-card-head">

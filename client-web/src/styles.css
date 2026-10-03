@@ -46,9 +46,9 @@ input {
 }
 
 .auth-logo-panel img {
-  width: 132px;
-  height: 132px;
-  object-fit: cover;
+  width: 158px;
+  height: auto;
+  object-fit: contain;
 }
 
 .auth-card {
