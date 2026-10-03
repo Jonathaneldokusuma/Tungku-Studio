@@ -20,6 +20,21 @@ const menuSections = [
   { title: 'ADMINISTRASI', items: [{ key: 'operator', label: 'Operator', icon: 'operator' }, { key: 'settings', label: 'Pengaturan', icon: 'settings' }] },
 ];
 
+const routeByKey = {
+  dashboard: '/manager/dashboard',
+  booking: '/manager/booking',
+  quotation: '/manager/quotation',
+  project: '/manager/project',
+  inventaris: '/manager/inventaris',
+  packages: '/manager/packages',
+  crm: '/manager/crm',
+  invoice: '/manager/invoice',
+  reports: '/manager/reports',
+  expenses: '/manager/expenses',
+  operator: '/manager/operator',
+  settings: '/manager/settings',
+};
+
 const dashboardStats = [
   { trend: '7%', trendClass: 'bad', title: 'Pendapatan Bulan Ini', value: 'Rp 1.243.000', shape: 'chart-up' },
   { trend: '5%', trendClass: 'good', title: 'Pengeluaran Bulan Ini', value: 'Rp 321.000', shape: 'chart-down' },
@@ -144,7 +159,7 @@ function Sidebar({ activeKey = 'dashboard' }) {
           <section className="nav-section" key={section.title}>
             <div className="nav-heading"><span>{section.title}</span><FigmaIcon name="chevron-down" className="nav-chevron" /></div>
             {section.items.map((item) => {
-              const href = item.key === 'packages' ? '/manager/packages' : item.key === 'booking' ? '/manager/booking' : item.key === 'quotation' ? '/manager/quotation' : item.key === 'project' ? '/manager/project' : '#';
+              const href = routeByKey[item.key] || '#';
               return <a className={`nav-item ${activeKey === item.key ? 'active' : ''}`} href={href} key={item.key}><FigmaIcon name={item.icon} /><span>{item.label}</span>{item.badge && <em>{item.badge}</em>}</a>;
             })}
           </section>
@@ -902,12 +917,48 @@ function PackageManagement() {
   );
 }
 
+const placeholderPages = {
+  inventaris: { crumb: 'Operasional / Inventaris', title: 'Inventaris', stats: [{ title: 'Total Inventaris', value: '24', shape: 'inventaris' }, { title: 'Perlu Servis', value: '3', shape: 'settings' }, { title: 'Dipakai Project', value: '8', shape: 'project' }] },
+  crm: { crumb: 'Penjualan / CRM', title: 'CRM', stats: [{ title: 'Total Klien', value: '18', shape: 'crm' }, { title: 'Klien Aktif', value: '7', shape: 'thumb-up' }, { title: 'Follow Up', value: '4', shape: 'quotation' }] },
+  invoice: { crumb: 'Keuangan / Invoice', title: 'Invoice', stats: [{ title: 'Semua Invoice', value: '12', shape: 'invoice' }, { title: 'Belum Lunas', value: '4', shape: 'reports' }, { title: 'Lunas', value: '8', shape: 'thumb-up' }] },
+  reports: { crumb: 'Keuangan / Laporan', title: 'Laporan', stats: [{ title: 'Laporan Bulan Ini', value: '5', shape: 'reports' }, { title: 'Pendapatan', value: 'Rp 1.243.000', shape: 'chart-up' }, { title: 'Pengeluaran', value: 'Rp 321.000', shape: 'expenses' }] },
+  expenses: { crumb: 'Keuangan / Pengeluaran', title: 'Pengeluaran', stats: [{ title: 'Total Pengeluaran', value: 'Rp 321.000', shape: 'expenses' }, { title: 'Maintenance', value: '57%', shape: 'settings' }, { title: 'Operasional', value: '11%', shape: 'reports' }] },
+  operator: { crumb: 'Administrasi / Operator', title: 'Operator', stats: [{ title: 'Semua Operator', value: '6', shape: 'operator' }, { title: 'Aktif', value: '4', shape: 'thumb-up' }, { title: 'Task Berjalan', value: '9', shape: 'project' }] },
+  settings: { crumb: 'Administrasi / Pengaturan', title: 'Pengaturan', stats: [{ title: 'Profil Studio', value: '1', shape: 'settings' }, { title: 'Role Aktif', value: '3', shape: 'operator' }, { title: 'Notifikasi', value: 'Aktif', shape: 'bell' }] },
+};
+
+function PlaceholderPage({ pageKey }) {
+  const page = placeholderPages[pageKey];
+  return (
+    <div className="dashboard-frame placeholder-page">
+      <Sidebar activeKey={pageKey} />
+      <main className="content">
+        <Header crumb={page.crumb} title={page.title} />
+        <section className="package-stats placeholder-stats">{page.stats.map((item) => <PackageStatCard item={item} key={item.title} />)}</section>
+        <section className="placeholder-panel panel">
+          <FigmaIcon name={menuSections.flatMap((section) => section.items).find((item) => item.key === pageKey)?.icon || 'project'} />
+          <h1>{page.title}</h1>
+          <p>Halaman ini sudah tersambung ke navigasi. Detail UI bisa lanjut dibuat sesuai mockup berikutnya.</p>
+        </section>
+      </main>
+    </div>
+  );
+}
+
 function App() {
+  const path = window.location.pathname;
   if (window.location.pathname.includes('/manager/packages')) return <PackageManagement />;
   if (window.location.pathname.includes('/manager/booking')) return <BookingPage />;
   if (window.location.pathname.includes('/manager/quotation')) return <QuotationPage />;
   if (window.location.pathname.includes('/manager/project/create')) return <ProjectCreatePage />;
   if (window.location.pathname.includes('/manager/project')) return <ProjectPage />;
+  if (path.includes('/manager/inventaris')) return <PlaceholderPage pageKey="inventaris" />;
+  if (path.includes('/manager/crm')) return <PlaceholderPage pageKey="crm" />;
+  if (path.includes('/manager/invoice')) return <PlaceholderPage pageKey="invoice" />;
+  if (path.includes('/manager/reports')) return <PlaceholderPage pageKey="reports" />;
+  if (path.includes('/manager/expenses')) return <PlaceholderPage pageKey="expenses" />;
+  if (path.includes('/manager/operator')) return <PlaceholderPage pageKey="operator" />;
+  if (path.includes('/manager/settings')) return <PlaceholderPage pageKey="settings" />;
   return <Dashboard />;
 }
 
