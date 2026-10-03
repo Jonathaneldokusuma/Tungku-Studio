@@ -10,7 +10,6 @@ Service yang perlu aktif:
 
 - Authentication
 - Firestore Database
-- Storage
 
 Authentication provider:
 
@@ -32,7 +31,6 @@ VITE_API_BASE_URL=<backend-api-url>/api
 VITE_FIREBASE_API_KEY=<firebase-web-api-key>
 VITE_FIREBASE_AUTH_DOMAIN=<project-id>.firebaseapp.com
 VITE_FIREBASE_PROJECT_ID=<project-id>
-VITE_FIREBASE_STORAGE_BUCKET=<project-id>.appspot.com
 VITE_FIREBASE_MESSAGING_SENDER_ID=<sender-id>
 VITE_FIREBASE_APP_ID=<app-id>
 VITE_FIREBASE_VAPID_KEY=<optional-fcm-vapid-key>
@@ -77,7 +75,6 @@ FRONTEND_INTERNAL_URL=https://work-studiotungku.vercel.app
 
 FIREBASE_PROJECT_ID=<project-id>
 FIREBASE_CREDENTIALS=storage/app/firebase/service-account.json
-FIREBASE_STORAGE_BUCKET=<project-id>.appspot.com
 FIREBASE_DATABASE_URL=
 FIREBASE_MESSAGING_SENDER_ID=<sender-id>
 FIREBASE_VAPID_KEY=
@@ -130,3 +127,22 @@ Webhook Midtrans diarahkan ke:
 ```
 
 Catatan: agar payment benar-benar live, backend harus dipublish di hosting API yang mendukung Laravel/PHP. Vercel yang sekarang hanya frontend.
+
+## 5. File Project dan Google Drive
+
+Firebase Storage tidak dipakai karena project Spark baru tidak bisa setup Cloud Storage tanpa Blaze.
+
+Flow file:
+
+- File audio/gambar/dokumen di-upload manual ke Google Drive milik studio.
+- Web hanya menyimpan URL Google Drive di Firestore.
+- Manager/operator/client membuka file dari link tersebut.
+
+Field yang disarankan di Firestore:
+
+```txt
+projects/{projectId}.driveFolderUrl
+tasks/{taskId}.sourceFileUrl
+tasks/{taskId}.resultFileUrl
+payments/{paymentId}.proofUrl
+```
