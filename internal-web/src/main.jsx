@@ -733,7 +733,7 @@ function ProjectCreatePage() {
     <div className="dashboard-frame project-create-page">
       <Sidebar activeKey="project" />
       <main className="content">
-        <Header crumb="Operasional / Project" title="Buat Project" showProjectButton={false} />
+        <Header crumb="Operasional / Project" title="Buat Project" />
         <section className="project-create-layout">
           <section className="project-package-list panel">
             <div className="create-section-head"><h1>Paket Tersedia</h1><span>{packages.length} paket</span></div>
