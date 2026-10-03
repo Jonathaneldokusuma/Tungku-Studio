@@ -1,0 +1,111 @@
+{
+  "users": {
+    "client_demo": {
+      "name": "Satria Putra Kurniawan",
+      "email": "client@tungkustudio.com",
+      "phone": "+62 812 4431 8821",
+      "role": "client",
+      "status": "active"
+    },
+    "manager_demo": {
+      "name": "Manager Tungku",
+      "email": "manager@tungkustudio.com",
+      "phone": "+62 811 1000 2000",
+      "role": "manager",
+      "status": "active"
+    },
+    "operator_demo": {
+      "name": "Operator Editing",
+      "email": "operator@tungkustudio.com",
+      "phone": "+62 811 3000 4000",
+      "role": "operator",
+      "status": "active"
+    }
+  },
+  "packages": {
+    "paket_lengkap_a": {
+      "title": "Paket Lengkap A",
+      "description": "Paket lengkap untuk satu lagu, dari rekaman sampai siap dirilis.",
+      "price": 970000,
+      "recordingHours": 6,
+      "songCount": 1,
+      "stages": ["Recording", "Editing", "Mixing", "Mastering"],
+      "status": "active"
+    },
+    "paket_lengkap_b": {
+      "title": "Paket Lengkap B",
+      "description": "Paket lengkap untuk dua lagu, dari rekaman sampai siap dirilis.",
+      "price": 1600000,
+      "recordingHours": 12,
+      "songCount": 2,
+      "stages": ["Recording", "Editing", "Mixing", "Mastering"],
+      "status": "active"
+    }
+  },
+  "bookings": {
+    "booking_demo_a": {
+      "clientId": "client_demo",
+      "clientName": "Satria Putra Kurniawan",
+      "projectId": "project_demo_a",
+      "projectName": "Nama Project A",
+      "packageId": "paket_lengkap_a",
+      "date": "2026-10-03",
+      "startTime": "10:00",
+      "endTime": "12:00",
+      "status": "confirmed"
+    }
+  },
+  "projects": {
+    "project_demo_a": {
+      "clientId": "client_demo",
+      "clientName": "Satria Putra Kurniawan",
+      "operatorIds": ["operator_demo"],
+      "operatorNames": ["Operator Editing"],
+      "name": "Nama Project A",
+      "packageId": "paket_lengkap_a",
+      "stage": "Editing",
+      "progress": 30,
+      "status": "active",
+      "deadline": "2026-10-10"
+    }
+  },
+  "tasks": {
+    "task_demo_editing": {
+      "projectId": "project_demo_a",
+      "projectName": "Nama Project A",
+      "clientId": "client_demo",
+      "clientName": "Satria Putra Kurniawan",
+      "operatorId": "operator_demo",
+      "operatorName": "Operator Editing",
+      "stage": "Editing",
+      "songName": "Songs 1",
+      "deadline": "2026-10-10",
+      "status": "in_progress",
+      "progress": 40
+    }
+  },
+  "payments": {
+    "payment_demo_po": {
+      "clientId": "client_demo",
+      "projectId": "project_demo_a",
+      "invoiceNumber": "INV-PO-001",
+      "type": "po",
+      "amount": 485000,
+      "status": "waiting_confirmation"
+    }
+  },
+  "notifications": {
+    "notif_client_project": {
+      "userId": "client_demo",
+      "title": "Project sedang dikerjakan",
+      "message": "Nama Project A masuk tahap Editing.",
+      "read": false
+    },
+    "notif_operator_task": {
+      "userId": "operator_demo",
+      "title": "Task Editing Baru",
+      "message": "Songs 1 perlu diselesaikan sebelum 10 Oktober 2026.",
+      "read": false
+    }
+  }
+}

@@ -84,3 +84,31 @@ vercel
 cd ../internal-web
 vercel
 ```
+
+## Data Realtime
+
+Data client, manager, dan operator tersambung lewat collection Firestore yang sama:
+
+- Client membuat booking atau payment di `bookings`, `projects`, dan `payments`.
+- Manager membaca dan mengubah data yang sama untuk validasi, quotation, invoice, dan assign operator.
+- Operator membaca `tasks` yang punya `operatorId`, lalu update progress task dan project.
+
+Seed data awal tersedia di `firebase/seed-data.json`.
+
+Jalankan seed setelah Firebase service account tersedia:
+
+```bash
+npm install
+$env:FIREBASE_CREDENTIALS="backend-api/storage/app/firebase/service-account.json"
+npm run seed:firestore
+```
+
+Contoh akun demo yang perlu dibuat di Firebase Authentication:
+
+```txt
+client@tungkustudio.com
+manager@tungkustudio.com
+operator@tungkustudio.com
+```
+
+Setiap Auth user perlu punya dokumen `users/{uid}` dengan role `client`, `manager`, atau `operator`. Untuk prototype, seed memakai ID demo agar hubungan data antar collection terlihat dulu.
