@@ -67,6 +67,13 @@ Vercel Hobby dan Firebase Spark tidak punya tanggal kedaluwarsa, tetapi tetap pu
 
 Panduan lengkap ada di `docs/free-tier-deployment.md`.
 
+Production domains:
+
+```txt
+Client: https://tungku-studio.vercel.app
+Internal manager/operator: https://work-studiotungku.vercel.app
+```
+
 Deploy Firebase rules:
 
 ```bash
