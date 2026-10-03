@@ -23,6 +23,7 @@ function FigmaIcon({ name }) {
 
 function AuthPage({ mode = 'login' }) {
   const isRegister = mode === 'register';
+  const [rememberMe, setRememberMe] = React.useState(true);
   const handleSubmit = (event) => {
     event.preventDefault();
     window.location.href = '/dashboard';
@@ -43,7 +44,7 @@ function AuthPage({ mode = 'login' }) {
           {isRegister && <label>Email<input type="email" placeholder="Example text" required /></label>}
           <label>Password<input type="password" placeholder="Example text" required /></label>
           {isRegister && <label>Confirm Password<input type="password" placeholder="Example text" required /></label>}
-          {!isRegister && <div className="auth-row"><label className="remember"><input type="checkbox" defaultChecked />Remember me</label><a href="/register">Forgot Password?</a></div>}
+          {!isRegister && <div className="auth-row"><button className={`remember ${rememberMe ? 'active' : ''}`} type="button" aria-pressed={rememberMe} onClick={() => setRememberMe((value) => !value)}><span />Remember me</button><a href="/register">Forgot Password?</a></div>}
           <button className="auth-submit" type="submit">{isRegister ? 'Sign Up' : 'Login'}</button>
         </form>
         <p className="auth-switch">{isRegister ? 'Already Have Account?' : "Don't Have Account?"} <a href={isRegister ? '/login' : '/register'}>{isRegister ? 'Sign In' : 'Sign Up'}</a></p>
