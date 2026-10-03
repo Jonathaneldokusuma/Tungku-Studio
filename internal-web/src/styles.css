@@ -290,6 +290,12 @@ label:focus-visible {
   transition: background 160ms var(--ease-soft), transform 160ms var(--ease-soft), box-shadow 160ms var(--ease-soft);
 }
 
+.top-actions .create-project-header-button {
+  min-width: 92px;
+  color: #ffffff;
+  background: #df4438;
+}
+
 .top-actions button:hover,
 .add-package:hover,
 .modal-actions button:last-child:hover,

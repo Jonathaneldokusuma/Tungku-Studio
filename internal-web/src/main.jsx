@@ -162,7 +162,7 @@ function Header({ crumb = 'Utama / Dashboard', title = 'Dashboard', showProjectB
     <header className="topbar">
       <div className="crumb"><span>{crumb}</span><strong>{title}</strong></div>
       <div className="top-actions">
-        {showProjectButton && <button type="button" onClick={() => { window.location.href = '/manager/project/create'; }}>Buat Project</button>}
+        {showProjectButton && <button className="create-project-header-button" type="button" onClick={() => { window.location.href = '/manager/project/create'; }}>Buat Project</button>}
         <label className="search"><FigmaIcon name="search" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Cari project, klien, operator..." /></label>
         <button className="icon-button" type="button" aria-label="Filter"><FigmaIcon name="sliders" className="top-icon" /></button>
         <button className="icon-button" type="button" aria-label="Notifikasi"><FigmaIcon name="bell" className="top-icon" /></button>
