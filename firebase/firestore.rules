@@ -1,0 +1,76 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function userProfile() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function hasRole(role) {
+      return signedIn() && userProfile().data.role == role;
+    }
+
+    function internalUser() {
+      return hasRole('manager') || hasRole('operator');
+    }
+
+    match /users/{userId} {
+      allow read: if signedIn() && (request.auth.uid == userId || internalUser());
+      allow create: if signedIn() && request.auth.uid == userId;
+      allow update: if signedIn() && (request.auth.uid == userId || hasRole('manager'));
+      allow delete: if hasRole('manager');
+    }
+
+    match /packages/{packageId} {
+      allow read: if true;
+      allow write: if hasRole('manager');
+    }
+
+    match /bookings/{bookingId} {
+      allow read: if signedIn() && (resource.data.clientId == request.auth.uid || internalUser());
+      allow create: if signedIn() && request.resource.data.clientId == request.auth.uid;
+      allow update: if signedIn() && (resource.data.clientId == request.auth.uid || internalUser());
+      allow delete: if hasRole('manager');
+    }
+
+    match /custom_offers/{offerId} {
+      allow read: if signedIn() && (resource.data.clientId == request.auth.uid || internalUser());
+      allow create: if signedIn();
+      allow update, delete: if signedIn() && (resource.data.clientId == request.auth.uid || hasRole('manager'));
+    }
+
+    match /projects/{projectId} {
+      allow read: if signedIn() && (resource.data.clientId == request.auth.uid || internalUser());
+      allow write: if internalUser();
+    }
+
+    match /payments/{paymentId} {
+      allow read: if signedIn() && (resource.data.clientId == request.auth.uid || hasRole('manager'));
+      allow create: if signedIn() && request.resource.data.clientId == request.auth.uid;
+      allow update, delete: if hasRole('manager');
+    }
+
+    match /tasks/{taskId} {
+      allow read: if signedIn() && (resource.data.operatorId == request.auth.uid || hasRole('manager'));
+      allow write: if internalUser();
+    }
+
+    match /notifications/{notificationId} {
+      allow read, update: if signedIn() && resource.data.userId == request.auth.uid;
+      allow create, delete: if internalUser();
+    }
+
+    match /crm_messages/{messageId} {
+      allow read: if signedIn() && (resource.data.clientId == request.auth.uid || hasRole('manager'));
+      allow write: if hasRole('manager');
+    }
+
+    match /finance_reports/{reportId} {
+      allow read, write: if hasRole('manager');
+    }
+  }
+}

@@ -1,0 +1,26 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function userRole(role) {
+      return signedIn()
+        && firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == role;
+    }
+
+    match /clients/{userId}/{allPaths=**} {
+      allow read, write: if signedIn() && (request.auth.uid == userId || userRole('manager'));
+    }
+
+    match /projects/{projectId}/{allPaths=**} {
+      allow read, write: if signedIn() && (userRole('manager') || userRole('operator'));
+    }
+
+    match /invoices/{allPaths=**} {
+      allow read, write: if userRole('manager');
+    }
+  }
+}

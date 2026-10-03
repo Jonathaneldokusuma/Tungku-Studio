@@ -52,3 +52,33 @@ cd internal-web
 npm install
 npm run dev
 ```
+
+## Deployment Gratis
+
+Target free tier:
+
+- Frontend `client-web`: Vercel Hobby, root directory `client-web`.
+- Frontend `internal-web`: Vercel Hobby, root directory `internal-web`.
+- Realtime database/auth: Firebase Spark memakai Firestore realtime listener.
+- File rules: `firebase/storage.rules`.
+- Firestore rules: `firebase/firestore.rules`.
+
+Vercel Hobby dan Firebase Spark tidak punya tanggal kedaluwarsa, tetapi tetap punya quota pemakaian. Untuk tetap 100% gratis, pantau usage dan jangan aktifkan billing otomatis kecuali memang mau memakai fitur paid.
+
+Deploy Firebase rules:
+
+```bash
+firebase login
+firebase use <firebase-project-id>
+firebase deploy --only firestore:rules,firestore:indexes,storage
+```
+
+Deploy Vercel:
+
+```bash
+cd client-web
+vercel
+
+cd ../internal-web
+vercel
+```
