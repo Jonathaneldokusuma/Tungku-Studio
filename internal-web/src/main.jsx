@@ -947,29 +947,37 @@ function PackageManagement() {
 }
 
 const placeholderPages = {
-  inventaris: { crumb: 'Operasional / Inventaris', title: 'Inventaris', stats: [{ title: 'Total Inventaris', value: '24', shape: 'inventaris' }, { title: 'Perlu Servis', value: '3', shape: 'settings' }, { title: 'Dipakai Project', value: '8', shape: 'project' }] },
-  crm: { crumb: 'Penjualan / CRM', title: 'CRM', stats: [{ title: 'Total Klien', value: '18', shape: 'crm' }, { title: 'Klien Aktif', value: '7', shape: 'thumb-up' }, { title: 'Follow Up', value: '4', shape: 'quotation' }] },
-  invoice: { crumb: 'Keuangan / Invoice', title: 'Invoice', stats: [{ title: 'Semua Invoice', value: '12', shape: 'invoice' }, { title: 'Belum Lunas', value: '4', shape: 'reports' }, { title: 'Lunas', value: '8', shape: 'thumb-up' }] },
-  reports: { crumb: 'Keuangan / Laporan', title: 'Laporan', stats: [{ title: 'Laporan Bulan Ini', value: '5', shape: 'reports' }, { title: 'Pendapatan', value: 'Rp 1.243.000', shape: 'chart-up' }, { title: 'Pengeluaran', value: 'Rp 321.000', shape: 'expenses' }] },
-  expenses: { crumb: 'Keuangan / Pengeluaran', title: 'Pengeluaran', stats: [{ title: 'Total Pengeluaran', value: 'Rp 321.000', shape: 'expenses' }, { title: 'Maintenance', value: '57%', shape: 'settings' }, { title: 'Operasional', value: '11%', shape: 'reports' }] },
-  operator: { crumb: 'Administrasi / Operator', title: 'Operator', stats: [{ title: 'Semua Operator', value: '6', shape: 'operator' }, { title: 'Aktif', value: '4', shape: 'thumb-up' }, { title: 'Task Berjalan', value: '9', shape: 'project' }] },
-  settings: { crumb: 'Administrasi / Pengaturan', title: 'Pengaturan', stats: [{ title: 'Profil Studio', value: '1', shape: 'settings' }, { title: 'Role Aktif', value: '3', shape: 'operator' }, { title: 'Notifikasi', value: 'Aktif', shape: 'bell' }] },
+  inventaris: { crumb: 'Operasional / Inventaris', title: 'Inventaris', action: 'Tambah Alat', stats: [{ title: 'Total Inventaris', value: '24', shape: 'inventaris' }, { title: 'Perlu Servis', value: '3', shape: 'settings' }, { title: 'Dipakai Project', value: '8', shape: 'project' }], columns: ['Nama Alat', 'Kategori', 'Status', 'Lokasi', 'Aksi'], rows: [['Mic Condenser A', 'Recording', 'Tersedia', 'Studio A'], ['Audio Interface', 'Recording', 'Dipakai', 'Studio B'], ['Gitar Akustik', 'Instrumen', 'Servis', 'Gudang'], ['Headphone Monitor', 'Monitoring', 'Tersedia', 'Studio A']] },
+  crm: { crumb: 'Penjualan / CRM', title: 'CRM', action: 'Tambah Klien', stats: [{ title: 'Total Klien', value: '18', shape: 'crm' }, { title: 'Klien Aktif', value: '7', shape: 'thumb-up' }, { title: 'Follow Up', value: '4', shape: 'quotation' }], columns: ['Nama Klien', 'Kontak', 'Stage', 'Project', 'Aksi'], rows: [['Satria Putra', 'satria@mail.com', 'Follow Up', 'Project A'], ['Jane Doe', 'jane@mail.com', 'Aktif', 'Project C'], ['Budi Spageti', 'budi@mail.com', 'Penawaran', 'Project B'], ['John Doe', 'john@mail.com', 'Lead Baru', '-']] },
+  invoice: { crumb: 'Keuangan / Invoice', title: 'Invoice', action: 'Buat Invoice', stats: [{ title: 'Semua Invoice', value: '12', shape: 'invoice' }, { title: 'Belum Lunas', value: '4', shape: 'reports' }, { title: 'Lunas', value: '8', shape: 'thumb-up' }], columns: ['No Invoice', 'Klien', 'Total', 'Status', 'Aksi'], rows: [['INV-001', 'Satria Putra', 'Rp 970.000', 'Lunas'], ['INV-002', 'Jane Doe', 'Rp 1.600.000', 'Belum Lunas'], ['INV-003', 'Budi Spageti', 'Rp 450.000', 'Lunas'], ['INV-004', 'John Doe', 'Rp 360.000', 'Belum Lunas']] },
+  reports: { crumb: 'Keuangan / Laporan', title: 'Laporan', action: 'Export', stats: [{ title: 'Laporan Bulan Ini', value: '5', shape: 'reports' }, { title: 'Pendapatan', value: 'Rp 1.243.000', shape: 'chart-up' }, { title: 'Pengeluaran', value: 'Rp 321.000', shape: 'expenses' }], columns: ['Periode', 'Pendapatan', 'Pengeluaran', 'Profit', 'Aksi'], rows: [['Oktober 2026', 'Rp 1.243.000', 'Rp 321.000', 'Rp 922.000'], ['September 2026', 'Rp 1.050.000', 'Rp 290.000', 'Rp 760.000'], ['Agustus 2026', 'Rp 980.000', 'Rp 240.000', 'Rp 740.000']] },
+  expenses: { crumb: 'Keuangan / Pengeluaran', title: 'Pengeluaran', action: 'Tambah Pengeluaran', stats: [{ title: 'Total Pengeluaran', value: 'Rp 321.000', shape: 'expenses' }, { title: 'Maintenance', value: '57%', shape: 'settings' }, { title: 'Operasional', value: '11%', shape: 'reports' }], columns: ['Nama Pengeluaran', 'Kategori', 'Nominal', 'Tanggal', 'Aksi'], rows: [['Service Mic', 'Maintenance', 'Rp 150.000', '3 Okt 2026'], ['Beli Kabel XLR', 'Pembelian Alat', 'Rp 95.000', '2 Okt 2026'], ['Listrik Studio', 'Operasional', 'Rp 76.000', '1 Okt 2026']] },
+  operator: { crumb: 'Administrasi / Operator', title: 'Operator', action: 'Tambah Operator', stats: [{ title: 'Semua Operator', value: '6', shape: 'operator' }, { title: 'Aktif', value: '4', shape: 'thumb-up' }, { title: 'Task Berjalan', value: '9', shape: 'project' }], columns: ['Nama Operator', 'Role', 'Task Aktif', 'Status', 'Aksi'], rows: [['Operator A', 'Recording', '3', 'Aktif'], ['Operator B', 'Editing', '2', 'Aktif'], ['Operator C', 'Mixing', '4', 'Aktif'], ['Operator D', 'Mastering', '0', 'Off']] },
+  settings: { crumb: 'Administrasi / Pengaturan', title: 'Pengaturan', action: 'Simpan', stats: [{ title: 'Profil Studio', value: '1', shape: 'settings' }, { title: 'Role Aktif', value: '3', shape: 'operator' }, { title: 'Notifikasi', value: 'Aktif', shape: 'bell' }], columns: ['Pengaturan', 'Nilai', 'Status', 'Terakhir Diubah', 'Aksi'], rows: [['Nama Studio', 'Tungku Studio', 'Aktif', 'Hari ini'], ['Email Notifikasi', 'Aktif', 'Aktif', 'Hari ini'], ['Role Manager', 'Full Access', 'Aktif', 'Kemarin'], ['Mode Booking', 'Manual Approval', 'Aktif', 'Kemarin']] },
 };
 
 function PlaceholderPage({ pageKey }) {
   const page = placeholderPages[pageKey];
+  const [query, setQuery] = React.useState('');
+  const [selectedRow, setSelectedRow] = React.useState(null);
+  const rows = page.rows.filter((row) => row.join(' ').toLowerCase().includes(query.toLowerCase()));
   return (
-    <div className="dashboard-frame placeholder-page">
+    <div className="dashboard-frame data-page">
       <Sidebar activeKey={pageKey} />
       <main className="content">
         <Header crumb={page.crumb} title={page.title} />
-        <section className="package-stats placeholder-stats">{page.stats.map((item) => <PackageStatCard item={item} key={item.title} />)}</section>
-        <section className="placeholder-panel panel">
-          <FigmaIcon name={menuSections.flatMap((section) => section.items).find((item) => item.key === pageKey)?.icon || 'project'} />
-          <h1>{page.title}</h1>
-          <p>Halaman ini sudah tersambung ke navigasi. Detail UI bisa lanjut dibuat sesuai mockup berikutnya.</p>
+        <section className="package-stats data-stats">{page.stats.map((item) => <PackageStatCard item={item} key={item.title} />)}</section>
+        <section className="data-toolbar panel">
+          <label className="package-search"><FigmaIcon name="search" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`Cari ${page.title.toLowerCase()}...`} /></label>
+          <button type="button"><FigmaIcon name="add" />{page.action}</button>
+        </section>
+        <section className="data-table panel">
+          <div className="data-table-head">{page.columns.map((column) => <span key={column}>{column}</span>)}</div>
+          {rows.map((row) => <div className="data-table-row" key={row.join('-')}>{row.map((cell) => <span key={cell}>{cell}</span>)}<button type="button" onClick={() => setSelectedRow(row)}><FigmaIcon name="arrow-right" /></button></div>)}
+          <div className="package-table-foot"><div className="pager"><button type="button">&lt;</button><span>1</span><button type="button">&gt;</button></div><span>{rows.length} data</span></div>
         </section>
       </main>
+      {selectedRow && <DashboardDetailModal detail={{ title: page.title, value: selectedRow[0], description: selectedRow.map((cell, index) => `${page.columns[index]}: ${cell}`).join('\n') }} onClose={() => setSelectedRow(null)} />}
     </div>
   );
 }
