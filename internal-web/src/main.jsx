@@ -207,50 +207,78 @@ function MiniIcon({ type }) {
   return <span className={`mini-icon ${type}`} aria-hidden="true" />;
 }
 
-function StatCard({ item }) {
-  return <article className="stat-card"><div className={`pill ${item.trendClass}`}>{item.trend}</div><span className="stat-arrow">-&gt;</span><p>{item.title}</p><strong>{item.value}</strong><MiniIcon type={item.shape} /></article>;
+function StatCard({ item, onDetail }) {
+  return <article className="stat-card"><div className={`pill ${item.trendClass}`}>{item.trend}</div><button className="stat-arrow" type="button" onClick={() => onDetail(item.title, item.value, `Data ${item.title} diperbarui realtime di dashboard.`)}>-&gt;</button><p>{item.title}</p><strong>{item.value}</strong><MiniIcon type={item.shape} /></article>;
 }
 
 function PackageStatCard({ item }) {
   return <article className="package-stat-card"><p>{item.title}</p><strong>{item.value}</strong><MiniIcon type={item.shape} /></article>;
 }
 
-function FinanceChart() {
+function FinanceChart({ monthLabel = 'September 2026' }) {
   return (
     <section className="panel finance">
-      <div className="panel-title"><h2>Laporan Keuangan</h2><div className="legend"><span>Pendapatan</span><span className="expense">Pengeluaran</span><span className="month">September 2026</span></div></div>
+      <div className="panel-title"><h2>Laporan Keuangan</h2><div className="legend"><span>Pendapatan</span><span className="expense">Pengeluaran</span><span className="month">{monthLabel}</span></div></div>
       <div className="chart"><div className="y-axis">{[160, 140, 120, 100, 80, 60, 40, 20].map((n) => <span key={n}>{n}</span>)}</div><svg viewBox="0 0 760 230" preserveAspectRatio="none"><path className="grid" d="M0 20H760 M0 49H760 M0 78H760 M0 107H760 M0 136H760 M0 165H760 M0 194H760 M0 223H760" /><polyline className="line income-line" points="0,190 85,184 160,222 235,70 315,155 395,35 475,110 560,48 650,42 760,38" /><polyline className="line expense-line" points="0,178 85,174 160,188 235,145 315,198 395,118 475,132 560,28 650,4 760,14" /></svg><div className="months">{['JAN', 'FEB', 'MAR', 'APR', 'MEI', 'JUN', 'JUL', 'AGS', 'SEP', 'OCT', 'NOV', 'DEC'].map((m) => <span key={m}>{m}</span>)}</div></div>
     </section>
   );
 }
 
-function PiePanel({ kind }) {
-  const [selected, setSelected] = React.useState(false);
+function PiePanel({ kind, onDetail }) {
   const isDonut = kind === 'donut';
   const labels = isDonut ? [['Maintenance', '57%', 'red'], ['Pembelian Alat', '32%', 'dark'], ['Operasional', '11%', 'gold']] : [['Paket A', '57%', 'red'], ['Paket B', '32%', 'dark'], ['Paket C', '11%', 'gold']];
-  return <section className={`panel pie-panel ${selected ? 'is-selected' : ''}`}><div className="panel-title"><h2>{isDonut ? 'Pengeluaran Bulan Ini' : 'Paket Terlaris Bulanan'}</h2><button className="panel-action" type="button" onClick={() => setSelected((value) => !value)}>-&gt;</button></div><div className={`pie ${isDonut ? 'donut' : ''}`} /><div className="pie-labels">{labels.map(([name, pct, color]) => <div key={name}><span className={color} /><p>{name}</p><strong>{pct}</strong></div>)}</div></section>;
+  const title = isDonut ? 'Pengeluaran Bulan Ini' : 'Paket Terlaris Bulanan';
+  return <section className="panel pie-panel"><div className="panel-title"><h2>{title}</h2><button className="panel-action" type="button" onClick={() => onDetail(title, labels[0][1], labels.map(([name, pct]) => `${name}: ${pct}`).join('\n'))}>-&gt;</button></div><div className={`pie ${isDonut ? 'donut' : ''}`} /><div className="pie-labels">{labels.map(([name, pct, color]) => <div key={name}><span className={color} /><p>{name}</p><strong>{pct}</strong></div>)}</div></section>;
 }
 
-function SmallPanel({ title, children }) {
-  const [expanded, setExpanded] = React.useState(false);
-  return <section className={`panel small-panel ${expanded ? 'is-expanded' : ''}`}><div className="panel-title"><h2>{title}</h2><button className="panel-action" type="button" onClick={() => setExpanded((value) => !value)}>-&gt;</button></div>{children}</section>;
+function SmallPanel({ title, detail, children, onDetail }) {
+  return <section className="panel small-panel"><div className="panel-title"><h2>{title}</h2><button className="panel-action" type="button" onClick={() => onDetail(title, '', detail)}>-&gt;</button></div>{children}</section>;
+}
+
+function DashboardDetailModal({ detail, onClose }) {
+  return (
+    <div className="modal-backdrop">
+      <section className="dashboard-detail-modal" role="dialog" aria-modal="true" aria-label="Detail Dashboard">
+        <button className="modal-close" type="button" onClick={onClose}>x</button>
+        <h2>{detail.title}</h2>
+        {detail.value && <strong>{detail.value}</strong>}
+        <p>{detail.description}</p>
+        <footer><button type="button" onClick={onClose}>Tutup</button></footer>
+      </section>
+    </div>
+  );
 }
 
 function Dashboard() {
+  const [now, setNow] = React.useState(new Date());
+  const [tick, setTick] = React.useState(0);
+  const [detail, setDetail] = React.useState(null);
+  React.useEffect(() => {
+    const interval = window.setInterval(() => {
+      setNow(new Date());
+      setTick((value) => value + 1);
+    }, 1000);
+    return () => window.clearInterval(interval);
+  }, []);
+  const liveStats = dashboardStats.map((item) => item.title === 'Project Aktif' ? { ...item, value: String(3 + (tick % 2)) } : item.title === 'Dalam Penawaran' ? { ...item, value: String(2 + (tick % 3 === 0 ? 1 : 0)) } : item);
+  const monthLabel = now.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+  const openDetail = (title, value, description) => setDetail({ title, value, description });
   return (
     <div className="dashboard-frame">
       <Sidebar activeKey="dashboard" />
       <main className="content">
         <Header />
-        <section className="stats">{dashboardStats.map((item) => <StatCard item={item} key={item.title} />)}</section>
-        <section className="middle-grid"><FinanceChart /><PiePanel /><PiePanel kind="donut" /></section>
+        <div className="live-strip"><span>Realtime</span><strong>{now.toLocaleTimeString('id-ID')}</strong><em>{now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</em></div>
+        <section className="stats">{liveStats.map((item) => <StatCard item={item} onDetail={openDetail} key={item.title} />)}</section>
+        <section className="middle-grid"><FinanceChart monthLabel={monthLabel} /><PiePanel onDetail={openDetail} /><PiePanel kind="donut" onDetail={openDetail} /></section>
         <section className="bottom-grid">
-          <SmallPanel title="Jadwal Rekaman Hari Ini">{schedule.map(([name, client, time]) => <div className="record-row" key={name}><div><strong>{name}</strong><span>{client}</span></div><time>{time}</time></div>)}</SmallPanel>
-          <SmallPanel title="Progress Proyek">{progress.map(([name, client, tag, color]) => <div className="record-row" key={name}><div><strong>{name}</strong><span>{client}</span></div><mark className={color}>{tag}</mark></div>)}</SmallPanel>
-          <SmallPanel title="Progress Penawaran">{offers.map(([name, client, tag, color]) => <div className="record-row" key={name}><div><strong>{name}</strong><span>{client}</span></div><mark className={color}>{tag}</mark></div>)}</SmallPanel>
-          <SmallPanel title="Aktivitas Operator">{activities.map(([text, time]) => <div className="activity" key={text}><strong>{text}</strong><span>{time}</span></div>)}</SmallPanel>
+          <SmallPanel title="Jadwal Rekaman Hari Ini" detail={schedule.map(([name, client, time]) => `${name} - ${client} (${time})`).join('\n')} onDetail={openDetail}>{schedule.map(([name, client, time]) => <div className="record-row" key={name}><div><strong>{name}</strong><span>{client}</span></div><time>{time}</time></div>)}</SmallPanel>
+          <SmallPanel title="Progress Proyek" detail={progress.map(([name, client, tag]) => `${name} - ${client}: ${tag}`).join('\n')} onDetail={openDetail}>{progress.map(([name, client, tag, color]) => <div className="record-row" key={name}><div><strong>{name}</strong><span>{client}</span></div><mark className={color}>{tag}</mark></div>)}</SmallPanel>
+          <SmallPanel title="Progress Penawaran" detail={offers.map(([name, client, tag]) => `${name} - ${client}: ${tag}`).join('\n')} onDetail={openDetail}>{offers.map(([name, client, tag, color]) => <div className="record-row" key={name}><div><strong>{name}</strong><span>{client}</span></div><mark className={color}>{tag}</mark></div>)}</SmallPanel>
+          <SmallPanel title="Aktivitas Operator" detail={activities.map(([text, time]) => `${text} - ${time}`).join('\n')} onDetail={openDetail}>{activities.map(([text, time]) => <div className="activity" key={text}><strong>{text}</strong><span>{time}</span></div>)}</SmallPanel>
         </section>
       </main>
+      {detail && <DashboardDetailModal detail={detail} onClose={() => setDetail(null)} />}
     </div>
   );
 }

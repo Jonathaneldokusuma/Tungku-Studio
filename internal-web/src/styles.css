@@ -410,7 +410,18 @@ label:focus-visible {
   position: absolute;
   top: 18px;
   right: 13px;
+  padding: 0;
+  color: #231f20;
   font-size: 12px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  transition: color 160ms var(--ease-soft), transform 160ms var(--ease-soft);
+}
+
+.stat-arrow:hover {
+  color: #df4438;
+  transform: translateX(2px);
 }
 
 .stat-card p {
@@ -530,6 +541,36 @@ label:focus-visible {
   margin-bottom: 16px;
 }
 
+.live-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 28px;
+  margin-bottom: 14px;
+  color: #6a605d;
+  font-size: 9px;
+}
+
+.live-strip span {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 8px;
+  color: #df4438;
+  background: #ffdeda;
+  border-radius: 999px;
+}
+
+.live-strip strong {
+  color: #231f20;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.live-strip em {
+  font-style: normal;
+}
+
 .panel {
   overflow: hidden;
   transition: transform 180ms var(--ease-soft), box-shadow 180ms var(--ease-soft), border-color 180ms var(--ease-soft);
@@ -577,6 +618,56 @@ label:focus-visible {
 
 .panel.is-selected {
   box-shadow: inset 0 0 0 1px rgba(223, 68, 56, 0.18);
+}
+
+.dashboard-detail-modal {
+  position: relative;
+  width: 420px;
+  max-width: calc(100vw - 40px);
+  padding: 24px;
+  background: #ffffff;
+  border-radius: 6px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+  animation: modal-pop 200ms var(--ease-out);
+}
+
+.dashboard-detail-modal h2 {
+  margin: 0 32px 10px 0;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.dashboard-detail-modal > strong {
+  display: block;
+  margin-bottom: 14px;
+  color: #df4438;
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.dashboard-detail-modal p {
+  margin: 0;
+  color: #5d5553;
+  font-size: 11px;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.dashboard-detail-modal footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.dashboard-detail-modal footer button {
+  height: 34px;
+  padding: 0 18px;
+  color: #ffffff;
+  font-size: 10px;
+  background: #df4438;
+  border: 0;
+  border-radius: 2px;
+  cursor: pointer;
 }
 
 .legend {
