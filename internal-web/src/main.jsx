@@ -982,6 +982,63 @@ function PlaceholderPage({ pageKey }) {
   );
 }
 
+const operatorSteps = [
+  { label: 'Record', icon: 'operator', state: 'done' },
+  { label: 'Editing', icon: 'edit', state: 'active', progress: '40%' },
+  { label: 'Mixing', icon: 'mix', state: 'idle' },
+  { label: 'Mastering', icon: 'master', state: 'idle' },
+  { label: 'Finish', icon: 'thumb-up', state: 'idle' },
+];
+
+function OperatorPage() {
+  const [selectedTask, setSelectedTask] = React.useState(null);
+  const tasks = [['Songs 1', 'Operator A'], ['Songs 2', 'Operator B']];
+  return (
+    <div className="dashboard-frame operator-page">
+      <Sidebar activeKey="operator" />
+      <main className="content">
+        <Header crumb="Administrasi / Operator" title="Operator" />
+        <section className="operator-layout">
+          <div className="operator-main">
+            <section className="operator-flow panel">
+              {operatorSteps.map((step, index) => (
+                <div className={`operator-step ${step.state}`} key={step.label}>
+                  {index < operatorSteps.length - 1 && <span className="operator-step-line" />}
+                  <button type="button" onClick={() => setSelectedTask([step.label, step.progress || ''])}><FigmaIcon name={step.icon} /></button>
+                  {step.progress && <em>{step.progress}</em>}
+                  <strong>{step.label}</strong>
+                </div>
+              ))}
+            </section>
+            <section className="operator-task-table panel">
+              <div className="operator-task-head"><span>Editing</span><button type="button">Set Deadline</button></div>
+              {tasks.map(([song, operator], index) => (
+                <div className="operator-task-row" key={song}>
+                  <ProjectAvatar tone={index} />
+                  <strong>{song}</strong>
+                  <button type="button" onClick={() => setSelectedTask([song, operator])}><FigmaIcon name="add" />Upload</button>
+                </div>
+              ))}
+              <div className="package-table-foot"><div className="pager"><button type="button">&lt;</button><span>1</span><button type="button">&gt;</button></div><span>6 dari 6 operator</span></div>
+            </section>
+          </div>
+          <aside className="operator-side">
+            <section className="operator-avatars panel">
+              <h2>Operator</h2>
+              <div>{[0, 1, 2, 3, 0].map((tone, index) => <ProjectAvatar tone={tone} key={index} />)}</div>
+            </section>
+            <section className="operator-card panel">
+              <div className="operator-card-head"><ProjectAvatar /><div><h2>Operator Name</h2><p>Client Name</p></div><span className="project-stage mastering"><FigmaIcon name="master" />Mastering</span></div>
+              <time>26 Sep 2026</time>
+            </section>
+          </aside>
+        </section>
+      </main>
+      {selectedTask && <DashboardDetailModal detail={{ title: selectedTask[0], value: selectedTask[1], description: 'Task operator siap diproses. Upload dan deadline bisa disambungkan ke backend nanti.' }} onClose={() => setSelectedTask(null)} />}
+    </div>
+  );
+}
+
 function App() {
   const path = window.location.pathname;
   if (window.location.pathname.includes('/manager/packages')) return <PackageManagement />;
@@ -994,7 +1051,7 @@ function App() {
   if (path.includes('/manager/invoice')) return <PlaceholderPage pageKey="invoice" />;
   if (path.includes('/manager/reports')) return <PlaceholderPage pageKey="reports" />;
   if (path.includes('/manager/expenses')) return <PlaceholderPage pageKey="expenses" />;
-  if (path.includes('/manager/operator')) return <PlaceholderPage pageKey="operator" />;
+  if (path.includes('/manager/operator')) return <OperatorPage />;
   if (path.includes('/manager/settings')) return <PlaceholderPage pageKey="settings" />;
   return <Dashboard />;
 }

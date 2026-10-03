@@ -2613,6 +2613,197 @@ mark.red {
   filter: brightness(0) saturate(100%) invert(40%) sepia(70%) saturate(1510%) hue-rotate(334deg) brightness(88%) contrast(96%);
 }
 
+.operator-layout {
+  display: grid;
+  grid-template-columns: 1fr 252px;
+  gap: 16px;
+  align-items: start;
+}
+
+.operator-main {
+  display: grid;
+  gap: 16px;
+}
+
+.operator-flow {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  height: 86px;
+  padding: 15px 24px 10px;
+}
+
+.operator-step {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 3px;
+}
+
+.operator-step-line {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  width: 100%;
+  border-top: 3px dashed #e4d8d5;
+}
+
+.operator-step.done .operator-step-line {
+  border-color: #087c4c;
+}
+
+.operator-step button {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  background: #d9f1df;
+  border: 2px solid #d9f1df;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.operator-step.done button {
+  border-color: #087c4c;
+}
+
+.operator-step.active button {
+  background: #d9f1df;
+  border-color: #df4438;
+}
+
+.operator-step .figma-icon {
+  width: 18px;
+  height: 18px;
+  filter: brightness(0) saturate(100%) invert(35%) sepia(42%) saturate(931%) hue-rotate(101deg) brightness(91%) contrast(92%);
+}
+
+.operator-step em {
+  color: #df4438;
+  font-size: 8px;
+  font-style: normal;
+}
+
+.operator-step strong {
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.operator-task-table {
+  min-height: 392px;
+  overflow: hidden;
+}
+
+.operator-task-head,
+.operator-task-row {
+  display: grid;
+  grid-template-columns: 46px 1fr 98px;
+  align-items: center;
+  padding: 0 28px 0 16px;
+}
+
+.operator-task-head {
+  grid-template-columns: 1fr 120px;
+  height: 34px;
+  font-size: 9px;
+  border-bottom: 1px solid #aaa19e;
+}
+
+.operator-task-head button {
+  color: #231f20;
+  font-size: 9px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.operator-task-row {
+  height: 54px;
+  border-bottom: 1px solid #e7dfdc;
+}
+
+.operator-task-row strong {
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.operator-task-row button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 31px;
+  color: #ffffff;
+  font-size: 9px;
+  background: #df4438;
+  border: 0;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.operator-task-row button .figma-icon {
+  width: 12px;
+  height: 12px;
+  filter: brightness(0) invert(1);
+}
+
+.operator-side {
+  display: grid;
+  gap: 16px;
+}
+
+.operator-avatars {
+  height: 86px;
+  padding: 13px 14px;
+}
+
+.operator-avatars h2 {
+  margin: 0 0 14px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.operator-avatars div {
+  display: flex;
+  gap: 8px;
+}
+
+.operator-card {
+  min-height: 392px;
+  padding: 13px 10px;
+}
+
+.operator-card-head {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  gap: 8px;
+  align-items: start;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e2d8d5;
+}
+
+.operator-card h2 {
+  margin: 2px 0 3px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.operator-card p {
+  margin: 0;
+  color: #5d5553;
+  font-size: 9px;
+}
+
+.operator-card time {
+  display: block;
+  margin-top: 4px;
+  padding-left: 44px;
+  color: #5d5553;
+  font-size: 8px;
+}
+
 .quotation-actions {
   gap: 7px;
 }
