@@ -742,6 +742,280 @@ input {
   gap: 18px;
 }
 
+.booking-extension-page {
+  display: grid;
+  grid-template-columns: 275px minmax(0, 430px);
+  align-items: start;
+  gap: 18px;
+  margin-left: 31px;
+}
+
+.selected-project-card,
+.extension-calendar,
+.extension-detail {
+  background: #ffffff;
+  border: 1px solid #d6c7c3;
+  border-radius: 4px;
+}
+
+.selected-project-card {
+  min-height: 292px;
+  padding: 18px;
+}
+
+.selected-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.selected-head > span {
+  color: #231f20;
+  font-size: 10px;
+}
+
+.selected-head mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 7px;
+  color: #8d3e37;
+  background: #f7d9d6;
+  border-radius: 3px;
+  font-size: 8px;
+}
+
+.selected-head .figma-icon {
+  width: 10px;
+  height: 10px;
+}
+
+.selected-project-card h2 {
+  margin: 0 0 5px;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.selected-project-card p {
+  margin: 0 0 14px;
+  color: #554a47;
+  font-size: 10px;
+}
+
+.booking-info,
+.extension-row {
+  display: grid;
+  grid-template-columns: 16px 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.booking-info .figma-icon,
+.extension-row .figma-icon {
+  width: 13px;
+  height: 13px;
+  margin-top: 1px;
+  filter: none;
+}
+
+.booking-info strong,
+.extension-row strong {
+  display: block;
+  color: #231f20;
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.booking-info span,
+.extension-row span {
+  display: block;
+  margin-top: 3px;
+  color: #554a47;
+  font-size: 8px;
+  line-height: 1.45;
+}
+
+.extension-main {
+  display: grid;
+  gap: 14px;
+}
+
+.extension-title {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.extension-title h1 {
+  margin: 0 0 4px;
+  color: #141111;
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.extension-title p {
+  margin: 0;
+  color: #665b58;
+  font-size: 9px;
+}
+
+.slot-legend {
+  display: flex;
+  gap: 7px;
+  white-space: nowrap;
+}
+
+.slot-legend span {
+  padding: 5px 10px;
+  color: #8d3e37;
+  background: #f7d9d6;
+  border-radius: 999px;
+  font-size: 8px;
+}
+
+.extension-calendar {
+  padding: 14px;
+}
+
+.calendar-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.calendar-toolbar button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 32px;
+  padding: 0 10px;
+  color: #231f20;
+  background: #ffffff;
+  border: 1px solid #e1d5d1;
+  border-radius: 4px;
+  font-size: 10px;
+}
+
+.calendar-toolbar button:last-child {
+  color: #df4438;
+  background: #ffd9d5;
+}
+
+.calendar-toolbar .figma-icon {
+  width: 13px;
+  height: 13px;
+}
+
+.calendar-week,
+.extension-date-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  text-align: center;
+}
+
+.calendar-week {
+  margin-bottom: 10px;
+  color: #8a7e7a;
+  font-size: 9px;
+}
+
+.extension-date-grid {
+  row-gap: 11px;
+  color: #231f20;
+}
+
+.extension-date-grid button {
+  width: 28px;
+  height: 28px;
+  justify-self: center;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  font-size: 9px;
+  cursor: pointer;
+}
+
+.extension-date-grid button.muted {
+  color: #b7aaa6;
+}
+
+.extension-date-grid button.dark {
+  color: #ffffff;
+  background: #231f20;
+}
+
+.extension-date-grid button.picked {
+  color: #df4438;
+  background: #ffd9d5;
+}
+
+.extension-detail {
+  padding: 16px;
+}
+
+.extension-detail h2 {
+  margin: 0 0 7px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.extension-detail > p {
+  margin: 0 0 14px;
+  color: #554a47;
+  font-size: 9px;
+}
+
+.extension-summary,
+.extension-warning {
+  display: grid;
+  gap: 6px;
+  margin-top: 14px;
+  padding: 13px;
+  border-radius: 4px;
+  background: #ffd4cf;
+}
+
+.extension-summary strong,
+.extension-warning strong {
+  color: #8d3e37;
+  font-size: 9px;
+}
+
+.extension-summary span,
+.extension-warning span {
+  color: #5a302c;
+  font-size: 8px;
+  line-height: 1.45;
+}
+
+.extension-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 16px;
+}
+
+.extension-actions button {
+  height: 31px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: #df4438;
+  font-size: 9px;
+  cursor: pointer;
+}
+
+.extension-actions button:last-child {
+  color: #ffffff;
+  background: #df4438;
+  font-weight: 600;
+}
+
 .booking-calendar,
 .client-info-card,
 .project-form,

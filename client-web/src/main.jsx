@@ -262,15 +262,60 @@ function ProjectHero({ project, large = false }) {
 }
 
 function BookingPage() {
+  const calendarDays = [
+    '30', '31', '1', '2', '3', '4', '5',
+    '6', '7', '8', '9', '10', '11', '12',
+    '13', '14', '15', '16', '17', '18', '19',
+    '20', '21', '22', '23', '24', '25', '26',
+    '27', '28', '29', '30', '1', '2', '3',
+  ];
   return (
-    <section className="client-panel-page">
-      <PageTitle title="Jadwal Booking" subtitle="Pilih slot studio dan pantau status booking kamu." />
-      <div className="booking-layout">
-        <article className="booking-calendar"><h2>Oktober 2026</h2><div>{['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'].map((day) => <span key={day}>{day}</span>)}</div><div className="date-grid">{Array.from({ length: 31 }, (_, index) => <button key={index + 1} type="button" className={[3, 5, 10, 17].includes(index + 1) ? 'booked' : ''}>{index + 1}</button>)}</div></article>
-        <article className="client-info-card"><h3>Booking Aktif</h3><p>Sabtu, 3 Oktober 2026</p><strong>10:00 - 12:00</strong><span>Recording - Paket Lengkap A</span><a href="/projects/new">Buat Booking Baru</a></article>
-      </div>
+    <section className="booking-extension-page">
+      <aside className="selected-project-card">
+        <div className="selected-head"><span>Project Terpilih</span><mark><FigmaIcon name="cut" />Eligible</mark></div>
+        <h2>Nama Project A</h2>
+        <p>Satria Putra Kurniawan</p>
+        <BookingInfo icon="booking" title="Jadwal Rekaman" text="Kamis, 24 September 2026 • 13:00 - 16:00 WIB" />
+        <BookingInfo icon="mix" title="Status Booking" text="Sudah terjadwal dan siap diperpanjang jika slot tersedia" />
+        <BookingInfo icon="quotation" title="Perpanjangan" text="Pilih slot tambahan di bawah untuk melihat biaya tambahan sebelum konfirmasi." />
+        <BookingInfo icon="invoice" title="Biaya Tambahan" text="Biaya perpanjangan akan muncul setelah slot dipilih dan transaksi." />
+      </aside>
+
+      <main className="extension-main">
+        <div className="extension-title">
+          <div><h1>Kalender Perpanjangan</h1><p>Pilih slot tambahan untuk melihat ketersediaan dan biaya perpanjangan.</p></div>
+          <div className="slot-legend"><span>Slot Tersedia</span><span>Slot Terisi</span><span>Hari Ini</span></div>
+        </div>
+
+        <article className="extension-calendar">
+          <div className="calendar-toolbar"><button type="button"><FigmaIcon name="booking" />September 2026</button><button type="button">2026</button></div>
+          <div className="calendar-week">{['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day) => <span key={day}>{day}</span>)}</div>
+          <div className="extension-date-grid">
+            {calendarDays.map((day, index) => <button type="button" key={`${day}-${index}`} className={day === '21' ? 'dark' : ['24', '25'].includes(day) ? 'picked' : ['30', '31', '1', '2', '3'].includes(day) && index > 27 ? 'muted' : ''}>{day}</button>)}
+          </div>
+        </article>
+
+        <article className="extension-detail">
+          <h2>Detail Perpanjangan</h2>
+          <p>Slot yang dipilih: Kamis, 24 September 2026 • 16:00 - 18:00 WIB</p>
+          <ExtensionRow icon="booking" title="Slot Tersedia" text="Slot ini dapat dipilih untuk perpanjangan dan tidak bentrok dengan jadwal lain." />
+          <ExtensionRow icon="invoice" title="Biaya Tambahan" text="Rp 480.000 untuk 2 jam tambahan, terhitung dari slot yang dipilih." />
+          <ExtensionRow icon="quotation" title="Konsekuensi Pembayaran" text="Pembayaran perpanjangan harus diselesaikan sebelum slot ditambahkan ke jadwal project." />
+          <div className="extension-summary"><strong>Ringkasan Sebelum Konfirmasi</strong><span>• Slot tersedia dan tidak bentrok dengan jadwal lain.</span><span>• Biaya tambahan Rp 480.000 sudah terhitung untuk 2 jam perpanjangan.</span><span>• Pembayaran harus diselesaikan sebelum perubahan disimpan.</span></div>
+          <div className="extension-actions"><button type="button">Batal</button><button type="button">Konfirmasi Perpanjangan</button></div>
+          <div className="extension-warning"><strong>Tidak Ada Slot Tersedia</strong><span>Jika tidak ada slot yang tersedia, klien dapat memilih hari lain atau membatalkan permintaan perpanjangan.</span></div>
+        </article>
+      </main>
     </section>
   );
+}
+
+function BookingInfo({ icon, title, text }) {
+  return <div className="booking-info"><FigmaIcon name={icon} /><div><strong>{title}</strong><span>{text}</span></div></div>;
+}
+
+function ExtensionRow({ icon, title, text }) {
+  return <div className="extension-row"><FigmaIcon name={icon} /><div><strong>{title}</strong><span>{text}</span></div></div>;
 }
 
 function ProjectsPage({ projects }) {
