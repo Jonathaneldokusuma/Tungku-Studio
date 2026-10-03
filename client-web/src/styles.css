@@ -159,6 +159,25 @@ input {
   cursor: pointer;
 }
 
+.auth-submit:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.auth-message {
+  margin: 0;
+  font-size: 8px;
+  line-height: 1.45;
+}
+
+.auth-message.success {
+  color: #137a45;
+}
+
+.auth-message.error {
+  color: #df4438;
+}
+
 .auth-switch {
   margin: 6px 0 0;
   color: #000000;
