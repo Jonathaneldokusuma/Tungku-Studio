@@ -96,6 +96,13 @@ const projectItems = [
   { name: 'Project Name', client: 'Client Name', stage: 'Revisi', date: '26 Sep 2026', progress: 99, tags: ['Recording'] },
 ];
 
+const clientItems = [
+  { name: 'Satria Putra Kurniawan', email: 'satria@mail.com', phone: '+62 812 4431 8821', stage: 'Follow Up', project: 'Project A', lastContact: 'Hari ini', value: 'Rp 970.000' },
+  { name: 'Jane Doe', email: 'jane@mail.com', phone: '+62 813 5512 0098', stage: 'Aktif', project: 'Project C', lastContact: '3 Okt 2026', value: 'Rp 1.600.000' },
+  { name: 'Budi Spageti', email: 'budi@mail.com', phone: '+62 822 9910 2245', stage: 'Penawaran', project: 'Project B', lastContact: '2 Okt 2026', value: 'Rp 450.000' },
+  { name: 'John Doe', email: 'john@mail.com', phone: '+62 811 6677 4432', stage: 'Lead Baru', project: '-', lastContact: '1 Okt 2026', value: 'Rp 360.000' },
+];
+
 const productionStages = [
   { name: 'Recording', icon: 'mic', unit: 'Jam', price: 150000 },
   { name: 'Editing', icon: 'cut', unit: 'Lagu', price: 200000 },
@@ -982,6 +989,74 @@ function PlaceholderPage({ pageKey }) {
   );
 }
 
+function ClientPage() {
+  const [clients, setClients] = React.useState(clientItems);
+  const [query, setQuery] = React.useState('');
+  const [selectedClient, setSelectedClient] = React.useState(null);
+  const [showForm, setShowForm] = React.useState(false);
+  const [form, setForm] = React.useState({ name: '', email: '', phone: '+62 ', stage: 'Lead Baru', project: '', value: '' });
+  const stages = ['Semua', 'Lead Baru', 'Follow Up', 'Penawaran', 'Aktif'];
+  const [stageFilter, setStageFilter] = React.useState('Semua');
+  const filteredClients = clients.filter((client) => {
+    const matchesQuery = `${client.name} ${client.email} ${client.phone} ${client.project}`.toLowerCase().includes(query.toLowerCase());
+    const matchesStage = stageFilter === 'Semua' || client.stage === stageFilter;
+    return matchesQuery && matchesStage;
+  });
+  const updateForm = (key, value) => setForm((current) => ({ ...current, [key]: value }));
+  const saveClient = () => {
+    if (!form.name.trim()) return;
+    setClients((current) => [{ ...form, project: form.project || '-', value: form.value || 'Rp 0', lastContact: 'Hari ini' }, ...current]);
+    setForm({ name: '', email: '', phone: '+62 ', stage: 'Lead Baru', project: '', value: '' });
+    setShowForm(false);
+  };
+  const updateStage = (name, stage) => setClients((current) => current.map((client) => client.name === name ? { ...client, stage, lastContact: 'Baru diubah' } : client));
+  const stats = [
+    { title: 'Total Klien', value: clients.length, shape: 'crm' },
+    { title: 'Klien Aktif', value: clients.filter((client) => client.stage === 'Aktif').length, shape: 'thumb-up' },
+    { title: 'Follow Up', value: clients.filter((client) => client.stage === 'Follow Up').length, shape: 'quotation' },
+    { title: 'Penawaran', value: clients.filter((client) => client.stage === 'Penawaran').length, shape: 'packages' },
+  ];
+
+  return (
+    <div className="dashboard-frame client-page">
+      <Sidebar activeKey="crm" />
+      <main className="content">
+        <Header crumb="Penjualan / CRM" title="Client" />
+        <section className="package-stats client-stats">{stats.map((item) => <PackageStatCard item={item} key={item.title} />)}</section>
+        <section className="client-toolbar panel">
+          <label className="package-search"><FigmaIcon name="search" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Cari nama client, email, project..." /></label>
+          <div className="client-filters">{stages.map((stage) => <button className={stageFilter === stage ? 'active' : ''} type="button" onClick={() => setStageFilter(stage)} key={stage}>{stage}</button>)}</div>
+          <button className="client-add" type="button" onClick={() => setShowForm(true)}><FigmaIcon name="add" />Tambah Client</button>
+        </section>
+        <section className="client-layout">
+          <div className="client-table panel">
+            <div className="client-table-head"><span>Nama Client</span><span>Kontak</span><span>Stage</span><span>Project</span><span>Nilai</span><span>Aksi</span></div>
+            {filteredClients.map((client, index) => (
+              <div className="client-table-row" key={client.email}>
+                <div className="client-name"><ProjectAvatar tone={index} /><strong>{client.name}</strong><small>{client.lastContact}</small></div>
+                <span>{client.email}<small>{client.phone}</small></span>
+                <select value={client.stage} onChange={(event) => updateStage(client.name, event.target.value)}>{stages.slice(1).map((stage) => <option key={stage}>{stage}</option>)}</select>
+                <span>{client.project}</span>
+                <strong>{client.value}</strong>
+                <button type="button" onClick={() => setSelectedClient(client)}><FigmaIcon name="arrow-right" /></button>
+              </div>
+            ))}
+            <div className="package-table-foot"><div className="pager"><button type="button">&lt;</button><span>1</span><button type="button">&gt;</button></div><span>{filteredClients.length} dari {clients.length} client</span></div>
+          </div>
+          <aside className="client-side panel">
+            <h2>Pipeline Client</h2>
+            {stages.slice(1).map((stage) => <article key={stage}><span>{stage}</span><strong>{clients.filter((client) => client.stage === stage).length}</strong><FigmaIcon name={stage === 'Aktif' ? 'thumb-up' : stage === 'Penawaran' ? 'quotation' : 'crm'} /></article>)}
+          </aside>
+        </section>
+      </main>
+      {showForm && (
+        <div className="modal-backdrop"><section className="client-modal panel"><header><h2>Tambah Client</h2><button type="button" onClick={() => setShowForm(false)}>x</button></header><div className="client-form-grid"><label>Nama Lengkap<input value={form.name} onChange={(event) => updateForm('name', event.target.value)} placeholder="Nama client" /></label><label>Email<input value={form.email} onChange={(event) => updateForm('email', event.target.value)} placeholder="contoh@gmail.com" /></label><label>No. Telepon<input value={form.phone} onChange={(event) => updateForm('phone', event.target.value)} /></label><label>Stage<select value={form.stage} onChange={(event) => updateForm('stage', event.target.value)}>{stages.slice(1).map((stage) => <option key={stage}>{stage}</option>)}</select></label><label>Project<input value={form.project} onChange={(event) => updateForm('project', event.target.value)} placeholder="Project terkait" /></label><label>Nilai<input value={form.value} onChange={(event) => updateForm('value', event.target.value)} placeholder="Rp 0" /></label></div><footer><button type="button" onClick={() => setShowForm(false)}>Batal</button><button type="button" onClick={saveClient}>Simpan</button></footer></section></div>
+      )}
+      {selectedClient && <DashboardDetailModal detail={{ title: selectedClient.name, value: selectedClient.stage, description: `Email: ${selectedClient.email}\nTelepon: ${selectedClient.phone}\nProject: ${selectedClient.project}\nNilai: ${selectedClient.value}\nKontak terakhir: ${selectedClient.lastContact}` }} onClose={() => setSelectedClient(null)} />}
+    </div>
+  );
+}
+
 const operatorSteps = [
   { label: 'Record', icon: 'operator', state: 'done' },
   { label: 'Editing', icon: 'edit', state: 'active', progress: '40%' },
@@ -1047,7 +1122,7 @@ function App() {
   if (window.location.pathname.includes('/manager/project/create')) return <ProjectCreatePage />;
   if (window.location.pathname.includes('/manager/project')) return <ProjectPage />;
   if (path.includes('/manager/inventaris')) return <PlaceholderPage pageKey="inventaris" />;
-  if (path.includes('/manager/crm')) return <PlaceholderPage pageKey="crm" />;
+  if (path.includes('/manager/crm')) return <ClientPage />;
   if (path.includes('/manager/invoice')) return <PlaceholderPage pageKey="invoice" />;
   if (path.includes('/manager/reports')) return <PlaceholderPage pageKey="reports" />;
   if (path.includes('/manager/expenses')) return <PlaceholderPage pageKey="expenses" />;
