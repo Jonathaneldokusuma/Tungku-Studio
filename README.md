@@ -65,6 +65,8 @@ Target free tier:
 
 Vercel Hobby dan Firebase Spark tidak punya tanggal kedaluwarsa, tetapi tetap punya quota pemakaian. Untuk tetap 100% gratis, pantau usage dan jangan aktifkan billing otomatis kecuali memang mau memakai fitur paid.
 
+Panduan lengkap ada di `docs/free-tier-deployment.md`.
+
 Deploy Firebase rules:
 
 ```bash
