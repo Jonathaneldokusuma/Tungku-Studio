@@ -5,7 +5,7 @@ import './styles.css';
 import logo from './assets/logo.svg';
 import logoMark from './assets/logo-mark-cropped.png';
 import figmaIcons from './assets/figma-icons.svg';
-import heroImage from './assets/rectangle-1.png';
+import heroImage from './assets/studio-dashboard-hero.png';
 import userProfile from './assets/image-user-profile.png';
 import iconMore from './assets/icon-more.svg';
 import { createUserWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, signInWithEmailAndPassword, signOut } from 'firebase/auth';
