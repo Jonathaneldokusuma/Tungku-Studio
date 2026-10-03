@@ -2,6 +2,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "firebase:deploy": "npx firebase-tools deploy --only firestore:rules,firestore:indexes,storage",
     "seed:firestore": "node firebase/seed-firestore.mjs"
   },
   "dependencies": {
