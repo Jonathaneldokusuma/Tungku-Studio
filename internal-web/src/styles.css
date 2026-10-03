@@ -410,13 +410,25 @@ label:focus-visible {
   position: absolute;
   top: 18px;
   right: 13px;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
   padding: 0;
   color: #231f20;
-  font-size: 12px;
   background: transparent;
   border: 0;
+  border-radius: 3px;
   cursor: pointer;
   transition: color 160ms var(--ease-soft), transform 160ms var(--ease-soft);
+}
+
+.stat-arrow .figma-icon,
+.panel-action .figma-icon {
+  width: 12px;
+  height: 12px;
+  flex-basis: 12px;
+  filter: brightness(0) saturate(100%) invert(40%) sepia(70%) saturate(1510%) hue-rotate(334deg) brightness(88%) contrast(96%);
 }
 
 .stat-arrow:hover {
@@ -602,6 +614,8 @@ label:focus-visible {
 }
 
 .panel-action {
+  display: grid;
+  place-items: center;
   width: 22px;
   height: 22px;
   padding: 0;

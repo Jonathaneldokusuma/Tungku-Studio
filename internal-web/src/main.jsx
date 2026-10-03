@@ -141,6 +141,7 @@ function FigmaIcon({ name, className = '' }) {
     sliders: [689, 509],
     'thumb-up': [353, 509],
     'thumb-down': [465, 509],
+    'arrow-right': [913, 386],
   };
   const [x, y] = positions[name] || positions.packages;
   return (
@@ -208,7 +209,7 @@ function MiniIcon({ type }) {
 }
 
 function StatCard({ item, onDetail }) {
-  return <article className="stat-card"><div className={`pill ${item.trendClass}`}>{item.trend}</div><button className="stat-arrow" type="button" onClick={() => onDetail(item.title, item.value, `Data ${item.title} diperbarui realtime di dashboard.`)}>-&gt;</button><p>{item.title}</p><strong>{item.value}</strong><MiniIcon type={item.shape} /></article>;
+  return <article className="stat-card"><div className={`pill ${item.trendClass}`}>{item.trend}</div><button className="stat-arrow" type="button" aria-label={`Detail ${item.title}`} onClick={() => onDetail(item.title, item.value, `Data ${item.title} diperbarui realtime di dashboard.`)}><FigmaIcon name="arrow-right" /></button><p>{item.title}</p><strong>{item.value}</strong><MiniIcon type={item.shape} /></article>;
 }
 
 function PackageStatCard({ item }) {
@@ -228,11 +229,11 @@ function PiePanel({ kind, onDetail }) {
   const isDonut = kind === 'donut';
   const labels = isDonut ? [['Maintenance', '57%', 'red'], ['Pembelian Alat', '32%', 'dark'], ['Operasional', '11%', 'gold']] : [['Paket A', '57%', 'red'], ['Paket B', '32%', 'dark'], ['Paket C', '11%', 'gold']];
   const title = isDonut ? 'Pengeluaran Bulan Ini' : 'Paket Terlaris Bulanan';
-  return <section className="panel pie-panel"><div className="panel-title"><h2>{title}</h2><button className="panel-action" type="button" onClick={() => onDetail(title, labels[0][1], labels.map(([name, pct]) => `${name}: ${pct}`).join('\n'))}>-&gt;</button></div><div className={`pie ${isDonut ? 'donut' : ''}`} /><div className="pie-labels">{labels.map(([name, pct, color]) => <div key={name}><span className={color} /><p>{name}</p><strong>{pct}</strong></div>)}</div></section>;
+  return <section className="panel pie-panel"><div className="panel-title"><h2>{title}</h2><button className="panel-action" type="button" aria-label={`Detail ${title}`} onClick={() => onDetail(title, labels[0][1], labels.map(([name, pct]) => `${name}: ${pct}`).join('\n'))}><FigmaIcon name="arrow-right" /></button></div><div className={`pie ${isDonut ? 'donut' : ''}`} /><div className="pie-labels">{labels.map(([name, pct, color]) => <div key={name}><span className={color} /><p>{name}</p><strong>{pct}</strong></div>)}</div></section>;
 }
 
 function SmallPanel({ title, detail, children, onDetail }) {
-  return <section className="panel small-panel"><div className="panel-title"><h2>{title}</h2><button className="panel-action" type="button" onClick={() => onDetail(title, '', detail)}>-&gt;</button></div>{children}</section>;
+  return <section className="panel small-panel"><div className="panel-title"><h2>{title}</h2><button className="panel-action" type="button" aria-label={`Detail ${title}`} onClick={() => onDetail(title, '', detail)}><FigmaIcon name="arrow-right" /></button></div>{children}</section>;
 }
 
 function DashboardDetailModal({ detail, onClose }) {
