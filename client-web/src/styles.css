@@ -46,16 +46,11 @@ input {
 }
 
 .auth-logo-panel img {
-  width: 461px;
-  height: 462px;
+  width: 132px;
+  height: 132px;
   object-fit: cover;
-  mix-blend-mode: multiply;
-  transform: scale(3.5);
-  transform-origin: center;
-}
-
-.auth-logo-panel {
-  overflow: hidden;
+  mix-blend-mode: darken;
+  filter: contrast(1.35) brightness(0.75);
 }
 
 .auth-card {
