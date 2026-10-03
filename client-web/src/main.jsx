@@ -243,19 +243,19 @@ function DashboardHome({ displayName, stats, projects, packages }) {
 }
 
 function StatCard({ title, value, icon, tone }) {
-  return <article className={`client-stat ${tone}`}><div><span>{title}</span><strong>{value}</strong></div><FigmaIcon name={icon} /></article>;
+  return <article className={`client-stat ${tone}`}><div><span>{title}</span><strong>{value}</strong></div><span className="stat-icon"><FigmaIcon name={icon} /></span></article>;
 }
 
 function ProjectHero({ project, large = false }) {
   const progress = clampPercent(project.progress ?? 68);
-  const tracks = project.tracks || ['Track 1', 'Track 2', 'Track 3', '+2'];
+  const tracks = project.tracks || ['Vokal Utama', 'Gitar', 'Drum', 'Bass', 'Backing Vocal'];
   return (
     <article className={`project-hero ${large ? 'large' : ''}`}>
       <img src={heroImage} alt="" />
       <div className="project-hero-overlay">
         <div className="project-hero-top"><div><h2>{project.name || project.title}</h2><span>{project.date || '26 September 2026'}</span></div><mark><FigmaIcon name={project.stage === 'Mixing' ? 'mix' : 'booking'} />{project.stage || 'Selesai'}</mark></div>
         <div className="project-progress"><i style={{ width: `${progress}%` }} /></div>
-        <div className="project-tracks">{tracks.map((track, index) => <span key={`${track}-${index}`}>{index < 3 ? `Track ${index + 1}` : track}<b>{index < 3 ? track : ''}</b></span>)}<a href={`/projects/${project.id || 'detail'}`}>Lihat Progress</a></div>
+        <div className="project-tracks">{tracks.map((track, index) => <span key={`${track}-${index}`}>Track {index + 1}<b>{track}</b></span>)}<a href={`/projects/${project.id || 'detail'}`}>Lihat Progress</a></div>
       </div>
     </article>
   );
@@ -347,9 +347,9 @@ function isActivePath(currentPath, targetPath) {
 }
 
 const demoProjects = [
-  { id: 'demo-a', name: 'Bintang Kehidupan', date: '26 September 2026', stage: 'Mixing', progress: 28, tracks: ['Bintang Kehidupan', 'Khayal', 'Kesal', '+2'] },
-  { id: 'demo-b', name: 'Project A', date: '17 September 2026', stage: 'Selesai', progress: 100, tracks: ['Nama Track', '+2'] },
-  { id: 'demo-c', name: 'Project B', date: '16 September 2026', stage: 'Selesai', progress: 100, tracks: ['Nama Track', '+2'] },
+  { id: 'demo-a', name: 'Bintang Kehidupan', date: '26 September 2026', stage: 'Mixing', progress: 28, tracks: ['Bintang Kehidupan', 'Khayal', 'Kesal', 'Putih', 'Terserah'] },
+  { id: 'demo-b', name: 'Project A', date: '17 September 2026', stage: 'Selesai', progress: 100, tracks: ['Nama Track', 'Vokal', 'Gitar', 'Bass', 'Drum'] },
+  { id: 'demo-c', name: 'Project B', date: '16 September 2026', stage: 'Selesai', progress: 100, tracks: ['Nama Track', 'Vokal', 'Gitar', 'Bass', 'Drum'] },
 ];
 
 const demoPackages = [

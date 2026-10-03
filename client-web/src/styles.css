@@ -366,31 +366,35 @@ input {
   font-weight: 600;
 }
 
-.client-stat .figma-icon {
+.stat-icon {
+  display: grid;
+  place-items: center;
   width: 29px;
   height: 29px;
   padding: 6px;
   border-radius: 3px;
 }
 
-.client-stat.red .figma-icon {
+.stat-icon .figma-icon {
+  width: 18px;
+  height: 18px;
+  filter: none;
+}
+
+.client-stat.red .stat-icon {
   background: #ffd6d2;
-  filter: brightness(0) saturate(100%) invert(46%) sepia(66%) saturate(2375%) hue-rotate(333deg) brightness(92%) contrast(91%);
 }
 
-.client-stat.green .figma-icon {
+.client-stat.green .stat-icon {
   background: #bcefc6;
-  filter: brightness(0) saturate(100%) invert(45%) sepia(74%) saturate(451%) hue-rotate(90deg) brightness(88%) contrast(86%);
 }
 
-.client-stat.gold .figma-icon {
+.client-stat.gold .stat-icon {
   background: #f4d99b;
-  filter: brightness(0) saturate(100%) invert(47%) sepia(53%) saturate(733%) hue-rotate(2deg) brightness(88%) contrast(86%);
 }
 
-.client-stat.pink .figma-icon {
+.client-stat.pink .stat-icon {
   background: #ffd1df;
-  filter: brightness(0) saturate(100%) invert(20%) sepia(86%) saturate(3648%) hue-rotate(335deg) brightness(96%) contrast(96%);
 }
 
 .client-dashboard .figma-icon {
@@ -535,15 +539,15 @@ input {
 }
 
 .project-hero:not(.large) .project-tracks {
-  grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
-}
-
-.project-hero:not(.large) .project-tracks span:nth-child(n+3) {
-  display: none;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  row-gap: 8px;
 }
 
 .project-hero:not(.large) .project-tracks a {
   min-width: 88px;
+  grid-row: 1 / span 2;
+  grid-column: 4;
+  align-self: center;
 }
 
 .project-hero:not(.large) .project-progress,
