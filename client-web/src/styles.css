@@ -312,9 +312,9 @@ input {
 }
 
 .client-shell {
-  width: min(100%, 1216px);
+  width: min(100%, 1210px);
   margin: 0 auto;
-  padding: 42px 27px 24px;
+  padding: 42px 26px 24px;
 }
 
 .client-greeting {
@@ -367,26 +367,30 @@ input {
 }
 
 .client-stat .figma-icon {
-  width: 31px;
-  height: 31px;
+  width: 29px;
+  height: 29px;
   padding: 6px;
   border-radius: 3px;
 }
 
 .client-stat.red .figma-icon {
   background: #ffd6d2;
+  filter: brightness(0) saturate(100%) invert(46%) sepia(66%) saturate(2375%) hue-rotate(333deg) brightness(92%) contrast(91%);
 }
 
 .client-stat.green .figma-icon {
   background: #bcefc6;
+  filter: brightness(0) saturate(100%) invert(45%) sepia(74%) saturate(451%) hue-rotate(90deg) brightness(88%) contrast(86%);
 }
 
 .client-stat.gold .figma-icon {
   background: #f4d99b;
+  filter: brightness(0) saturate(100%) invert(47%) sepia(53%) saturate(733%) hue-rotate(2deg) brightness(88%) contrast(86%);
 }
 
 .client-stat.pink .figma-icon {
   background: #ffd1df;
+  filter: brightness(0) saturate(100%) invert(20%) sepia(86%) saturate(3648%) hue-rotate(335deg) brightness(96%) contrast(96%);
 }
 
 .client-dashboard .figma-icon {
@@ -395,7 +399,7 @@ input {
 
 .project-showcase {
   display: grid;
-  grid-template-columns: minmax(0, 2.05fr) minmax(320px, 0.95fr);
+  grid-template-columns: minmax(0, 2.18fr) minmax(310px, 1fr);
   gap: 16px;
   margin-bottom: 21px;
 }
@@ -407,7 +411,7 @@ input {
 
 .project-hero {
   position: relative;
-  min-height: 178px;
+  min-height: 171px;
   overflow: hidden;
   color: #ffffff;
   background: #231f20;
@@ -415,7 +419,7 @@ input {
 }
 
 .project-hero.large {
-  min-height: 372px;
+  min-height: 358px;
 }
 
 .project-hero > img {
@@ -424,7 +428,8 @@ input {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: grayscale(1) brightness(0.5);
+  object-position: center 43%;
+  filter: grayscale(1) brightness(0.58);
 }
 
 .project-hero-overlay {
@@ -436,7 +441,7 @@ input {
   flex-direction: column;
   justify-content: space-between;
   padding: 16px;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.32), rgba(35, 31, 32, 0.78));
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.26), rgba(35, 31, 32, 0.7));
 }
 
 .project-hero-top {
@@ -448,12 +453,12 @@ input {
 
 .project-hero h2 {
   margin: 0 0 6px;
-  font-size: 21px;
+  font-size: 20px;
   font-weight: 500;
 }
 
 .project-hero:not(.large) h2 {
-  font-size: 17px;
+  font-size: 16px;
 }
 
 .project-hero-top span {
@@ -492,14 +497,14 @@ input {
 
 .project-tracks {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) auto;
   align-items: end;
   gap: 0;
 }
 
 .project-tracks span {
   min-height: 31px;
-  padding: 0 14px;
+  padding: 0 13px;
   color: #ffffff;
   border-left: 1px solid rgba(255, 255, 255, 0.65);
   font-size: 8px;
@@ -519,14 +524,43 @@ input {
 .project-tracks a {
   display: inline-grid;
   place-items: center;
-  min-width: 86px;
-  height: 30px;
+  min-width: 84px;
+  height: 29px;
   color: #ffffff;
   background: #df4438;
   border-radius: 3px;
   font-size: 8px;
   font-weight: 600;
   text-decoration: none;
+}
+
+.project-hero:not(.large) .project-tracks {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+}
+
+.project-hero:not(.large) .project-tracks span:nth-child(n+3) {
+  display: none;
+}
+
+.project-hero:not(.large) .project-tracks a {
+  min-width: 88px;
+}
+
+.project-hero:not(.large) .project-progress,
+.project-hero.large .project-progress {
+  margin-top: auto;
+}
+
+.project-hero:not(.large) .project-hero-overlay {
+  padding: 15px;
+}
+
+.project-hero.large .project-tracks {
+  margin-top: 24px;
+}
+
+.project-hero.large h2 {
+  font-size: 22px;
 }
 
 .package-head {
