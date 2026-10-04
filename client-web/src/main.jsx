@@ -2,7 +2,8 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
 
-import logo from './assets/tungku-primary.svg';
+import logo from './assets/logo.svg';
+import invoiceLogoSvg from './assets/logo.svg?raw';
 import logoMark from './assets/logo-mark-cropped.png';
 import figmaIcons from './assets/figma-icons.svg';
 import heroImage from './assets/studio-dashboard-hero.png';
@@ -939,13 +940,14 @@ function downloadInvoice(payment) {
   const dueDate = payment.dueDate || payment.deadline || payment.createdAt || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
   const customerName = payment.clientName || payment.customerName || payment.userName || 'Client Tungku Studio';
   const customerEmail = payment.clientEmail || payment.customerEmail || payment.email || '-';
+  const logoDataUri = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(invoiceLogoSvg)}`;
   const html = `<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(invoiceNumber)}</title><style>
     :root{--red:#ce4336;--ink:#191515;--muted:#6f625f;--line:#d8cbc7;--paper:#fffdfc;--soft:#fbf4f2}
     *{box-sizing:border-box}body{margin:0;background:#eee7e5;color:var(--ink);font-family:Arial,Helvetica,sans-serif}
     .page{width:210mm;min-height:297mm;margin:0 auto;background:var(--paper);padding:16mm;position:relative}
     .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12mm}
     h1{margin:0;color:var(--red);font-size:42px;line-height:1;font-weight:800;letter-spacing:0}
-    .logo{width:44mm;height:auto;object-fit:contain}
+    .logo{width:42mm;height:auto;object-fit:contain;display:block}
     .meta{display:grid;grid-template-columns:28mm 4mm 1fr;gap:2mm 0;margin-top:8mm;font-size:11px}
     .meta b{font-weight:800}.meta span:nth-child(3n+1){color:var(--muted);font-weight:700}
     .info{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14mm;margin:14mm 0 10mm;font-size:11px;line-height:1.55}
@@ -955,11 +957,12 @@ function downloadInvoice(payment) {
     thead th{border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:4mm 2mm;text-align:left;font-size:10px}
     tbody td{padding:5mm 2mm;border-bottom:1px solid var(--line);vertical-align:top}
     th.qty,td.qty{text-align:center;width:20mm}th.money,td.money{text-align:right;width:34mm}
-    .summary{margin-left:auto;margin-top:12mm;width:72mm;font-size:11px}.summary-row{display:flex;justify-content:space-between;padding:2.2mm 0}
+    .closing{display:grid;grid-template-columns:1fr 72mm;gap:16mm;align-items:start;margin-top:12mm}
+    .summary{font-size:11px}.summary-row{display:flex;justify-content:space-between;padding:2.2mm 0}
     .summary-row.total{border-top:1px solid var(--ink);margin-top:2mm;padding-top:4mm;font-size:18px;font-weight:800}
     .status{text-align:right;margin-top:3mm;color:var(--red);font-weight:800}
-    .thanks{position:absolute;right:16mm;top:193mm;color:var(--red);font-size:32px;font-weight:800;line-height:.95}
-    .terms{margin-top:18mm;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:5mm 0;font-size:10px;color:var(--muted);line-height:1.55}
+    .thanks{color:var(--red);font-size:30px;font-weight:800;line-height:.95;margin-top:8mm;text-align:right}
+    .terms{margin-top:16mm;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:5mm 0;font-size:10px;color:var(--muted);line-height:1.55}
     .terms h2{margin:0 0 3mm;color:var(--ink);font-size:11px;text-transform:uppercase}.terms p{margin:0 0 2mm}
     .actions{position:fixed;right:24px;bottom:24px;display:flex;gap:10px}.actions button{border:0;background:var(--red);color:#fff;padding:12px 18px;font-weight:800;cursor:pointer}
     @page{size:A4;margin:0}@media print{body{background:white}.page{margin:0;box-shadow:none}.actions{display:none}}
@@ -969,7 +972,7 @@ function downloadInvoice(payment) {
       <span>NO. INVOICE</span><span>:</span><b>${escapeHtml(invoiceNumber)}</b>
       <span>TANGGAL</span><span>:</span><b>${escapeHtml(formatInvoiceDate(issuedDate))}</b>
       <span>JATUH TEMPO</span><span>:</span><b>${escapeHtml(formatInvoiceDate(dueDate))}</b>
-    </div></div><img class="logo" src="${invoiceAsset}" alt="Tungku Studio"></section>
+    </div></div><img class="logo" src="${logoDataUri}" alt="Tungku Studio"></section>
     <section class="info">
       <div><h2>Invoice To</h2><p><strong>${escapeHtml(customerName)}</strong><br>${escapeHtml(customerEmail)}<br>${escapeHtml(payment.projectName || itemName)}</p></div>
       <div><h2>Payment Method</h2><p>Konfirmasi manual manager<br>${escapeHtml(payment.method || 'Transfer / payment link resmi')}<br>${escapeHtml(payment.paymentUrl || payment.checkoutUrl || '')}</p></div>
@@ -978,13 +981,12 @@ function downloadInvoice(payment) {
     <table><thead><tr><th>DESKRIPSI</th><th class="qty">QTY</th><th>SATUAN</th><th class="money">HARGA</th><th class="money">TOTAL</th></tr></thead><tbody>
       <tr><td><strong>${escapeHtml(itemName)}</strong><br>${escapeHtml(payment.note || 'Invoice dibuat otomatis dari client portal.')}</td><td class="qty">1</td><td>Paket</td><td class="money">${escapeHtml(formatRupiah(total))}</td><td class="money">${escapeHtml(formatRupiah(total))}</td></tr>
     </tbody></table>
-    <section class="summary">
-      <div class="summary-row"><span>TOTAL INVOICE</span><strong>${escapeHtml(formatRupiah(total))}</strong></div>
-      <div class="summary-row"><span>SUDAH DIBAYAR</span><strong>${escapeHtml(formatRupiah(paid))}</strong></div>
-      <div class="summary-row total"><span>SISA TAGIHAN</span><strong>${escapeHtml(formatRupiah(remaining))}</strong></div>
-      <div class="status">${escapeHtml(paymentLabel(payment))}</div>
-    </section>
-    <div class="thanks">Terima<br>Kasih!</div>
+    <section class="closing"><div></div><div><section class="summary">
+        <div class="summary-row"><span>TOTAL INVOICE</span><strong>${escapeHtml(formatRupiah(total))}</strong></div>
+        <div class="summary-row"><span>SUDAH DIBAYAR</span><strong>${escapeHtml(formatRupiah(paid))}</strong></div>
+        <div class="summary-row total"><span>SISA TAGIHAN</span><strong>${escapeHtml(formatRupiah(remaining))}</strong></div>
+        <div class="status">${escapeHtml(paymentLabel(payment))}</div>
+      </section><div class="thanks">Terima<br>Kasih!</div></div></section>
     <section class="terms"><h2>Terms & Condition</h2><p>Invoice ini diterbitkan oleh Tungku Studio. Pembayaran dianggap valid setelah dikonfirmasi oleh manager.</p><p>File final dapat dibuka atau diunduh setelah status pembayaran lunas. Simpan bukti pembayaran untuk proses verifikasi.</p></section>
   </main><div class="actions"><button onclick="window.print()">Print / Save PDF</button></div><script>setTimeout(()=>window.print(),300)</script></body></html>`;
   const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
