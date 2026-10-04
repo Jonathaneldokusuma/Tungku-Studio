@@ -43,10 +43,39 @@ service cloud.firestore {
       allow update, delete: if signedIn() && (resource.data.clientId == request.auth.uid || hasRole('manager'));
     }
 
+    match /quotations/{quotationId} {
+      allow read: if signedIn() && (resource.data.clientId == request.auth.uid || internalUser());
+      allow create: if signedIn() && request.resource.data.clientId == request.auth.uid;
+      allow update: if signedIn() && (resource.data.clientId == request.auth.uid || hasRole('manager'));
+      allow delete: if hasRole('manager');
+    }
+
+    match /quotation_offers/{offerId} {
+      allow read: if signedIn() && (resource.data.clientId == request.auth.uid || internalUser());
+      allow create, update, delete: if hasRole('manager');
+    }
+
     match /projects/{projectId} {
       allow read: if signedIn() && (resource.data.clientId == request.auth.uid || internalUser());
       allow create: if signedIn() && request.resource.data.clientId == request.auth.uid;
       allow update, delete: if internalUser();
+    }
+
+    match /recording_sessions/{sessionId} {
+      allow read: if signedIn() && (resource.data.clientId == request.auth.uid || internalUser());
+      allow create: if signedIn() && request.resource.data.clientId == request.auth.uid;
+      allow update, delete: if internalUser();
+    }
+
+    match /project_stages/{stageId} {
+      allow read: if signedIn() && internalUser();
+      allow write: if hasRole('manager');
+    }
+
+    match /track_stage_progress/{progressId} {
+      allow read: if signedIn() && (resource.data.clientId == request.auth.uid || resource.data.operatorId == request.auth.uid || internalUser());
+      allow create, update: if internalUser();
+      allow delete: if hasRole('manager');
     }
 
     match /payments/{paymentId} {

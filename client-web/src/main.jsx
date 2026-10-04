@@ -155,7 +155,7 @@ function ClientPortal() {
           setProjects(rows);
           setStats((value) => ({ ...value, projects: rows.filter((item) => !isDoneProject(item)).length, done: rows.filter(isDoneProject).length }));
         }),
-        onSnapshot(query(collection(db, 'custom_offers'), where('clientId', '==', currentUser.uid)), (snapshot) => {
+        onSnapshot(query(collection(db, 'quotations'), where('clientId', '==', currentUser.uid)), (snapshot) => {
           setStats((value) => ({ ...value, offers: snapshot.size }));
         }),
         onSnapshot(query(collection(db, 'payments'), where('clientId', '==', currentUser.uid)), (snapshot) => {
@@ -283,20 +283,36 @@ function BookingPage({ user, profile }) {
   const handleConfirm = async () => {
     setStatus({ loading: true, message: '', error: '' });
     try {
-      await addDoc(collection(db, 'custom_offers'), {
+      const sessionRef = await addDoc(collection(db, 'recording_sessions'), {
         clientId: user.uid,
         clientName: profile?.name || user.displayName || user.email || 'Client',
         clientEmail: user.email || '',
-        packageName: 'Perpanjangan Jadwal',
-        type: 'booking_extension',
-        requestedSlot: selectedSlot,
-        offeredPrice: 480000,
-        status: 'pending',
-        note: 'Permintaan perpanjangan jadwal dari client portal.',
+        projectName: 'Nama Project A',
+        slot: selectedSlot,
+        type: 'extension',
+        status: 'pending_payment',
+        extensionHours: 2,
+        extensionPrice: 480000,
+        note: 'Permintaan perpanjangan jadwal dari client portal. Slot belum ditambahkan sampai pembayaran extend lunas.',
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
-      setStatus({ loading: false, message: 'Permintaan perpanjangan terkirim ke manager.', error: '' });
+      await addDoc(collection(db, 'payments'), {
+        clientId: user.uid,
+        clientName: profile?.name || user.displayName || user.email || 'Client',
+        clientEmail: user.email || '',
+        orderId: sessionRef.id,
+        invoice: `EXT-${Date.now()}`,
+        packageName: 'Perpanjangan Jadwal Recording',
+        amount: 480000,
+        type: 'extend',
+        status: 'unpaid',
+        method: 'manual_confirmation',
+        note: 'Bayar extend dulu. Setelah lunas, manager menambahkan waktu recording ke jadwal.',
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+      setStatus({ loading: false, message: 'Slot extend dibuat dan invoice muncul di Transaksi. Waktu recording ditambah setelah pembayaran lunas.', error: '' });
     } catch (error) {
       setStatus({ loading: false, message: '', error: `Gagal kirim perpanjangan: ${error.message}` });
     }
@@ -498,6 +514,7 @@ function PackagesPage({ packages, user, profile }) {
   const [manualPrice, setManualPrice] = React.useState('Rp 1.250.000');
   const [selectedPackage, setSelectedPackage] = React.useState('');
   const [detailPackage, setDetailPackage] = React.useState(packageItems[0]);
+  const [readyOrder, setReadyOrder] = React.useState({ projectName: '', slot: '24 September 2026 - 16:00 - 18:00 WIB' });
   const [submitState, setSubmitState] = React.useState({ loading: false, message: '', error: '' });
   const [buyState, setBuyState] = React.useState({ loading: false, message: '', error: '' });
   const computedTotal = selectedStages.reduce((total, stage) => {
@@ -530,13 +547,18 @@ function PackagesPage({ packages, user, profile }) {
     const item = detailPackage || packageItems[0];
     const name = item.name || item.title || 'Paket Tungku Studio';
     const price = Number(item.price || item.total || 0);
+    if (!readyOrder.projectName.trim()) {
+      setBuyState({ loading: false, message: '', error: 'Isi nama project dulu sebelum beli paket.' });
+      return;
+    }
     setBuyState({ loading: true, message: '', error: '' });
     try {
-      const orderRef = await addDoc(collection(db, 'custom_offers'), {
+      const projectRef = await addDoc(collection(db, 'projects'), {
         clientId: user.uid,
         clientName: profile?.name || user.displayName || user.email || 'Client',
         clientEmail: user.email || '',
-        projectName: name,
+        projectName: readyOrder.projectName.trim(),
+        name: readyOrder.projectName.trim(),
         packageName: name,
         packagePrice: price,
         stages: item.stages || ['Recording', 'Editing', 'Mixing', 'Mastering'],
@@ -544,8 +566,19 @@ function PackagesPage({ packages, user, profile }) {
         songs: item.songs || '1 Lagu',
         status: 'pending_payment',
         type: 'package_purchase',
-        offeredPrice: price,
-        note: 'Pembelian paket siap pakai dari client portal.',
+        progress: 0,
+        note: 'Project dibuat dari paket siap pakai. Masuk assignment manager setelah PO lunas.',
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+      await addDoc(collection(db, 'recording_sessions'), {
+        clientId: user.uid,
+        projectId: projectRef.id,
+        projectName: readyOrder.projectName.trim(),
+        packageName: name,
+        slot: readyOrder.slot,
+        status: 'held',
+        note: 'Slot di-hold sampai pembayaran PO selesai.',
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
@@ -553,16 +586,20 @@ function PackagesPage({ packages, user, profile }) {
         clientId: user.uid,
         clientName: profile?.name || user.displayName || user.email || 'Client',
         clientEmail: user.email || '',
-        orderId: orderRef.id,
+        projectId: projectRef.id,
+        orderId: projectRef.id,
+        invoice: `PO-${Date.now()}`,
         packageName: name,
         amount: price,
+        type: 'po',
         status: 'unpaid',
         method: 'manual_confirmation',
+        note: 'Pembayaran PO untuk mengaktifkan project. Setelah lunas, manager assign operator.',
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
       setSelectedPackage(name);
-      setBuyState({ loading: false, message: 'Order dibuat. Lanjut cek Transaksi untuk pembayaran dan statusnya.', error: '' });
+      setBuyState({ loading: false, message: 'Project pending payment dibuat, slot di-hold, dan invoice PO muncul di Transaksi.', error: '' });
     } catch (error) {
       setBuyState({ loading: false, message: '', error: `Gagal beli paket: ${error.message}` });
     }
@@ -574,7 +611,7 @@ function PackagesPage({ packages, user, profile }) {
     }
     setSubmitState({ loading: true, message: '', error: '' });
     try {
-      await addDoc(collection(db, 'custom_offers'), {
+      await addDoc(collection(db, 'quotations'), {
         clientId: user.uid,
         clientName: profile?.name || user.displayName || user.email || 'Client',
         clientEmail: user.email || '',
@@ -584,8 +621,8 @@ function PackagesPage({ packages, user, profile }) {
         songCount: Number(songCount),
         manualPriceEnabled,
         offeredPrice: summaryTotal,
-        status: 'pending',
-        note: 'Dikirim dari client portal.',
+        status: 'client_submitted',
+        note: 'Client submit tawaran. Studio perlu tinjau harga lalu mengirim offer.',
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
@@ -620,6 +657,10 @@ function PackagesPage({ packages, user, profile }) {
           <dt>Jumlah Lagu</dt><dd>{detailPackage?.songs || '1 Lagu'}</dd>
           <dt>Harga</dt><dd>{formatRupiah(detailPackage?.price || detailPackage?.total || 0)}</dd>
         </dl>
+        <div className="offer-controls">
+          <label className="manual-price">Nama Project<input value={readyOrder.projectName} onChange={(event) => setReadyOrder((value) => ({ ...value, projectName: event.target.value }))} placeholder="Contoh: Single Pertama" /></label>
+          <label className="manual-price">Slot Recording<input value={readyOrder.slot} onChange={(event) => setReadyOrder((value) => ({ ...value, slot: event.target.value }))} /></label>
+        </div>
         {buyState.message && <p className="offer-feedback success">{buyState.message}</p>}
         {buyState.error && <p className="offer-feedback error">{buyState.error}</p>}
         <div className="package-detail-actions">

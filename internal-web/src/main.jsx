@@ -1110,16 +1110,20 @@ function ClientPage() {
 }
 
 const operatorSteps = [
-  { label: 'Record', icon: 'operator', state: 'done' },
+  { label: 'Recording', icon: 'mic', state: 'done' },
   { label: 'Editing', icon: 'edit', state: 'active', progress: '40%' },
   { label: 'Mixing', icon: 'mix', state: 'idle' },
   { label: 'Mastering', icon: 'master', state: 'idle' },
-  { label: 'Finish', icon: 'thumb-up', state: 'idle' },
+  { label: 'Approved', icon: 'thumb-up', state: 'idle' },
 ];
 
 function OperatorPage() {
   const [selectedTask, setSelectedTask] = React.useState(null);
-  const tasks = [['Songs 1', 'Operator A'], ['Songs 2', 'Operator B']];
+  const [tasks, setTasks] = React.useState([
+    { song: 'Track 1 - Vokal', operator: 'Operator A', deadline: '24 Okt 2026', status: 'in_progress', resultUrl: '' },
+    { song: 'Track 2 - Gitar', operator: 'Operator B', deadline: '25 Okt 2026', status: 'revision', resultUrl: '' },
+  ]);
+  const updateTask = (song, patch) => setTasks((items) => items.map((item) => item.song === song ? { ...item, ...patch } : item));
   return (
     <div className="dashboard-frame operator-page">
       <Sidebar activeKey="operator" />
@@ -1139,11 +1143,11 @@ function OperatorPage() {
             </section>
             <section className="operator-task-table panel">
               <div className="operator-task-head"><span>Editing</span><button type="button">Set Deadline</button></div>
-              {tasks.map(([song, operator], index) => (
-                <div className="operator-task-row" key={song}>
+              {tasks.map((task, index) => (
+                <div className="operator-task-row" key={task.song}>
                   <ProjectAvatar tone={index} />
-                  <strong>{song}</strong>
-                  <button type="button" onClick={() => setSelectedTask([song, operator])}><FigmaIcon name="add" />Upload</button>
+                  <strong>{task.song}<small>{task.deadline} - {task.status}</small></strong>
+                  <button type="button" onClick={() => setSelectedTask(task)}><FigmaIcon name="add" />Submit File</button>
                 </div>
               ))}
               <div className="package-table-foot"><div className="pager"><button type="button">&lt;</button><span>1</span><button type="button">&gt;</button></div><span>6 dari 6 operator</span></div>
@@ -1161,7 +1165,23 @@ function OperatorPage() {
           </aside>
         </section>
       </main>
-      {selectedTask && <DashboardDetailModal detail={{ title: selectedTask[0], value: selectedTask[1], description: 'Task operator siap diproses. Upload dan deadline bisa disambungkan ke backend nanti.' }} onClose={() => setSelectedTask(null)} />}
+      {selectedTask && (
+        <div className="modal-backdrop">
+          <section className="dashboard-detail-modal" role="dialog" aria-modal="true" aria-label="Task Operator">
+            <button className="modal-close" type="button" onClick={() => setSelectedTask(null)}>x</button>
+            <h2>{selectedTask.song}</h2>
+            <strong>{selectedTask.operator}</strong>
+            <p>Deadline: {selectedTask.deadline}</p>
+            <p>Status: {selectedTask.status}</p>
+            <label>Link File / Google Drive<input value={selectedTask.resultUrl} onChange={(event) => setSelectedTask((task) => ({ ...task, resultUrl: event.target.value }))} placeholder="https://drive.google.com/..." /></label>
+            <footer>
+              <button type="button" onClick={() => { updateTask(selectedTask.song, { status: 'revision', resultUrl: selectedTask.resultUrl }); setSelectedTask(null); }}>Minta Revisi</button>
+              <button type="button" onClick={() => { updateTask(selectedTask.song, { status: 'in_review', resultUrl: selectedTask.resultUrl }); setSelectedTask(null); }}>Submit Review</button>
+              <button type="button" onClick={() => { updateTask(selectedTask.song, { status: 'approved', resultUrl: selectedTask.resultUrl }); setSelectedTask(null); }}>Approve</button>
+            </footer>
+          </section>
+        </div>
+      )}
     </div>
   );
 }
