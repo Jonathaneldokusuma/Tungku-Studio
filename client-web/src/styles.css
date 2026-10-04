@@ -1292,7 +1292,14 @@ input {
   line-height: 1.5;
 }
 
+.payment-detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .payment-detail a,
+.payment-detail button,
 .empty-state a {
   display: inline-grid;
   place-items: center;
@@ -1305,6 +1312,18 @@ input {
   font-size: 10px;
   font-weight: 600;
   text-decoration: none;
+}
+
+.payment-detail button {
+  color: #df4438;
+  background: #ffffff;
+  border: 1px solid #df4438;
+  cursor: pointer;
+}
+
+.payment-detail:focus {
+  outline: 2px solid #df4438;
+  outline-offset: 3px;
 }
 
 .empty-state {

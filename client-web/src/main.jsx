@@ -365,9 +365,14 @@ function ProjectDetailPage({ project = demoProjects[0] }) {
 
 function TransactionsPage({ payments, error }) {
   const [activePaymentId, setActivePaymentId] = React.useState('');
+  const detailRef = React.useRef(null);
   const sortedPayments = [...payments].sort((first, second) => getPaymentTime(second) - getPaymentTime(first));
   const unpaidTotal = sortedPayments.filter((item) => !isPaidPayment(item)).reduce((total, item) => total + paymentAmount(item), 0);
   const activePayment = sortedPayments.find((item) => item.id === activePaymentId) || sortedPayments[0];
+  const selectPayment = (id) => {
+    setActivePaymentId(id);
+    window.requestAnimationFrame(() => detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }));
+  };
 
   return (
     <section className="client-panel-page">
@@ -382,9 +387,9 @@ function TransactionsPage({ payments, error }) {
       {!!sortedPayments.length && (
         <div className="transaction-layout">
           <div className="transaction-list">
-            {sortedPayments.map((item, index) => <TransactionRow key={item.id || index} item={item} index={index} active={activePayment?.id === item.id} onSelect={() => setActivePaymentId(item.id)} />)}
+            {sortedPayments.map((item, index) => <TransactionRow key={item.id || index} item={item} index={index} active={activePayment?.id === item.id} onSelect={() => selectPayment(item.id)} />)}
           </div>
-          {activePayment && <PaymentDetail payment={activePayment} />}
+          {activePayment && <PaymentDetail payment={activePayment} detailRef={detailRef} />}
         </div>
       )}
     </section>
@@ -407,10 +412,10 @@ function TransactionRow({ item, index, active, onSelect }) {
   );
 }
 
-function PaymentDetail({ payment }) {
+function PaymentDetail({ payment, detailRef }) {
   const paymentUrl = payment.paymentUrl || payment.checkoutUrl || payment.invoiceUrl || '';
   return (
-    <aside className="payment-detail">
+    <aside className="payment-detail" ref={detailRef} tabIndex="-1">
       <span>Detail Transaksi</span>
       <h3>{payment.invoice || payment.invoiceNumber || 'Invoice Pending'}</h3>
       <dl>
@@ -421,7 +426,10 @@ function PaymentDetail({ payment }) {
         <dt>Metode</dt><dd>{payment.method || 'Konfirmasi manual manager'}</dd>
       </dl>
       <p>{payment.note || 'Jika belum ada link pembayaran, invoice ini menunggu manager mengirim instruksi pembayaran resmi.'}</p>
-      {paymentUrl ? <a href={paymentUrl} target="_blank" rel="noreferrer">Buka Pembayaran</a> : <a href="/packages">Tambah Paket Lagi</a>}
+      <div className="payment-detail-actions">
+        {paymentUrl ? <a href={paymentUrl} target="_blank" rel="noreferrer">Buka Pembayaran</a> : <a href="/packages">Tambah Paket Lagi</a>}
+        <button type="button" onClick={() => downloadInvoice(payment)}>Download Invoice</button>
+      </div>
     </aside>
   );
 }
@@ -739,6 +747,32 @@ function formatDateTime(value) {
   const time = value?.toDate ? value.toDate() : value?.seconds ? new Date(value.seconds * 1000) : value ? new Date(value) : null;
   if (!time || Number.isNaN(time.getTime())) return 'Baru dibuat';
   return new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(time);
+}
+
+function downloadInvoice(payment) {
+  const invoiceNumber = payment.invoice || payment.invoiceNumber || `INV-${payment.id || Date.now()}`;
+  const rows = [
+    ['Invoice', invoiceNumber],
+    ['Paket', payment.packageName || payment.package || payment.projectName || 'Paket Tungku Studio'],
+    ['Status', paymentLabel(payment)],
+    ['Total', formatRupiah(paymentAmount(payment))],
+    ['Dibuat', formatDateTime(payment.createdAt)],
+    ['Metode', payment.method || 'Konfirmasi manual manager'],
+  ];
+  const html = `<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(invoiceNumber)}</title><style>body{font-family:Arial,sans-serif;margin:40px;color:#231f20}h1{margin:0 0 4px}.brand{color:#df4438;font-weight:700}.meta{margin:0 0 28px;color:#665b58}table{border-collapse:collapse;width:100%;max-width:720px}td{border:1px solid #d6c7c3;padding:12px}td:first-child{width:180px;color:#665b58;background:#fbf8f7}.total{font-size:24px;color:#df4438;font-weight:700}.note{margin-top:24px;color:#665b58;line-height:1.5}@media print{button{display:none}}</style></head><body><p class="brand">Tungku Studio</p><h1>Invoice</h1><p class="meta">${escapeHtml(invoiceNumber)}</p><table>${rows.map(([label, value]) => `<tr><td>${escapeHtml(label)}</td><td class="${label === 'Total' ? 'total' : ''}">${escapeHtml(value)}</td></tr>`).join('')}</table><p class="note">${escapeHtml(payment.note || 'Invoice ini dibuat otomatis dari client portal. Jika belum ada link pembayaran, tunggu instruksi resmi dari manager.')}</p><script>window.print()</script></body></html>`;
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${String(invoiceNumber).replace(/[^a-z0-9-]+/gi, '-')}.html`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[char]));
 }
 
 function isActivePath(currentPath, targetPath) {
