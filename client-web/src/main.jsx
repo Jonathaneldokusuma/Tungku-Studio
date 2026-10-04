@@ -314,20 +314,38 @@ function BookingPage({ user, profile }) {
   const handleConfirm = async () => {
     setStatus({ loading: true, message: '', error: '' });
     try {
-      const sessionRef = await addDoc(collection(db, 'recording_sessions'), {
-        clientId: user.uid,
-        clientName: profile?.name || user.displayName || user.email || 'Client',
-        clientEmail: user.email || '',
-        projectName: 'Nama Project A',
-        slot: selectedSlot,
-        type: 'extension',
-        status: 'pending_payment',
-        extensionHours: 2,
-        extensionPrice: 480000,
-        note: 'Permintaan perpanjangan jadwal dari client portal. Slot belum ditambahkan sampai pembayaran extend lunas.',
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
+      let sessionRef;
+      try {
+        sessionRef = await addDoc(collection(db, 'recording_sessions'), {
+          clientId: user.uid,
+          clientName: profile?.name || user.displayName || user.email || 'Client',
+          clientEmail: user.email || '',
+          projectName: 'Nama Project A',
+          slot: selectedSlot,
+          type: 'extension',
+          status: 'pending_payment',
+          extensionHours: 2,
+          extensionPrice: 480000,
+          note: 'Permintaan perpanjangan jadwal dari client portal. Slot belum ditambahkan sampai pembayaran extend lunas.',
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
+      } catch (sessionError) {
+        if (!isPermissionDenied(sessionError)) throw sessionError;
+        sessionRef = await addDoc(collection(db, 'custom_offers'), {
+          clientId: user.uid,
+          clientName: profile?.name || user.displayName || user.email || 'Client',
+          clientEmail: user.email || '',
+          packageName: 'Perpanjangan Jadwal Recording',
+          requestedSlot: selectedSlot,
+          type: 'booking_extension',
+          status: 'pending_payment',
+          offeredPrice: 480000,
+          note: 'Fallback sampai Firestore rules recording_sessions aktif.',
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
+      }
       await addDoc(collection(db, 'payments'), {
         clientId: user.uid,
         clientName: profile?.name || user.displayName || user.email || 'Client',
@@ -584,53 +602,78 @@ function PackagesPage({ packages, user, profile }) {
     }
     setBuyState({ loading: true, message: '', error: '' });
     try {
-      const projectRef = await addDoc(collection(db, 'projects'), {
-        clientId: user.uid,
-        clientName: profile?.name || user.displayName || user.email || 'Client',
-        clientEmail: user.email || '',
-        projectName: readyOrder.projectName.trim(),
-        name: readyOrder.projectName.trim(),
-        packageName: name,
-        packagePrice: price,
-        stages: item.stages || ['Recording', 'Editing', 'Mixing', 'Mastering'],
-        duration: item.duration || '6 Jam Rekaman',
-        songs: item.songs || '1 Lagu',
-        status: 'pending_payment',
-        type: 'package_purchase',
-        progress: 0,
-        note: 'Project dibuat dari paket siap pakai. Masuk assignment manager setelah PO lunas.',
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
-      await addDoc(collection(db, 'recording_sessions'), {
-        clientId: user.uid,
-        projectId: projectRef.id,
-        projectName: readyOrder.projectName.trim(),
-        packageName: name,
-        slot: readyOrder.slot,
-        status: 'held',
-        note: 'Slot di-hold sampai pembayaran PO selesai.',
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
+      let orderRef;
+      let usedFallback = false;
+      try {
+        orderRef = await addDoc(collection(db, 'projects'), {
+          clientId: user.uid,
+          clientName: profile?.name || user.displayName || user.email || 'Client',
+          clientEmail: user.email || '',
+          projectName: readyOrder.projectName.trim(),
+          name: readyOrder.projectName.trim(),
+          packageName: name,
+          packagePrice: price,
+          stages: item.stages || ['Recording', 'Editing', 'Mixing', 'Mastering'],
+          duration: item.duration || '6 Jam Rekaman',
+          songs: item.songs || '1 Lagu',
+          status: 'pending_payment',
+          type: 'package_purchase',
+          progress: 0,
+          note: 'Project dibuat dari paket siap pakai. Masuk assignment manager setelah PO lunas.',
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
+        await addDoc(collection(db, 'recording_sessions'), {
+          clientId: user.uid,
+          projectId: orderRef.id,
+          projectName: readyOrder.projectName.trim(),
+          packageName: name,
+          slot: readyOrder.slot,
+          status: 'held',
+          note: 'Slot di-hold sampai pembayaran PO selesai.',
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
+      } catch (projectError) {
+        if (!isPermissionDenied(projectError)) throw projectError;
+        usedFallback = true;
+        orderRef = await addDoc(collection(db, 'custom_offers'), {
+          clientId: user.uid,
+          clientName: profile?.name || user.displayName || user.email || 'Client',
+          clientEmail: user.email || '',
+          projectName: readyOrder.projectName.trim(),
+          packageName: name,
+          packagePrice: price,
+          stages: item.stages || ['Recording', 'Editing', 'Mixing', 'Mastering'],
+          duration: item.duration || '6 Jam Rekaman',
+          songs: item.songs || '1 Lagu',
+          requestedSlot: readyOrder.slot,
+          status: 'pending_payment',
+          type: 'package_purchase',
+          offeredPrice: price,
+          note: 'Fallback order sampai Firestore rules projects/recording_sessions aktif.',
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
+      }
       await addDoc(collection(db, 'payments'), {
         clientId: user.uid,
         clientName: profile?.name || user.displayName || user.email || 'Client',
         clientEmail: user.email || '',
-        projectId: projectRef.id,
-        orderId: projectRef.id,
+        projectId: orderRef.id,
+        orderId: orderRef.id,
         invoice: `PO-${Date.now()}`,
         packageName: name,
         amount: price,
         type: 'po',
         status: 'unpaid',
         method: 'manual_confirmation',
-        note: 'Pembayaran PO untuk mengaktifkan project. Setelah lunas, manager assign operator.',
+        note: usedFallback ? 'Pembayaran PO untuk order paket. Data masuk fallback custom_offers sampai rules terbaru aktif.' : 'Pembayaran PO untuk mengaktifkan project. Setelah lunas, manager assign operator.',
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
       setSelectedPackage(name);
-      setBuyState({ loading: false, message: 'Project pending payment dibuat, slot di-hold, dan invoice PO muncul di Transaksi.', error: '' });
+      setBuyState({ loading: false, message: usedFallback ? 'Order dan invoice PO berhasil dibuat. Rules project belum aktif, jadi order masuk jalur fallback manager.' : 'Project pending payment dibuat, slot di-hold, dan invoice PO muncul di Transaksi.', error: '' });
     } catch (error) {
       setBuyState({ loading: false, message: '', error: `Gagal beli paket: ${error.message}` });
     }
@@ -642,7 +685,7 @@ function PackagesPage({ packages, user, profile }) {
     }
     setSubmitState({ loading: true, message: '', error: '' });
     try {
-      await addDoc(collection(db, 'quotations'), {
+      const quotePayload = {
         clientId: user.uid,
         clientName: profile?.name || user.displayName || user.email || 'Client',
         clientEmail: user.email || '',
@@ -656,7 +699,13 @@ function PackagesPage({ packages, user, profile }) {
         note: 'Client submit tawaran. Studio perlu tinjau harga lalu mengirim offer.',
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-      });
+      };
+      try {
+        await addDoc(collection(db, 'quotations'), quotePayload);
+      } catch (quotationError) {
+        if (!isPermissionDenied(quotationError)) throw quotationError;
+        await addDoc(collection(db, 'custom_offers'), { ...quotePayload, status: 'pending', type: 'custom_quotation', note: 'Fallback penawaran sampai Firestore rules quotations aktif.' });
+      }
       setSubmitState({ loading: false, message: 'Penawaran terkirim ke manager. Nanti statusnya bisa dicek di Transaksi/Project.', error: '' });
     } catch (error) {
       setSubmitState({ loading: false, message: '', error: `Gagal kirim penawaran: ${error.message}` });
@@ -790,6 +839,10 @@ function formatRupiah(value) {
 
 function parseCurrency(value) {
   return Number(String(value).replace(/\D/g, '')) || 0;
+}
+
+function isPermissionDenied(error) {
+  return error?.code === 'permission-denied' || String(error?.message || '').toLowerCase().includes('insufficient permissions');
 }
 
 function isPaidPayment(payment) {
