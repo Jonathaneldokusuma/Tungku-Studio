@@ -594,6 +594,8 @@ function PackagesPage({ packages, user, profile }) {
   const [manualPrice, setManualPrice] = React.useState('Rp 1.250.000');
   const [selectedPackage, setSelectedPackage] = React.useState('');
   const [detailPackage, setDetailPackage] = React.useState(packageItems[0]);
+  const [packageFlow, setPackageFlow] = React.useState({ open: false, step: 'detail', item: null });
+  const [quoteMode, setQuoteMode] = React.useState(false);
   const [readyOrder, setReadyOrder] = React.useState({ projectName: '', slot: '24 September 2026 - 16:00 - 18:00 WIB' });
   const [submitState, setSubmitState] = React.useState({ loading: false, message: '', error: '' });
   const [buyState, setBuyState] = React.useState({ loading: false, message: '', error: '' });
@@ -609,7 +611,7 @@ function PackagesPage({ packages, user, profile }) {
     setter(Number.isFinite(next) && next > 0 ? Math.min(next, 99) : 1);
   };
   const changeNumber = (setter, delta) => setter((value) => Math.max(1, Math.min(99, Number(value || 1) + delta)));
-  const pickReadyPackage = (item) => {
+  const applyPackageToOffer = (item) => {
     const name = item.name || item.title;
     const songs = Number.parseInt(String(item.songs || '1'), 10) || 1;
     const hours = Number.parseInt(String(item.duration || '3'), 10) || 3;
@@ -622,6 +624,21 @@ function PackagesPage({ packages, user, profile }) {
     setManualPrice(formatRupiah(item.price || item.total || 0));
     setSubmitState({ loading: false, message: `${name} dipilih. Penawaran siap dikirim.`, error: '' });
     setBuyState({ loading: false, message: '', error: '' });
+  };
+  const openPackageDetail = (item) => {
+    setDetailPackage(item);
+    setPackageFlow({ open: true, step: 'detail', item });
+    setBuyState({ loading: false, message: '', error: '' });
+  };
+  const continuePackageFlow = () => {
+    setPackageFlow((value) => ({ ...value, step: value.step === 'detail' ? 'form' : value.step === 'form' ? 'slot' : 'payment' }));
+  };
+  const closePackageFlow = () => setPackageFlow({ open: false, step: 'detail', item: null });
+  const pickReadyPackage = (item) => {
+    applyPackageToOffer(item);
+    setQuoteMode(true);
+    closePackageFlow();
+    window.setTimeout(() => document.getElementById('custom-offer')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0);
   };
   const handleBuyPackage = async () => {
     const item = detailPackage || packageItems[0];
@@ -752,38 +769,35 @@ function PackagesPage({ packages, user, profile }) {
         <div><h2>Paket Siap Pakai</h2><p>Pilih paket yang sudah jadi, lalu lanjutkan ke pemilihan slot waktu, nama proyek, dan pembayaran pre-order.</p></div>
         <span>Siap Pakai</span>
       </div>
-      <div className="quote-package-grid">{packageItems.map((item) => <button className={`quote-package-choice ${selectedPackage === (item.name || item.title) ? 'selected' : ''}`} type="button" onClick={() => pickReadyPackage(item)} key={item.id || item.name}><PackageCard item={item} showMenu={false} /></button>)}</div>
+      <div className="quote-package-grid">{packageItems.map((item) => <button className={`quote-package-choice ${selectedPackage === (item.name || item.title) ? 'selected' : ''}`} type="button" onClick={() => openPackageDetail(item)} key={item.id || item.name}><PackageCard item={item} showMenu={false} /></button>)}</div>
 
-      <article className="package-detail-panel">
+      <article className="custom-offer-banner">
         <div>
-          <span>Detail Paket</span>
-          <h3>{detailPackage?.name || detailPackage?.title || 'Pilih Paket'}</h3>
-          <p>{detailPackage?.description || 'Paket siap pakai untuk memulai project musik. Setelah dibeli, order masuk ke manager dan invoice dibuat otomatis.'}</p>
+          <span>Penawaran Kustom</span>
+          <h2>Buat Paketmu Sendiri</h2>
+          <p>Atur tahap produksi, jumlah lagu, durasi rekaman, dan harga tawaran sesuai kebutuhan project.</p>
         </div>
-        <dl>
-          <dt>Tahap</dt><dd>{(detailPackage?.stages || ['Recording', 'Editing', 'Mixing', 'Mastering']).join(', ')}</dd>
-          <dt>Durasi</dt><dd>{detailPackage?.duration || '6 Jam Rekaman'}</dd>
-          <dt>Jumlah Lagu</dt><dd>{detailPackage?.songs || '1 Lagu'}</dd>
-          <dt>Harga</dt><dd>{formatRupiah(detailPackage?.price || detailPackage?.total || 0)}</dd>
-        </dl>
-        <div className="offer-controls">
-          <label className="manual-price">Nama Project<input value={readyOrder.projectName} onChange={(event) => setReadyOrder((value) => ({ ...value, projectName: event.target.value }))} placeholder="Contoh: Single Pertama" /></label>
-          <label className="manual-price">Slot Recording<input value={readyOrder.slot} onChange={(event) => setReadyOrder((value) => ({ ...value, slot: event.target.value }))} /></label>
-        </div>
-        {buyState.message && <p className="offer-feedback success">{buyState.message}</p>}
-        {buyState.error && <p className="offer-feedback error">{buyState.error}</p>}
-        <div className="package-detail-actions">
-          <button type="button" onClick={() => pickReadyPackage(detailPackage || packageItems[0])}>Masukkan ke Penawaran</button>
-          <button type="button" disabled={buyState.loading} onClick={handleBuyPackage}>{buyState.loading ? 'Memproses...' : 'Beli Paket'}</button>
-        </div>
+        <button type="button" onClick={() => { setQuoteMode(true); window.setTimeout(() => document.getElementById('custom-offer')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0); }}>Buat Penawaran</button>
       </article>
 
-      <div className="package-section-title custom">
+      {packageFlow.open && <PackagePurchaseModal
+        item={packageFlow.item || detailPackage || packageItems[0]}
+        step={packageFlow.step}
+        readyOrder={readyOrder}
+        setReadyOrder={setReadyOrder}
+        buyState={buyState}
+        onClose={closePackageFlow}
+        onNext={continuePackageFlow}
+        onBuy={handleBuyPackage}
+        onOffer={() => pickReadyPackage(packageFlow.item || detailPackage || packageItems[0])}
+      />}
+
+      {quoteMode && <div className="package-section-title custom" id="custom-offer">
         <div><h2>Penawaran Kustom</h2><p>Buat penawaran sesuai kebutuhan proyek Anda. Tim akan meninjau harga, mengirimkan penawaran, dan melanjutkan ke checkout jika disetujui.</p></div>
         <span>Kustom</span>
-      </div>
+      </div>}
 
-      <div className="custom-offer-board">
+      {quoteMode && <div className="custom-offer-board">
         <article className="offer-builder">
           <h3>Buat Penawaran Kustom</h3>
           <p>Pilih tahap yang dibutuhkan, tentukan durasi rekaman dan jumlah lagu, lalu masukkan harga manual jika diperlukan. Penawaran akan dikirim ke manager untuk ditinjau.</p>
@@ -819,8 +833,53 @@ function PackagesPage({ packages, user, profile }) {
           {offerHistory.map((item) => <div className={`history-item ${item.active ? 'active' : ''}`} key={item.date}><div><strong>{item.date}</strong><span>{item.note}</span></div><b>{item.price}</b></div>)}
           <a href="/transactions">Lihat Semua Revisi</a>
         </article>
-      </div>
+      </div>}
     </section>
+  );
+}
+
+function PackagePurchaseModal({ item, step, readyOrder, setReadyOrder, buyState, onClose, onNext, onBuy, onOffer }) {
+  const name = item?.name || item?.title || 'Paket Tungku Studio';
+  const stages = item?.stages || ['Recording', 'Editing', 'Mixing', 'Mastering'];
+  const steps = ['detail', 'form', 'slot', 'payment'];
+  const stepIndex = Math.max(0, steps.indexOf(step));
+  const nextLabel = step === 'detail' ? 'Lanjutkan ke Pengisian' : step === 'form' ? 'Pilih Slot Booking' : step === 'slot' ? 'Lanjut Pembayaran PO' : 'Buat Invoice PO';
+  return (
+    <div className="package-modal-backdrop" role="dialog" aria-modal="true">
+      <article className="package-modal">
+        <button className="package-modal-close" type="button" onClick={onClose} aria-label="Tutup">×</button>
+        <div className="package-modal-steps">{steps.map((itemStep, index) => <span className={index <= stepIndex ? 'active' : ''} key={itemStep}>{index + 1}</span>)}</div>
+        <div className="package-modal-head">
+          <span>{step === 'detail' ? 'Detail Paket' : step === 'form' ? 'Pengisian Data' : step === 'slot' ? 'Slot Booking' : 'Pembayaran PO'}</span>
+          <h3>{name}</h3>
+          <p>{item?.description || 'Paket siap pakai untuk memulai project musik. Setelah dibeli, order masuk ke manager dan invoice PO dibuat otomatis.'}</p>
+        </div>
+        {step === 'detail' && <dl className="package-modal-spec">
+          <dt>Tahap</dt><dd>{stages.join(', ')}</dd>
+          <dt>Durasi</dt><dd>{item?.duration || '6 Jam Rekaman'}</dd>
+          <dt>Jumlah Lagu</dt><dd>{item?.songs || '1 Lagu'}</dd>
+          <dt>Harga</dt><dd>{formatRupiah(item?.price || item?.total || 0)}</dd>
+        </dl>}
+        {step === 'form' && <div className="package-modal-form">
+          <label>Nama Project<input value={readyOrder.projectName} onChange={(event) => setReadyOrder((value) => ({ ...value, projectName: event.target.value }))} placeholder="Contoh: Single Pertama" /></label>
+          <label>Catatan Project<input value={readyOrder.note || ''} onChange={(event) => setReadyOrder((value) => ({ ...value, note: event.target.value }))} placeholder="Referensi lagu, deadline, atau kebutuhan khusus" /></label>
+        </div>}
+        {step === 'slot' && <div className="package-modal-form">
+          <label>Slot Recording<input value={readyOrder.slot} onChange={(event) => setReadyOrder((value) => ({ ...value, slot: event.target.value }))} /></label>
+          <p>Slot akan di-hold setelah invoice PO dibuat. Manager bisa menyesuaikan jadwal jika slot berubah.</p>
+        </div>}
+        {step === 'payment' && <div className="package-payment-review">
+          <strong>{formatRupiah(item?.price || item?.total || 0)}</strong>
+          <p>Invoice PO akan muncul di menu Transaksi. Setelah pembayaran lunas, manager assign operator dan project mulai berjalan.</p>
+        </div>}
+        {buyState.message && <p className="offer-feedback success">{buyState.message}</p>}
+        {buyState.error && <p className="offer-feedback error">{buyState.error}</p>}
+        <div className="package-modal-actions">
+          <button type="button" onClick={onOffer}>Masukkan ke Penawaran</button>
+          <button type="button" disabled={buyState.loading} onClick={step === 'payment' ? onBuy : onNext}>{buyState.loading ? 'Memproses...' : nextLabel}</button>
+        </div>
+      </article>
+    </div>
   );
 }
 

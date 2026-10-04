@@ -1676,6 +1676,228 @@ input {
   box-shadow: 0 0 0 1px #df4438 inset;
 }
 
+.custom-offer-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  max-width: 970px;
+  margin: 10px 0 2px;
+  padding: 20px 22px;
+  background: #fff7f5;
+  border: 1px solid #efc8c2;
+  border-radius: 4px;
+}
+
+.custom-offer-banner span {
+  color: #df4438;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.custom-offer-banner h2 {
+  margin: 4px 0 6px;
+  color: #141111;
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.custom-offer-banner p {
+  max-width: 560px;
+  margin: 0;
+  color: #554a47;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.custom-offer-banner button {
+  height: 38px;
+  padding: 0 18px;
+  color: #ffffff;
+  background: #df4438;
+  border: 0;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.package-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(20, 17, 17, 0.42);
+}
+
+.package-modal {
+  position: relative;
+  display: grid;
+  gap: 16px;
+  width: min(560px, 100%);
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+  padding: 22px;
+  background: #ffffff;
+  border: 1px solid #d6c7c3;
+  border-radius: 6px;
+  box-shadow: 0 24px 70px rgba(35, 31, 32, 0.22);
+}
+
+.package-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  color: #554a47;
+  background: #f8f2f0;
+  border: 1px solid #e3d6d2;
+  border-radius: 50%;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.package-modal-steps {
+  display: flex;
+  gap: 8px;
+  padding-right: 36px;
+}
+
+.package-modal-steps span {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  color: #8d7a74;
+  background: #f4ebe8;
+  border-radius: 50%;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.package-modal-steps span.active {
+  color: #ffffff;
+  background: #df4438;
+}
+
+.package-modal-head span {
+  color: #df4438;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.package-modal-head h3 {
+  margin: 5px 32px 8px 0;
+  color: #141111;
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.package-modal-head p,
+.package-modal-form p,
+.package-payment-review p {
+  margin: 0;
+  color: #554a47;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.package-modal-spec {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 9px 14px;
+  margin: 0;
+  padding: 14px;
+  background: #fbf8f7;
+  border: 1px solid #e7d9d5;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.package-modal-spec dt {
+  color: #6b5e5a;
+}
+
+.package-modal-spec dd {
+  margin: 0;
+  color: #231f20;
+  font-weight: 700;
+}
+
+.package-modal-form {
+  display: grid;
+  gap: 12px;
+}
+
+.package-modal-form label {
+  display: grid;
+  gap: 7px;
+  color: #231f20;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.package-modal-form input {
+  height: 38px;
+  padding: 0 11px;
+  background: #ffffff;
+  border: 1px solid #cdbfbb;
+  border-radius: 3px;
+  font-size: 11px;
+}
+
+.package-payment-review {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  background: #fbf8f7;
+  border: 1px solid #e7d9d5;
+  border-radius: 4px;
+}
+
+.package-payment-review strong {
+  color: #df4438;
+  font-size: 25px;
+  font-weight: 500;
+}
+
+.package-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.package-modal-actions button {
+  min-width: 150px;
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 4px;
+  border: 1px solid #df4438;
+  color: #df4438;
+  background: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.package-modal-actions button:last-child {
+  color: #ffffff;
+  background: #df4438;
+}
+
+.package-modal-actions button:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
 .package-detail-panel {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(230px, 0.75fr) auto;
@@ -2127,6 +2349,8 @@ input {
   .client-stats,
   .project-showcase,
   .package-grid,
+  .quote-package-grid,
+  .custom-offer-board,
   .booking-layout,
   .create-project-layout,
   .project-list,
@@ -2152,6 +2376,19 @@ input {
   }
 
   .selected-project-panel div {
+    grid-template-columns: 1fr;
+  }
+
+  .custom-offer-banner,
+  .package-modal-actions {
+    display: grid;
+  }
+
+  .package-modal {
+    padding: 18px;
+  }
+
+  .package-modal-spec {
     grid-template-columns: 1fr;
   }
 }
