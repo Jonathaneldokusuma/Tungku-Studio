@@ -146,23 +146,54 @@ function ClientPortal() {
       setUser(currentUser);
       setProfile(profileData);
       setIsLoading(false);
+      const fallbackProjects = () => onSnapshot(query(collection(db, 'custom_offers'), where('clientId', '==', currentUser.uid)), (snapshot) => {
+        const rows = snapshot.docs
+          .map((item) => ({ id: item.id, ...item.data() }))
+          .filter((item) => ['package_purchase', 'project_request'].includes(item.type));
+        setProjects(rows.map((item) => ({
+          ...item,
+          name: item.projectName || item.packageName || 'Project Tungku Studio',
+          stage: item.status === 'pending_payment' ? 'Menunggu PO' : 'Menunggu Manager',
+          progress: item.status === 'pending_payment' ? 5 : 12,
+          tracks: item.stages || ['Recording'],
+        })));
+        setStats((value) => ({ ...value, projects: rows.filter((item) => !isDoneProject(item)).length, done: rows.filter(isDoneProject).length }));
+      });
+      const fallbackOffers = () => onSnapshot(query(collection(db, 'custom_offers'), where('clientId', '==', currentUser.uid)), (snapshot) => {
+        const rows = snapshot.docs.map((item) => item.data()).filter((item) => ['custom_quotation', 'package_purchase', 'booking_extension', 'project_request'].includes(item.type));
+        setStats((value) => ({ ...value, offers: rows.length }));
+      });
+      const fallbackPayments = () => onSnapshot(query(collection(db, 'custom_offers'), where('clientId', '==', currentUser.uid)), (snapshot) => {
+        const rows = snapshot.docs
+          .map((item) => ({ id: item.id, ...item.data() }))
+          .filter((item) => ['package_purchase', 'payment_request', 'booking_extension'].includes(item.type))
+          .map((item) => ({
+            ...item,
+            invoice: item.invoice || `${item.type === 'booking_extension' ? 'EXT' : 'PO'}-${item.id.slice(0, 6).toUpperCase()}`,
+            amount: item.amount || item.packagePrice || item.offeredPrice || item.extensionPrice || 0,
+            packageName: item.packageName || item.projectName || 'Paket Tungku Studio',
+            method: item.method || 'Konfirmasi manual manager',
+          }));
+        setPayments(rows);
+        setPaymentsError('');
+      }, (error) => setPaymentsError(error.message));
       unsubscribers = [
         onSnapshot(query(collection(db, 'bookings'), where('clientId', '==', currentUser.uid)), (snapshot) => {
           setStats((value) => ({ ...value, bookings: snapshot.docs.filter((item) => !['cancelled', 'done', 'completed'].includes(String(item.data().status || '').toLowerCase())).length }));
-        }),
+        }, () => setStats((value) => ({ ...value, bookings: 0 }))),
         onSnapshot(query(collection(db, 'projects'), where('clientId', '==', currentUser.uid)), (snapshot) => {
           const rows = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
           setProjects(rows);
           setStats((value) => ({ ...value, projects: rows.filter((item) => !isDoneProject(item)).length, done: rows.filter(isDoneProject).length }));
-        }),
+        }, () => unsubscribers.push(fallbackProjects())),
         onSnapshot(query(collection(db, 'quotations'), where('clientId', '==', currentUser.uid)), (snapshot) => {
           setStats((value) => ({ ...value, offers: snapshot.size }));
-        }),
+        }, () => unsubscribers.push(fallbackOffers())),
         onSnapshot(query(collection(db, 'payments'), where('clientId', '==', currentUser.uid)), (snapshot) => {
           setPayments(snapshot.docs.map((item) => ({ id: item.id, ...item.data() })));
           setPaymentsError('');
-        }, (error) => setPaymentsError(error.message)),
-        onSnapshot(collection(db, 'packages'), (snapshot) => setPackages(snapshot.docs.map((item) => ({ id: item.id, ...item.data() })))),
+        }, () => unsubscribers.push(fallbackPayments())),
+        onSnapshot(collection(db, 'packages'), (snapshot) => setPackages(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), () => setPackages(demoPackages)),
       ];
     });
     return () => {
@@ -346,7 +377,7 @@ function BookingPage({ user, profile }) {
           updatedAt: serverTimestamp(),
         });
       }
-      await addDoc(collection(db, 'payments'), {
+      await createClientPayment({
         clientId: user.uid,
         clientName: profile?.name || user.displayName || user.email || 'Client',
         clientEmail: user.email || '',
@@ -358,8 +389,6 @@ function BookingPage({ user, profile }) {
         status: 'unpaid',
         method: 'manual_confirmation',
         note: 'Bayar extend dulu. Setelah lunas, manager menambahkan waktu recording ke jadwal.',
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
       });
       setStatus({ loading: false, message: 'Slot extend dibuat dan invoice muncul di Transaksi. Waktu recording ditambah setelah pembayaran lunas.', error: '' });
     } catch (error) {
@@ -656,7 +685,7 @@ function PackagesPage({ packages, user, profile }) {
           updatedAt: serverTimestamp(),
         });
       }
-      await addDoc(collection(db, 'payments'), {
+      await createClientPayment({
         clientId: user.uid,
         clientName: profile?.name || user.displayName || user.email || 'Client',
         clientEmail: user.email || '',
@@ -669,8 +698,6 @@ function PackagesPage({ packages, user, profile }) {
         status: 'unpaid',
         method: 'manual_confirmation',
         note: usedFallback ? 'Pembayaran PO untuk order paket. Data masuk fallback custom_offers sampai rules terbaru aktif.' : 'Pembayaran PO untuk mengaktifkan project. Setelah lunas, manager assign operator.',
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
       });
       setSelectedPackage(name);
       setBuyState({ loading: false, message: usedFallback ? 'Order dan invoice PO berhasil dibuat. Rules project belum aktif, jadi order masuk jalur fallback manager.' : 'Project pending payment dibuat, slot di-hold, dan invoice PO muncul di Transaksi.', error: '' });
@@ -843,6 +870,27 @@ function parseCurrency(value) {
 
 function isPermissionDenied(error) {
   return error?.code === 'permission-denied' || String(error?.message || '').toLowerCase().includes('insufficient permissions');
+}
+
+async function createClientPayment(payload) {
+  try {
+    return await addDoc(collection(db, 'payments'), {
+      ...payload,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+  } catch (error) {
+    if (!isPermissionDenied(error)) throw error;
+    return addDoc(collection(db, 'custom_offers'), {
+      ...payload,
+      type: 'payment_request',
+      status: payload.status || 'unpaid',
+      offeredPrice: payload.amount || payload.total || 0,
+      note: payload.note || 'Fallback invoice sampai Firestore rules payments aktif.',
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+  }
 }
 
 function isPaidPayment(payment) {
