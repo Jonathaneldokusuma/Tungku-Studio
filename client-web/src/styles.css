@@ -223,7 +223,7 @@ input {
 .client-nav nav {
   display: flex;
   align-items: center;
-  gap: 29px;
+  gap: 23px;
   margin-right: auto;
 }
 

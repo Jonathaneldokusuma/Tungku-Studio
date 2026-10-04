@@ -199,6 +199,7 @@ function ClientNav({ user, onLogout, currentPath = '/dashboard' }) {
       <nav>
         <a className={isActivePath(currentPath, '/dashboard') ? 'active' : ''} href="/dashboard">Dashboard</a>
         <a className={isActivePath(currentPath, '/booking') ? 'active' : ''} href="/booking">Jadwal Booking</a>
+        <a className={isActivePath(currentPath, '/packages') ? 'active' : ''} href="/packages">Paket</a>
         <a className={isActivePath(currentPath, '/projects') ? 'active' : ''} href="/projects">Project <b>2</b></a>
         <a className={isActivePath(currentPath, '/transactions') ? 'active' : ''} href="/transactions">Transaksi</a>
       </nav>
