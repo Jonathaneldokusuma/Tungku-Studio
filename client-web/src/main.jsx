@@ -363,7 +363,9 @@ function PackagesPage({ packages, user, profile }) {
   const [manualPriceEnabled, setManualPriceEnabled] = React.useState(true);
   const [manualPrice, setManualPrice] = React.useState('Rp 1.250.000');
   const [selectedPackage, setSelectedPackage] = React.useState('');
+  const [detailPackage, setDetailPackage] = React.useState(packageItems[0]);
   const [submitState, setSubmitState] = React.useState({ loading: false, message: '', error: '' });
+  const [buyState, setBuyState] = React.useState({ loading: false, message: '', error: '' });
   const computedTotal = selectedStages.reduce((total, stage) => {
     const unit = stage === 'Recording' ? duration : songCount;
     return total + (stagePrices[stage] || 0) * Math.max(1, unit);
@@ -380,6 +382,7 @@ function PackagesPage({ packages, user, profile }) {
     const name = item.name || item.title;
     const songs = Number.parseInt(String(item.songs || '1'), 10) || 1;
     const hours = Number.parseInt(String(item.duration || '3'), 10) || 3;
+    setDetailPackage(item);
     setSelectedPackage(name);
     setSelectedStages(item.stages || ['Recording', 'Editing', 'Mixing', 'Mastering']);
     setSongCount(songs);
@@ -387,6 +390,47 @@ function PackagesPage({ packages, user, profile }) {
     setManualPriceEnabled(true);
     setManualPrice(formatRupiah(item.price || item.total || 0));
     setSubmitState({ loading: false, message: `${name} dipilih. Penawaran siap dikirim.`, error: '' });
+    setBuyState({ loading: false, message: '', error: '' });
+  };
+  const handleBuyPackage = async () => {
+    const item = detailPackage || packageItems[0];
+    const name = item.name || item.title || 'Paket Tungku Studio';
+    const price = Number(item.price || item.total || 0);
+    setBuyState({ loading: true, message: '', error: '' });
+    try {
+      const projectRef = await addDoc(collection(db, 'projects'), {
+        clientId: user.uid,
+        clientName: profile?.name || user.displayName || user.email || 'Client',
+        clientEmail: user.email || '',
+        name,
+        packageName: name,
+        packagePrice: price,
+        stages: item.stages || ['Recording', 'Editing', 'Mixing', 'Mastering'],
+        duration: item.duration || '6 Jam Rekaman',
+        songs: item.songs || '1 Lagu',
+        status: 'pending_payment',
+        stage: 'Booking',
+        progress: 0,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+      await addDoc(collection(db, 'payments'), {
+        clientId: user.uid,
+        clientName: profile?.name || user.displayName || user.email || 'Client',
+        clientEmail: user.email || '',
+        projectId: projectRef.id,
+        packageName: name,
+        amount: price,
+        status: 'unpaid',
+        method: 'manual_confirmation',
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+      setSelectedPackage(name);
+      setBuyState({ loading: false, message: 'Order dibuat. Lanjut cek Transaksi untuk pembayaran dan statusnya.', error: '' });
+    } catch (error) {
+      setBuyState({ loading: false, message: '', error: `Gagal beli paket: ${error.message}` });
+    }
   };
   const handleSubmitOffer = async () => {
     if (!selectedStages.length) {
@@ -428,6 +472,26 @@ function PackagesPage({ packages, user, profile }) {
         <span>Siap Pakai</span>
       </div>
       <div className="quote-package-grid">{packageItems.map((item) => <button className={`quote-package-choice ${selectedPackage === (item.name || item.title) ? 'selected' : ''}`} type="button" onClick={() => pickReadyPackage(item)} key={item.id || item.name}><PackageCard item={item} /></button>)}</div>
+
+      <article className="package-detail-panel">
+        <div>
+          <span>Detail Paket</span>
+          <h3>{detailPackage?.name || detailPackage?.title || 'Pilih Paket'}</h3>
+          <p>{detailPackage?.description || 'Paket siap pakai untuk memulai project musik. Setelah dibeli, order masuk ke manager dan invoice dibuat otomatis.'}</p>
+        </div>
+        <dl>
+          <dt>Tahap</dt><dd>{(detailPackage?.stages || ['Recording', 'Editing', 'Mixing', 'Mastering']).join(', ')}</dd>
+          <dt>Durasi</dt><dd>{detailPackage?.duration || '6 Jam Rekaman'}</dd>
+          <dt>Jumlah Lagu</dt><dd>{detailPackage?.songs || '1 Lagu'}</dd>
+          <dt>Harga</dt><dd>{formatRupiah(detailPackage?.price || detailPackage?.total || 0)}</dd>
+        </dl>
+        {buyState.message && <p className="offer-feedback success">{buyState.message}</p>}
+        {buyState.error && <p className="offer-feedback error">{buyState.error}</p>}
+        <div className="package-detail-actions">
+          <button type="button" onClick={() => pickReadyPackage(detailPackage || packageItems[0])}>Masukkan ke Penawaran</button>
+          <button type="button" disabled={buyState.loading} onClick={handleBuyPackage}>{buyState.loading ? 'Memproses...' : 'Beli Paket'}</button>
+        </div>
+      </article>
 
       <div className="package-section-title custom">
         <div><h2>Penawaran Kustom</h2><p>Buat penawaran sesuai kebutuhan proyek Anda. Tim akan meninjau harga, mengirimkan penawaran, dan melanjutkan ke checkout jika disetujui.</p></div>

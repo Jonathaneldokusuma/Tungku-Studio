@@ -1299,6 +1299,84 @@ input {
   box-shadow: 0 0 0 1px #df4438 inset;
 }
 
+.package-detail-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(230px, 0.75fr) auto;
+  gap: 18px;
+  align-items: center;
+  max-width: 970px;
+  padding: 16px;
+  background: #ffffff;
+  border: 1px solid #d6c7c3;
+  border-radius: 4px;
+}
+
+.package-detail-panel span {
+  color: #df4438;
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.package-detail-panel h3 {
+  margin: 5px 0 8px;
+  color: #231f20;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.package-detail-panel p {
+  margin: 0;
+  color: #554a47;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.package-detail-panel dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 7px 13px;
+  margin: 0;
+  color: #231f20;
+  font-size: 10px;
+}
+
+.package-detail-panel dt {
+  color: #6b5e5a;
+}
+
+.package-detail-panel dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.package-detail-actions {
+  display: grid;
+  gap: 9px;
+}
+
+.package-detail-actions button {
+  height: 34px;
+  padding: 0 16px;
+  border-radius: 3px;
+  border: 1px solid #df4438;
+  color: #df4438;
+  background: #ffffff;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.package-detail-actions button:last-child {
+  color: #ffffff;
+  background: #df4438;
+}
+
+.package-detail-actions button:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
 .custom-offer-board {
   display: grid;
   grid-template-columns: minmax(0, 1.25fr) minmax(230px, 0.58fr) minmax(250px, 0.62fr);

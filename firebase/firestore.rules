@@ -45,7 +45,8 @@ service cloud.firestore {
 
     match /projects/{projectId} {
       allow read: if signedIn() && (resource.data.clientId == request.auth.uid || internalUser());
-      allow write: if internalUser();
+      allow create: if signedIn() && request.resource.data.clientId == request.auth.uid;
+      allow update, delete: if internalUser();
     }
 
     match /payments/{paymentId} {
