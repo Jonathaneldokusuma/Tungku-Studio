@@ -923,17 +923,70 @@ function formatDateTime(value) {
   return new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(time);
 }
 
+function formatInvoiceDate(value) {
+  const time = value?.toDate ? value.toDate() : value?.seconds ? new Date(value.seconds * 1000) : value ? new Date(value) : new Date();
+  if (!time || Number.isNaN(time.getTime())) return '-';
+  return new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(time);
+}
+
 function downloadInvoice(payment) {
   const invoiceNumber = payment.invoice || payment.invoiceNumber || `INV-${payment.id || Date.now()}`;
-  const rows = [
-    ['Invoice', invoiceNumber],
-    ['Paket', payment.packageName || payment.package || payment.projectName || 'Paket Tungku Studio'],
-    ['Status', paymentLabel(payment)],
-    ['Total', formatRupiah(paymentAmount(payment))],
-    ['Dibuat', formatDateTime(payment.createdAt)],
-    ['Metode', payment.method || 'Konfirmasi manual manager'],
-  ];
-  const html = `<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(invoiceNumber)}</title><style>body{font-family:Arial,sans-serif;margin:40px;color:#231f20}h1{margin:0 0 4px}.brand{color:#df4438;font-weight:700}.meta{margin:0 0 28px;color:#665b58}table{border-collapse:collapse;width:100%;max-width:720px}td{border:1px solid #d6c7c3;padding:12px}td:first-child{width:180px;color:#665b58;background:#fbf8f7}.total{font-size:24px;color:#df4438;font-weight:700}.note{margin-top:24px;color:#665b58;line-height:1.5}@media print{button{display:none}}</style></head><body><p class="brand">Tungku Studio</p><h1>Invoice</h1><p class="meta">${escapeHtml(invoiceNumber)}</p><table>${rows.map(([label, value]) => `<tr><td>${escapeHtml(label)}</td><td class="${label === 'Total' ? 'total' : ''}">${escapeHtml(value)}</td></tr>`).join('')}</table><p class="note">${escapeHtml(payment.note || 'Invoice ini dibuat otomatis dari client portal. Jika belum ada link pembayaran, tunggu instruksi resmi dari manager.')}</p><script>window.print()</script></body></html>`;
+  const total = paymentAmount(payment);
+  const paid = isPaidPayment(payment) ? total : Number(payment.paidAmount || payment.paid || 0);
+  const remaining = Math.max(0, total - paid);
+  const itemName = payment.packageName || payment.package || payment.projectName || 'Paket Tungku Studio';
+  const issuedDate = payment.createdAt || payment.updatedAt || new Date();
+  const dueDate = payment.dueDate || payment.deadline || payment.createdAt || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+  const customerName = payment.clientName || payment.customerName || payment.userName || 'Client Tungku Studio';
+  const customerEmail = payment.clientEmail || payment.customerEmail || payment.email || '-';
+  const html = `<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(invoiceNumber)}</title><style>
+    :root{--red:#ce4336;--ink:#191515;--muted:#6f625f;--line:#d8cbc7;--paper:#fffdfc;--soft:#fbf4f2}
+    *{box-sizing:border-box}body{margin:0;background:#eee7e5;color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+    .page{width:210mm;min-height:297mm;margin:0 auto;background:var(--paper);padding:16mm;position:relative}
+    .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12mm}
+    h1{margin:0;color:var(--red);font-size:42px;line-height:1;font-weight:800;letter-spacing:0}
+    .logo{width:44mm;height:auto;object-fit:contain}
+    .meta{display:grid;grid-template-columns:28mm 4mm 1fr;gap:2mm 0;margin-top:8mm;font-size:11px}
+    .meta b{font-weight:800}.meta span:nth-child(3n+1){color:var(--muted);font-weight:700}
+    .info{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14mm;margin:14mm 0 10mm;font-size:11px;line-height:1.55}
+    .info h2{font-size:12px;margin:0 0 5mm;font-weight:800;text-transform:uppercase}
+    .info p{margin:0;color:var(--muted)}.info strong{color:var(--ink)}
+    table{width:100%;border-collapse:collapse;margin-top:7mm;font-size:11px}
+    thead th{border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:4mm 2mm;text-align:left;font-size:10px}
+    tbody td{padding:5mm 2mm;border-bottom:1px solid var(--line);vertical-align:top}
+    th.qty,td.qty{text-align:center;width:20mm}th.money,td.money{text-align:right;width:34mm}
+    .summary{margin-left:auto;margin-top:12mm;width:72mm;font-size:11px}.summary-row{display:flex;justify-content:space-between;padding:2.2mm 0}
+    .summary-row.total{border-top:1px solid var(--ink);margin-top:2mm;padding-top:4mm;font-size:18px;font-weight:800}
+    .status{text-align:right;margin-top:3mm;color:var(--red);font-weight:800}
+    .thanks{position:absolute;right:16mm;top:193mm;color:var(--red);font-size:32px;font-weight:800;line-height:.95}
+    .terms{margin-top:18mm;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:5mm 0;font-size:10px;color:var(--muted);line-height:1.55}
+    .terms h2{margin:0 0 3mm;color:var(--ink);font-size:11px;text-transform:uppercase}.terms p{margin:0 0 2mm}
+    .actions{position:fixed;right:24px;bottom:24px;display:flex;gap:10px}.actions button{border:0;background:var(--red);color:#fff;padding:12px 18px;font-weight:800;cursor:pointer}
+    @page{size:A4;margin:0}@media print{body{background:white}.page{margin:0;box-shadow:none}.actions{display:none}}
+    @media screen{.page{box-shadow:0 20px 60px rgba(25,21,21,.12)}}
+  </style></head><body><main class="page">
+    <section class="header"><div><h1>INVOICE</h1><div class="meta">
+      <span>NO. INVOICE</span><span>:</span><b>${escapeHtml(invoiceNumber)}</b>
+      <span>TANGGAL</span><span>:</span><b>${escapeHtml(formatInvoiceDate(issuedDate))}</b>
+      <span>JATUH TEMPO</span><span>:</span><b>${escapeHtml(formatInvoiceDate(dueDate))}</b>
+    </div></div><img class="logo" src="${invoiceAsset}" alt="Tungku Studio"></section>
+    <section class="info">
+      <div><h2>Invoice To</h2><p><strong>${escapeHtml(customerName)}</strong><br>${escapeHtml(customerEmail)}<br>${escapeHtml(payment.projectName || itemName)}</p></div>
+      <div><h2>Payment Method</h2><p>Konfirmasi manual manager<br>${escapeHtml(payment.method || 'Transfer / payment link resmi')}<br>${escapeHtml(payment.paymentUrl || payment.checkoutUrl || '')}</p></div>
+      <div><h2>Contact</h2><p>Email: tungkustudio@gmail.com<br>Instagram: @tungku.studio<br>Whatsapp: sesuai instruksi manager</p></div>
+    </section>
+    <table><thead><tr><th>DESKRIPSI</th><th class="qty">QTY</th><th>SATUAN</th><th class="money">HARGA</th><th class="money">TOTAL</th></tr></thead><tbody>
+      <tr><td><strong>${escapeHtml(itemName)}</strong><br>${escapeHtml(payment.note || 'Invoice dibuat otomatis dari client portal.')}</td><td class="qty">1</td><td>Paket</td><td class="money">${escapeHtml(formatRupiah(total))}</td><td class="money">${escapeHtml(formatRupiah(total))}</td></tr>
+    </tbody></table>
+    <section class="summary">
+      <div class="summary-row"><span>TOTAL INVOICE</span><strong>${escapeHtml(formatRupiah(total))}</strong></div>
+      <div class="summary-row"><span>SUDAH DIBAYAR</span><strong>${escapeHtml(formatRupiah(paid))}</strong></div>
+      <div class="summary-row total"><span>SISA TAGIHAN</span><strong>${escapeHtml(formatRupiah(remaining))}</strong></div>
+      <div class="status">${escapeHtml(paymentLabel(payment))}</div>
+    </section>
+    <div class="thanks">Terima<br>Kasih!</div>
+    <section class="terms"><h2>Terms & Condition</h2><p>Invoice ini diterbitkan oleh Tungku Studio. Pembayaran dianggap valid setelah dikonfirmasi oleh manager.</p><p>File final dapat dibuka atau diunduh setelah status pembayaran lunas. Simpan bukti pembayaran untuk proses verifikasi.</p></section>
+  </main><div class="actions"><button onclick="window.print()">Print / Save PDF</button></div><script>setTimeout(()=>window.print(),300)</script></body></html>`;
   const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
