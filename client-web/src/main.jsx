@@ -9,7 +9,7 @@ import heroImage from './assets/studio-dashboard-hero.png';
 import userProfile from './assets/image-user-profile.png';
 import iconMore from './assets/icon-more.svg';
 import { createUserWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { collection, doc, getDoc, onSnapshot, query, setDoc, where } from 'firebase/firestore';
+import { addDoc, collection, doc, getDoc, onSnapshot, query, serverTimestamp, setDoc, where } from 'firebase/firestore';
 import { auth, db } from './lib/firebase';
 
 function FigmaIcon({ name }) {
@@ -179,7 +179,7 @@ function ClientPortal() {
     <main className="client-dashboard">
       <ClientNav user={user} onLogout={handleLogout} currentPath={currentPath} />
       <section className="client-shell">
-        {isLoading ? <PageTitle title="Loading..." subtitle="Mengambil data akun client." /> : <ClientRouteContent path={currentPath} displayName={displayName} stats={stats} projects={activeProjects} packages={packageItems} />}
+        {isLoading ? <PageTitle title="Loading..." subtitle="Mengambil data akun client." /> : <ClientRouteContent path={currentPath} displayName={displayName} profile={profile} user={user} stats={stats} projects={activeProjects} packages={packageItems} />}
         <footer>(c) 2026 Studio Recording Tungku. All Rights Reserved</footer>
       </section>
     </main>
@@ -214,11 +214,11 @@ function ClientNav({ user, onLogout, currentPath = '/dashboard' }) {
   );
 }
 
-function ClientRouteContent({ path, displayName, stats, projects, packages }) {
+function ClientRouteContent({ path, displayName, profile, user, stats, projects, packages }) {
   if (path.includes('/booking')) return <BookingPage />;
   if (path.includes('/transactions')) return <TransactionsPage />;
   if (path.includes('/projects/new')) return <CreateProjectPage packages={packages} />;
-  if (path.includes('/packages')) return <PackagesPage packages={packages} />;
+  if (path.includes('/packages')) return <PackagesPage packages={packages} user={user} profile={profile} />;
   if (path.includes('/projects/')) return <ProjectDetailPage project={projects.find((item) => path.includes(item.id)) || projects[0]} />;
   if (path.includes('/projects')) return <ProjectsPage projects={projects} />;
   return <DashboardHome displayName={displayName} stats={stats} projects={projects} packages={packages} />;
@@ -349,13 +349,72 @@ function CreateProjectPage({ packages }) {
   );
 }
 
-function PackagesPage({ packages }) {
+function PackagesPage({ packages, user, profile }) {
   const readyPackages = [
     { name: 'Paket Lengkap A', price: 970000, duration: '6 Jam Rekaman', songs: '1 Lagu', stages: ['Recording', 'Editing', 'Mixing', 'Mastering'] },
     { name: 'Paket Lengkap B', price: 1840000, duration: '12 Jam Rekaman', songs: '2 Lagu', stages: ['Recording', 'Editing', 'Mixing', 'Mastering'] },
     { name: 'Paket Lengkap C', price: 2710000, duration: '18 Jam Rekaman', songs: '3 Lagu', stages: ['Recording', 'Editing', 'Mixing'] },
   ];
   const packageItems = packages.length ? packages.slice(0, 3) : readyPackages;
+  const stagePrices = { Recording: 150000, Editing: 200000, Mixing: 350000, Mastering: 250000 };
+  const [selectedStages, setSelectedStages] = React.useState(['Recording', 'Editing', 'Mixing', 'Mastering']);
+  const [duration, setDuration] = React.useState(3);
+  const [songCount, setSongCount] = React.useState(1);
+  const [manualPriceEnabled, setManualPriceEnabled] = React.useState(true);
+  const [manualPrice, setManualPrice] = React.useState('Rp 1.250.000');
+  const [selectedPackage, setSelectedPackage] = React.useState('');
+  const [submitState, setSubmitState] = React.useState({ loading: false, message: '', error: '' });
+  const computedTotal = selectedStages.reduce((total, stage) => {
+    const unit = stage === 'Recording' ? duration : songCount;
+    return total + (stagePrices[stage] || 0) * Math.max(1, unit);
+  }, 0);
+  const offeredPrice = manualPriceEnabled ? parseCurrency(manualPrice) : computedTotal;
+  const summaryTotal = offeredPrice || computedTotal;
+  const toggleStage = (stage) => setSelectedStages((value) => value.includes(stage) ? value.filter((item) => item !== stage) : [...value, stage]);
+  const updateNumber = (setter) => (event) => {
+    const next = Number(event.target.value.replace(/\D/g, ''));
+    setter(Number.isFinite(next) && next > 0 ? Math.min(next, 99) : 1);
+  };
+  const changeNumber = (setter, delta) => setter((value) => Math.max(1, Math.min(99, Number(value || 1) + delta)));
+  const pickReadyPackage = (item) => {
+    const name = item.name || item.title;
+    const songs = Number.parseInt(String(item.songs || '1'), 10) || 1;
+    const hours = Number.parseInt(String(item.duration || '3'), 10) || 3;
+    setSelectedPackage(name);
+    setSelectedStages(item.stages || ['Recording', 'Editing', 'Mixing', 'Mastering']);
+    setSongCount(songs);
+    setDuration(Math.max(1, Math.round(hours / songs)));
+    setManualPriceEnabled(true);
+    setManualPrice(formatRupiah(item.price || item.total || 0));
+    setSubmitState({ loading: false, message: `${name} dipilih. Penawaran siap dikirim.`, error: '' });
+  };
+  const handleSubmitOffer = async () => {
+    if (!selectedStages.length) {
+      setSubmitState({ loading: false, message: '', error: 'Pilih minimal satu tahap produksi dulu.' });
+      return;
+    }
+    setSubmitState({ loading: true, message: '', error: '' });
+    try {
+      await addDoc(collection(db, 'custom_offers'), {
+        clientId: user.uid,
+        clientName: profile?.name || user.displayName || user.email || 'Client',
+        clientEmail: user.email || '',
+        packageName: selectedPackage || 'Penawaran Kustom',
+        stages: selectedStages,
+        durationPerSong: Number(duration),
+        songCount: Number(songCount),
+        manualPriceEnabled,
+        offeredPrice: summaryTotal,
+        status: 'pending',
+        note: 'Dikirim dari client portal.',
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+      setSubmitState({ loading: false, message: 'Penawaran terkirim ke manager. Nanti statusnya bisa dicek di Transaksi/Project.', error: '' });
+    } catch (error) {
+      setSubmitState({ loading: false, message: '', error: `Gagal kirim penawaran: ${error.message}` });
+    }
+  };
 
   return (
     <section className="packages-quote-page">
@@ -368,7 +427,7 @@ function PackagesPage({ packages }) {
         <div><h2>Paket Siap Pakai</h2><p>Pilih paket yang sudah jadi, lalu lanjutkan ke pemilihan slot waktu, nama proyek, dan pembayaran pre-order.</p></div>
         <span>Siap Pakai</span>
       </div>
-      <div className="quote-package-grid">{packageItems.map((item) => <PackageCard key={item.id || item.name} item={item} />)}</div>
+      <div className="quote-package-grid">{packageItems.map((item) => <button className={`quote-package-choice ${selectedPackage === (item.name || item.title) ? 'selected' : ''}`} type="button" onClick={() => pickReadyPackage(item)} key={item.id || item.name}><PackageCard item={item} /></button>)}</div>
 
       <div className="package-section-title custom">
         <div><h2>Penawaran Kustom</h2><p>Buat penawaran sesuai kebutuhan proyek Anda. Tim akan meninjau harga, mengirimkan penawaran, dan melanjutkan ke checkout jika disetujui.</p></div>
@@ -380,27 +439,29 @@ function PackagesPage({ packages }) {
           <h3>Buat Penawaran Kustom</h3>
           <p>Pilih tahap yang dibutuhkan, tentukan durasi rekaman dan jumlah lagu, lalu masukkan harga manual jika diperlukan. Penawaran akan dikirim ke manager untuk ditinjau.</p>
           <div className="offer-stage-grid">
-            <OfferStage icon="mic" title="Recording" price="Rp 150.000 / Jam" />
-            <OfferStage icon="cut" title="Editing" price="Rp 200.000 / Lagu" />
-            <OfferStage icon="mix" title="Mixing" price="Rp 350.000 / Lagu" />
-            <OfferStage icon="master" title="Mastering" price="Rp 250.000 / Lagu" />
+            <OfferStage icon="mic" title="Recording" price="Rp 150.000 / Jam" selected={selectedStages.includes('Recording')} onClick={() => toggleStage('Recording')} />
+            <OfferStage icon="cut" title="Editing" price="Rp 200.000 / Lagu" selected={selectedStages.includes('Editing')} onClick={() => toggleStage('Editing')} />
+            <OfferStage icon="mix" title="Mixing" price="Rp 350.000 / Lagu" selected={selectedStages.includes('Mixing')} onClick={() => toggleStage('Mixing')} />
+            <OfferStage icon="master" title="Mastering" price="Rp 250.000 / Lagu" selected={selectedStages.includes('Mastering')} onClick={() => toggleStage('Mastering')} />
           </div>
           <div className="offer-controls">
-            <Stepper label="Durasi Rekaman / Lagu" value="3" />
-            <Stepper label="Jumlah Lagu" value="1" />
+            <Stepper label="Durasi Rekaman / Lagu" value={duration} onChange={updateNumber(setDuration)} onDecrease={() => changeNumber(setDuration, -1)} onIncrease={() => changeNumber(setDuration, 1)} />
+            <Stepper label="Jumlah Lagu" value={songCount} onChange={updateNumber(setSongCount)} onDecrease={() => changeNumber(setSongCount, -1)} onIncrease={() => changeNumber(setSongCount, 1)} />
           </div>
-          <label className="manual-price">Input Harga Tawaran<input defaultValue="Rp 1.250.000" /></label>
-          <div className="manual-toggle"><span>Atur Harga Manual</span><button type="button" aria-pressed="true" /></div>
+          <label className="manual-price">Input Harga Tawaran<input value={manualPrice} onChange={(event) => setManualPrice(event.target.value)} disabled={!manualPriceEnabled} /></label>
+          <div className="manual-toggle"><span>Atur Harga Manual</span><button className={manualPriceEnabled ? 'active' : ''} type="button" aria-pressed={manualPriceEnabled} onClick={() => setManualPriceEnabled((value) => !value)} /></div>
         </article>
 
         <article className="offer-summary">
           <h3>Ringkasan Penawaran</h3>
           <p>Total estimasi akan muncul setelah parameter rekaman dan tahap dipilih oleh manager.</p>
-          <dl><dt>Tahap Produksi</dt><dd>4 Tahap</dd><dt>Durasi Rekaman</dt><dd>3 Jam / Lagu</dd><dt>Jumlah Lagu</dt><dd>1 Lagu</dd><dt>Status</dt><dd>Menunggu Tinjauan</dd></dl>
+          <dl><dt>Tahap Produksi</dt><dd>{selectedStages.length} Tahap</dd><dt>Durasi Rekaman</dt><dd>{duration} Jam / Lagu</dd><dt>Jumlah Lagu</dt><dd>{songCount} Lagu</dd><dt>Status</dt><dd>Menunggu Tinjauan</dd></dl>
           <span>Estimasi Total</span>
-          <strong>Rp 1.250.000</strong>
+          <strong>{formatRupiah(summaryTotal)}</strong>
           <p>Harga akhir akan dikonfirmasi setelah manager meninjau penawaran.</p>
-          <button type="button">Kirim Penawaran</button>
+          {submitState.message && <p className="offer-feedback success">{submitState.message}</p>}
+          {submitState.error && <p className="offer-feedback error">{submitState.error}</p>}
+          <button type="button" disabled={submitState.loading} onClick={handleSubmitOffer}>{submitState.loading ? 'Mengirim...' : 'Kirim Penawaran'}</button>
           <a href="/packages">Batal</a>
         </article>
 
@@ -414,12 +475,12 @@ function PackagesPage({ packages }) {
   );
 }
 
-function OfferStage({ icon, title, price }) {
-  return <button className="offer-stage" type="button"><FigmaIcon name={icon} /><strong>{title}</strong><span>{price}</span></button>;
+function OfferStage({ icon, title, price, selected, onClick }) {
+  return <button className={`offer-stage ${selected ? 'selected' : ''}`} type="button" aria-pressed={selected} onClick={onClick}><FigmaIcon name={icon} /><strong>{title}</strong><span>{price}</span></button>;
 }
 
-function Stepper({ label, value }) {
-  return <label className="offer-stepper"><span>{label}</span><div><button type="button">-</button><input value={value} readOnly /><button type="button">+</button></div></label>;
+function Stepper({ label, value, onChange, onDecrease, onIncrease }) {
+  return <label className="offer-stepper"><span>{label}</span><div><button type="button" onClick={onDecrease}>-</button><input value={value} onChange={onChange} inputMode="numeric" /><button type="button" onClick={onIncrease}>+</button></div></label>;
 }
 
 function PackageCard({ item }) {
@@ -454,6 +515,10 @@ function clampPercent(value) {
 function formatRupiah(value) {
   if (typeof value === 'string' && value.includes('Rp')) return value;
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(Number(value) || 0);
+}
+
+function parseCurrency(value) {
+  return Number(String(value).replace(/\D/g, '')) || 0;
 }
 
 function isActivePath(currentPath, targetPath) {

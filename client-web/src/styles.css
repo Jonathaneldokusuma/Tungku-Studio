@@ -1279,6 +1279,26 @@ input {
   max-width: 740px;
 }
 
+.quote-package-choice {
+  display: block;
+  padding: 0;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.quote-package-choice .client-package {
+  height: 100%;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.quote-package-choice.selected .client-package,
+.quote-package-choice:hover .client-package {
+  border-color: #df4438;
+  box-shadow: 0 0 0 1px #df4438 inset;
+}
+
 .custom-offer-board {
   display: grid;
   grid-template-columns: minmax(0, 1.25fr) minmax(230px, 0.58fr) minmax(250px, 0.62fr);
@@ -1333,6 +1353,11 @@ input {
   cursor: pointer;
 }
 
+.offer-stage.selected {
+  background: #fff2f0;
+  border-color: #df4438;
+}
+
 .offer-stage .figma-icon {
   width: 22px;
   height: 22px;
@@ -1382,6 +1407,16 @@ input {
   color: #df4438;
 }
 
+.offer-stepper button {
+  cursor: pointer;
+}
+
+.offer-stepper input:focus,
+.manual-price input:focus {
+  outline: 1px solid #df4438;
+  outline-offset: -1px;
+}
+
 .manual-price {
   display: grid;
   gap: 6px;
@@ -1398,6 +1433,11 @@ input {
   font-size: 10px;
 }
 
+.manual-price input:disabled {
+  color: #8a807c;
+  background: #f3eeee;
+}
+
 .manual-toggle {
   display: flex;
   align-items: center;
@@ -1411,20 +1451,30 @@ input {
   position: relative;
   width: 36px;
   height: 20px;
-  background: #df4438;
+  background: #cfc1bd;
   border: 0;
   border-radius: 999px;
+  cursor: pointer;
+}
+
+.manual-toggle button.active {
+  background: #df4438;
 }
 
 .manual-toggle button::after {
   content: "";
   position: absolute;
   top: 3px;
-  right: 3px;
+  left: 3px;
   width: 14px;
   height: 14px;
   background: #ffffff;
   border-radius: 50%;
+  transition: transform 0.15s ease;
+}
+
+.manual-toggle button.active::after {
+  transform: translateX(16px);
 }
 
 .offer-summary dl {
@@ -1463,14 +1513,39 @@ input {
 
 .offer-summary button {
   display: block;
-  width: 118px;
+  min-width: 118px;
   height: 34px;
+  padding: 0 12px;
   color: #ffffff;
   background: #df4438;
   border: 0;
   border-radius: 3px;
   font-size: 10px;
   font-weight: 600;
+  cursor: pointer;
+}
+
+.offer-summary button:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.offer-feedback {
+  margin: 0 0 10px !important;
+  padding: 8px 10px;
+  border-radius: 3px;
+  font-size: 9px !important;
+  line-height: 1.4 !important;
+}
+
+.offer-feedback.success {
+  color: #146c43;
+  background: #dff3e8;
+}
+
+.offer-feedback.error {
+  color: #8d261f;
+  background: #ffd9d5;
 }
 
 .offer-summary a {
