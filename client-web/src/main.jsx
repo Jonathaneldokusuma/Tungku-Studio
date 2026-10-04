@@ -376,23 +376,22 @@ function CreateProjectPage({ packages, user, profile }) {
     event.preventDefault();
     setState({ loading: true, message: '', error: '' });
     try {
-      await addDoc(collection(db, 'projects'), {
+      await addDoc(collection(db, 'custom_offers'), {
         clientId: user.uid,
         clientName: profile?.name || user.displayName || user.email || 'Client',
         clientEmail: user.email || '',
-        name: form.name,
+        projectName: form.name,
         packageName: selected,
         packagePrice: Number(selectedPackage.price || selectedPackage.total || 0),
         driveFolderUrl: form.driveUrl,
         note: form.note,
         stages: selectedPackage.stages || ['Recording', 'Editing', 'Mixing', 'Mastering'],
-        status: 'draft',
-        stage: 'Booking',
-        progress: 0,
+        status: 'pending',
+        type: 'project_request',
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
-      setState({ loading: false, message: 'Project terkirim ke manager. Kamu bisa cek status di halaman Project.', error: '' });
+      setState({ loading: false, message: 'Request project terkirim ke manager. Setelah disetujui akan muncul di halaman Project.', error: '' });
       setForm({ name: '', driveUrl: '', note: '' });
     } catch (error) {
       setState({ loading: false, message: '', error: `Gagal kirim project: ${error.message}` });
@@ -465,19 +464,20 @@ function PackagesPage({ packages, user, profile }) {
     const price = Number(item.price || item.total || 0);
     setBuyState({ loading: true, message: '', error: '' });
     try {
-      const projectRef = await addDoc(collection(db, 'projects'), {
+      const orderRef = await addDoc(collection(db, 'custom_offers'), {
         clientId: user.uid,
         clientName: profile?.name || user.displayName || user.email || 'Client',
         clientEmail: user.email || '',
-        name,
+        projectName: name,
         packageName: name,
         packagePrice: price,
         stages: item.stages || ['Recording', 'Editing', 'Mixing', 'Mastering'],
         duration: item.duration || '6 Jam Rekaman',
         songs: item.songs || '1 Lagu',
         status: 'pending_payment',
-        stage: 'Booking',
-        progress: 0,
+        type: 'package_purchase',
+        offeredPrice: price,
+        note: 'Pembelian paket siap pakai dari client portal.',
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
@@ -485,7 +485,7 @@ function PackagesPage({ packages, user, profile }) {
         clientId: user.uid,
         clientName: profile?.name || user.displayName || user.email || 'Client',
         clientEmail: user.email || '',
-        projectId: projectRef.id,
+        orderId: orderRef.id,
         packageName: name,
         amount: price,
         status: 'unpaid',
