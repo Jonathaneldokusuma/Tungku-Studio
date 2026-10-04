@@ -121,6 +121,7 @@ function ClientPortal() {
   const [projects, setProjects] = React.useState([]);
   const [packages, setPackages] = React.useState([]);
   const [payments, setPayments] = React.useState([]);
+  const [paymentsError, setPaymentsError] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(true);
   const currentPath = window.location.pathname;
 
@@ -159,7 +160,8 @@ function ClientPortal() {
         }),
         onSnapshot(query(collection(db, 'payments'), where('clientId', '==', currentUser.uid)), (snapshot) => {
           setPayments(snapshot.docs.map((item) => ({ id: item.id, ...item.data() })));
-        }),
+          setPaymentsError('');
+        }, (error) => setPaymentsError(error.message)),
         onSnapshot(collection(db, 'packages'), (snapshot) => setPackages(snapshot.docs.map((item) => ({ id: item.id, ...item.data() })))),
       ];
     });
@@ -183,7 +185,7 @@ function ClientPortal() {
     <main className="client-dashboard">
       <ClientNav user={user} onLogout={handleLogout} currentPath={currentPath} />
       <section className="client-shell">
-        {isLoading ? <PageTitle title="Loading..." subtitle="Mengambil data akun client." /> : <ClientRouteContent path={currentPath} displayName={displayName} profile={profile} user={user} stats={stats} projects={activeProjects} packages={packageItems} payments={payments} />}
+        {isLoading ? <PageTitle title="Loading..." subtitle="Mengambil data akun client." /> : <ClientRouteContent path={currentPath} displayName={displayName} profile={profile} user={user} stats={stats} projects={activeProjects} packages={packageItems} payments={payments} paymentsError={paymentsError} />}
         <footer>(c) 2026 Studio Recording Tungku. All Rights Reserved</footer>
       </section>
     </main>
@@ -218,9 +220,9 @@ function ClientNav({ user, onLogout, currentPath = '/dashboard' }) {
   );
 }
 
-function ClientRouteContent({ path, displayName, profile, user, stats, projects, packages, payments }) {
+function ClientRouteContent({ path, displayName, profile, user, stats, projects, packages, payments, paymentsError }) {
   if (path.includes('/booking')) return <BookingPage user={user} profile={profile} />;
-  if (path.includes('/transactions')) return <TransactionsPage payments={payments} />;
+  if (path.includes('/transactions')) return <TransactionsPage payments={payments} error={paymentsError} />;
   if (path.includes('/projects/new')) return <CreateProjectPage packages={packages} user={user} profile={profile} />;
   if (path.includes('/packages')) return <PackagesPage packages={packages} user={user} profile={profile} />;
   if (path.includes('/projects/')) return <ProjectDetailPage project={projects.find((item) => path.includes(item.id)) || projects[0]} />;
@@ -361,9 +363,67 @@ function ProjectDetailPage({ project = demoProjects[0] }) {
   return <section className="client-panel-page"><PageTitle title={project.name || project.title} subtitle="Detail progress dan link file project." /><ProjectHero project={project} large /><div className="detail-grid"><InfoTile label="Tahap" value={project.stage || 'Mixing'} /><InfoTile label="Progress" value={`${clampPercent(project.progress ?? 68)}%`} /><InfoTile label="Folder Google Drive" value={project.driveFolderUrl || 'Link belum tersedia'} /><InfoTile label="Deadline" value={project.deadline || '26 September 2026'} /></div></section>;
 }
 
-function TransactionsPage({ payments }) {
-  const rows = payments.length ? payments : demoTransactions;
-  return <section className="client-panel-page"><PageTitle title="Transaksi" subtitle="Status invoice, tagihan, dan bukti pembayaran." /><div className="transaction-list">{rows.map((item, index) => <article key={item.id || item.invoice || index}><div><strong>{item.invoice || `INV-${String(index + 1).padStart(3, '0')}`}</strong><span>{item.packageName || item.package || 'Paket Tungku Studio'}</span></div><b>{formatRupiah(item.amount || item.total || item.price || 0)}</b><mark className={isPaidPayment(item) ? 'paid' : ''}>{paymentLabel(item)}</mark><a href={item.paymentUrl || '/transactions'}>{isPaidPayment(item) ? 'Detail' : 'Bayar'}</a></article>)}</div></section>;
+function TransactionsPage({ payments, error }) {
+  const [activePaymentId, setActivePaymentId] = React.useState('');
+  const sortedPayments = [...payments].sort((first, second) => getPaymentTime(second) - getPaymentTime(first));
+  const unpaidTotal = sortedPayments.filter((item) => !isPaidPayment(item)).reduce((total, item) => total + paymentAmount(item), 0);
+  const activePayment = sortedPayments.find((item) => item.id === activePaymentId) || sortedPayments[0];
+
+  return (
+    <section className="client-panel-page">
+      <PageTitle title="Transaksi" subtitle="Invoice dan pembayaran diambil realtime dari Firebase." />
+      <div className="transaction-summary">
+        <StatCard title="Total Invoice" value={sortedPayments.length} icon="invoice" tone="red" />
+        <StatCard title="Belum Lunas" value={sortedPayments.filter((item) => !isPaidPayment(item)).length} icon="quotation" tone="pink" />
+        <StatCard title="Nominal Belum Lunas" value={formatRupiah(unpaidTotal)} icon="invoice" tone="gold" />
+      </div>
+      {error && <p className="offer-feedback error">Gagal mengambil transaksi realtime: {error}</p>}
+      {!error && !sortedPayments.length && <div className="empty-state"><FigmaIcon name="invoice" /><h3>Belum ada transaksi</h3><p>Invoice akan muncul otomatis setelah kamu beli paket atau manager membuat tagihan.</p><a href="/packages">Pilih Paket</a></div>}
+      {!!sortedPayments.length && (
+        <div className="transaction-layout">
+          <div className="transaction-list">
+            {sortedPayments.map((item, index) => <TransactionRow key={item.id || index} item={item} index={index} active={activePayment?.id === item.id} onSelect={() => setActivePaymentId(item.id)} />)}
+          </div>
+          {activePayment && <PaymentDetail payment={activePayment} />}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function TransactionRow({ item, index, active, onSelect }) {
+  const paymentUrl = item.paymentUrl || item.checkoutUrl || item.invoiceUrl || '';
+  return (
+    <article className={active ? 'active' : ''}>
+      <button type="button" onClick={onSelect}>
+        <strong>{item.invoice || item.invoiceNumber || `INV-${String(index + 1).padStart(3, '0')}`}</strong>
+        <span>{item.packageName || item.package || item.projectName || 'Paket Tungku Studio'}</span>
+        <small>{formatDateTime(item.createdAt)}</small>
+      </button>
+      <b>{formatRupiah(paymentAmount(item))}</b>
+      <mark className={isPaidPayment(item) ? 'paid' : paymentLabel(item) === 'Menunggu' ? 'pending' : ''}>{paymentLabel(item)}</mark>
+      {paymentUrl ? <a href={paymentUrl} target="_blank" rel="noreferrer">{isPaidPayment(item) ? 'Detail' : 'Bayar'}</a> : <button className="transaction-action" type="button" onClick={onSelect}>{isPaidPayment(item) ? 'Detail' : 'Instruksi'}</button>}
+    </article>
+  );
+}
+
+function PaymentDetail({ payment }) {
+  const paymentUrl = payment.paymentUrl || payment.checkoutUrl || payment.invoiceUrl || '';
+  return (
+    <aside className="payment-detail">
+      <span>Detail Transaksi</span>
+      <h3>{payment.invoice || payment.invoiceNumber || 'Invoice Pending'}</h3>
+      <dl>
+        <dt>Paket</dt><dd>{payment.packageName || payment.package || payment.projectName || 'Paket Tungku Studio'}</dd>
+        <dt>Status</dt><dd>{paymentLabel(payment)}</dd>
+        <dt>Total</dt><dd>{formatRupiah(paymentAmount(payment))}</dd>
+        <dt>Dibuat</dt><dd>{formatDateTime(payment.createdAt)}</dd>
+        <dt>Metode</dt><dd>{payment.method || 'Konfirmasi manual manager'}</dd>
+      </dl>
+      <p>{payment.note || 'Jika belum ada link pembayaran, invoice ini menunggu manager mengirim instruksi pembayaran resmi.'}</p>
+      {paymentUrl ? <a href={paymentUrl} target="_blank" rel="noreferrer">Buka Pembayaran</a> : <a href="/packages">Tambah Paket Lagi</a>}
+    </aside>
+  );
 }
 
 function CreateProjectPage({ packages, user, profile }) {
@@ -659,9 +719,26 @@ function isPaidPayment(payment) {
 function paymentLabel(payment) {
   const status = String(payment.status || '').toLowerCase();
   if (isPaidPayment(payment)) return 'Lunas';
-  if (status === 'pending') return 'Menunggu';
+  if (['pending', 'pending_payment', 'waiting', 'review'].includes(status)) return 'Menunggu';
   if (status === 'failed') return 'Gagal';
   return 'Belum Lunas';
+}
+
+function paymentAmount(payment) {
+  return Number(payment.amount || payment.total || payment.price || payment.packagePrice || payment.offeredPrice || 0);
+}
+
+function getPaymentTime(payment) {
+  const value = payment.createdAt || payment.updatedAt || payment.paidAt;
+  if (value?.toMillis) return value.toMillis();
+  if (value?.seconds) return value.seconds * 1000;
+  return value ? new Date(value).getTime() || 0 : 0;
+}
+
+function formatDateTime(value) {
+  const time = value?.toDate ? value.toDate() : value?.seconds ? new Date(value.seconds * 1000) : value ? new Date(value) : null;
+  if (!time || Number.isNaN(time.getTime())) return 'Baru dibuat';
+  return new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(time);
 }
 
 function isActivePath(currentPath, targetPath) {

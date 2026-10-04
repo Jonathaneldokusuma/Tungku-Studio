@@ -1152,6 +1152,19 @@ input {
   gap: 10px;
 }
 
+.transaction-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.transaction-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 310px;
+  gap: 16px;
+  align-items: start;
+}
+
 .transaction-list article {
   display: grid;
   grid-template-columns: 1fr auto auto auto;
@@ -1159,6 +1172,19 @@ input {
   gap: 18px;
   min-height: 68px;
   padding: 14px 18px;
+}
+
+.transaction-list article.active {
+  border-color: #df4438;
+  box-shadow: 0 0 0 1px #df4438 inset;
+}
+
+.transaction-list article > button:first-child {
+  padding: 0;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
 }
 
 .transaction-list strong,
@@ -1174,6 +1200,13 @@ input {
   font-size: 11px;
 }
 
+.transaction-list small {
+  display: block;
+  margin-top: 4px;
+  color: #8a807c;
+  font-size: 9px;
+}
+
 .transaction-list mark {
   padding: 6px 10px;
   color: #df4438;
@@ -1187,17 +1220,121 @@ input {
   background: #cdeed9;
 }
 
-.transaction-list a {
+.transaction-list mark.pending {
+  color: #8a5b00;
+  background: #fff0c2;
+}
+
+.transaction-list a,
+.transaction-action {
   display: inline-grid;
   place-items: center;
   height: 30px;
   padding: 0 12px;
   color: #ffffff;
   background: #df4438;
+  border: 0;
   border-radius: 3px;
   font-size: 10px;
   font-weight: 600;
   text-decoration: none;
+  cursor: pointer;
+}
+
+.payment-detail,
+.empty-state {
+  background: #ffffff;
+  border: 1px solid #d6c7c3;
+  border-radius: 4px;
+}
+
+.payment-detail {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+}
+
+.payment-detail > span {
+  color: #df4438;
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.payment-detail h3 {
+  margin: 0;
+  color: #231f20;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.payment-detail dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 14px;
+  margin: 0;
+  color: #231f20;
+  font-size: 10px;
+}
+
+.payment-detail dt {
+  color: #665b58;
+}
+
+.payment-detail dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.payment-detail p {
+  margin: 0;
+  color: #554a47;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.payment-detail a,
+.empty-state a {
+  display: inline-grid;
+  place-items: center;
+  width: max-content;
+  height: 34px;
+  padding: 0 14px;
+  color: #ffffff;
+  background: #df4438;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.empty-state {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  max-width: 420px;
+  padding: 22px;
+}
+
+.empty-state .figma-icon {
+  width: 28px;
+  height: 28px;
+}
+
+.empty-state h3,
+.empty-state p {
+  margin: 0;
+}
+
+.empty-state h3 {
+  color: #231f20;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.empty-state p {
+  color: #554a47;
+  font-size: 11px;
+  line-height: 1.5;
 }
 
 .package-grid.compact {
@@ -1768,8 +1905,15 @@ input {
   .booking-layout,
   .create-project-layout,
   .project-list,
-  .detail-grid {
+  .detail-grid,
+  .transaction-summary,
+  .transaction-layout {
     grid-template-columns: 1fr;
+  }
+
+  .transaction-list article {
+    grid-template-columns: 1fr;
+    align-items: start;
   }
 
   .project-tracks {
