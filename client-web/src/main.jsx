@@ -945,9 +945,9 @@ function downloadInvoice(payment) {
     :root{--red:#ce4336;--ink:#191515;--muted:#6f625f;--line:#d8cbc7;--paper:#fffdfc;--soft:#fbf4f2}
     *{box-sizing:border-box}body{margin:0;background:#eee7e5;color:var(--ink);font-family:Arial,Helvetica,sans-serif}
     .page{width:210mm;min-height:297mm;margin:0 auto;background:var(--paper);padding:16mm;position:relative}
-    .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12mm}
+    .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12mm;padding:4mm 8mm 0 0}
     h1{margin:0;color:var(--red);font-size:42px;line-height:1;font-weight:800;letter-spacing:0}
-    .logo{width:42mm;height:auto;object-fit:contain;display:block}
+    .logo{width:30mm;height:auto;object-fit:contain;display:block}
     .meta{display:grid;grid-template-columns:28mm 4mm 1fr;gap:2mm 0;margin-top:8mm;font-size:11px}
     .meta b{font-weight:800}.meta span:nth-child(3n+1){color:var(--muted);font-weight:700}
     .info{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14mm;margin:14mm 0 10mm;font-size:11px;line-height:1.55}
