@@ -953,6 +953,11 @@ input {
   background: #ffd9d5;
 }
 
+.extension-date-grid button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 .extension-detail {
   padding: 16px;
 }
@@ -1014,6 +1019,11 @@ input {
   color: #ffffff;
   background: #df4438;
   font-weight: 600;
+}
+
+.extension-actions button:disabled {
+  cursor: wait;
+  opacity: 0.72;
 }
 
 .booking-calendar,
@@ -1144,7 +1154,7 @@ input {
 
 .transaction-list article {
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: 1fr auto auto auto;
   align-items: center;
   gap: 18px;
   min-height: 68px;
@@ -1175,6 +1185,19 @@ input {
 .transaction-list mark.paid {
   color: #137a45;
   background: #cdeed9;
+}
+
+.transaction-list a {
+  display: inline-grid;
+  place-items: center;
+  height: 30px;
+  padding: 0 12px;
+  color: #ffffff;
+  background: #df4438;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  text-decoration: none;
 }
 
 .package-grid.compact {

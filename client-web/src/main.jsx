@@ -120,6 +120,7 @@ function ClientPortal() {
   const [stats, setStats] = React.useState({ bookings: 0, projects: 0, offers: 0, done: 0 });
   const [projects, setProjects] = React.useState([]);
   const [packages, setPackages] = React.useState([]);
+  const [payments, setPayments] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const currentPath = window.location.pathname;
 
@@ -156,6 +157,9 @@ function ClientPortal() {
         onSnapshot(query(collection(db, 'custom_offers'), where('clientId', '==', currentUser.uid)), (snapshot) => {
           setStats((value) => ({ ...value, offers: snapshot.size }));
         }),
+        onSnapshot(query(collection(db, 'payments'), where('clientId', '==', currentUser.uid)), (snapshot) => {
+          setPayments(snapshot.docs.map((item) => ({ id: item.id, ...item.data() })));
+        }),
         onSnapshot(collection(db, 'packages'), (snapshot) => setPackages(snapshot.docs.map((item) => ({ id: item.id, ...item.data() })))),
       ];
     });
@@ -179,7 +183,7 @@ function ClientPortal() {
     <main className="client-dashboard">
       <ClientNav user={user} onLogout={handleLogout} currentPath={currentPath} />
       <section className="client-shell">
-        {isLoading ? <PageTitle title="Loading..." subtitle="Mengambil data akun client." /> : <ClientRouteContent path={currentPath} displayName={displayName} profile={profile} user={user} stats={stats} projects={activeProjects} packages={packageItems} />}
+        {isLoading ? <PageTitle title="Loading..." subtitle="Mengambil data akun client." /> : <ClientRouteContent path={currentPath} displayName={displayName} profile={profile} user={user} stats={stats} projects={activeProjects} packages={packageItems} payments={payments} />}
         <footer>(c) 2026 Studio Recording Tungku. All Rights Reserved</footer>
       </section>
     </main>
@@ -214,19 +218,20 @@ function ClientNav({ user, onLogout, currentPath = '/dashboard' }) {
   );
 }
 
-function ClientRouteContent({ path, displayName, profile, user, stats, projects, packages }) {
-  if (path.includes('/booking')) return <BookingPage />;
-  if (path.includes('/transactions')) return <TransactionsPage />;
-  if (path.includes('/projects/new')) return <CreateProjectPage packages={packages} />;
+function ClientRouteContent({ path, displayName, profile, user, stats, projects, packages, payments }) {
+  if (path.includes('/booking')) return <BookingPage user={user} profile={profile} />;
+  if (path.includes('/transactions')) return <TransactionsPage payments={payments} />;
+  if (path.includes('/projects/new')) return <CreateProjectPage packages={packages} user={user} profile={profile} />;
   if (path.includes('/packages')) return <PackagesPage packages={packages} user={user} profile={profile} />;
   if (path.includes('/projects/')) return <ProjectDetailPage project={projects.find((item) => path.includes(item.id)) || projects[0]} />;
   if (path.includes('/projects')) return <ProjectsPage projects={projects} />;
-  return <DashboardHome displayName={displayName} stats={stats} projects={projects} packages={packages} />;
+  return <DashboardHome displayName={displayName} stats={stats} projects={projects} packages={packages} payments={payments} />;
 }
 
-function DashboardHome({ displayName, stats, projects, packages }) {
+function DashboardHome({ displayName, stats, projects, packages, payments }) {
   const featuredProject = projects[0] || demoProjects[0];
   const sideProjects = projects.slice(1, 3);
+  const unpaidTotal = payments.filter((item) => !isPaidPayment(item)).reduce((total, item) => total + Number(item.amount || item.total || 0), 0);
   return (
     <>
       <div className="client-greeting"><h1>Halo {displayName}!</h1><p>Selamat Datang di <strong>Tungku Studio</strong></p></div>
@@ -234,7 +239,7 @@ function DashboardHome({ displayName, stats, projects, packages }) {
         <StatCard title="Total Project Anda" value={Math.max(stats.projects + stats.done, projects.length)} icon="project" tone="red" />
         <StatCard title="Project Dalam Pengerjaan" value={stats.projects || projects.filter((item) => !isDoneProject(item)).length} icon="mix" tone="green" />
         <StatCard title="Project Selesai" value={stats.done || projects.filter(isDoneProject).length} icon="booking" tone="gold" />
-        <StatCard title="Total Pembayaran Belum Lunas" value="Rp 1.500.000" icon="invoice" tone="pink" />
+        <StatCard title="Total Pembayaran Belum Lunas" value={formatRupiah(unpaidTotal)} icon="invoice" tone="pink" />
       </div>
       <div className="project-showcase"><ProjectHero project={featuredProject} large /><div className="project-side-list">{sideProjects.map((project) => <ProjectHero key={project.id || project.name} project={project} />)}</div></div>
       <div className="package-head"><h2>Paket Tersedia</h2><a href="/packages">Lihat lainnya</a></div>
@@ -262,7 +267,9 @@ function ProjectHero({ project, large = false }) {
   );
 }
 
-function BookingPage() {
+function BookingPage({ user, profile }) {
+  const [selectedDay, setSelectedDay] = React.useState('24');
+  const [status, setStatus] = React.useState({ loading: false, message: '', error: '' });
   const calendarDays = [
     '30', '31', '1', '2', '3', '4', '5',
     '6', '7', '8', '9', '10', '11', '12',
@@ -270,6 +277,28 @@ function BookingPage() {
     '20', '21', '22', '23', '24', '25', '26',
     '27', '28', '29', '30', '1', '2', '3',
   ];
+  const selectedSlot = `Kamis, ${selectedDay} September 2026 - 16:00 - 18:00 WIB`;
+  const handleConfirm = async () => {
+    setStatus({ loading: true, message: '', error: '' });
+    try {
+      await addDoc(collection(db, 'custom_offers'), {
+        clientId: user.uid,
+        clientName: profile?.name || user.displayName || user.email || 'Client',
+        clientEmail: user.email || '',
+        packageName: 'Perpanjangan Jadwal',
+        type: 'booking_extension',
+        requestedSlot: selectedSlot,
+        offeredPrice: 480000,
+        status: 'pending',
+        note: 'Permintaan perpanjangan jadwal dari client portal.',
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+      setStatus({ loading: false, message: 'Permintaan perpanjangan terkirim ke manager.', error: '' });
+    } catch (error) {
+      setStatus({ loading: false, message: '', error: `Gagal kirim perpanjangan: ${error.message}` });
+    }
+  };
   return (
     <section className="booking-extension-page">
       <aside className="selected-project-card">
@@ -292,18 +321,23 @@ function BookingPage() {
           <div className="calendar-toolbar"><button type="button"><FigmaIcon name="booking" />September 2026</button><button type="button">2026</button></div>
           <div className="calendar-week">{['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day) => <span key={day}>{day}</span>)}</div>
           <div className="extension-date-grid">
-            {calendarDays.map((day, index) => <button type="button" key={`${day}-${index}`} className={day === '21' ? 'dark' : ['24', '25'].includes(day) ? 'picked' : ['30', '31', '1', '2', '3'].includes(day) && index > 27 ? 'muted' : ''}>{day}</button>)}
+            {calendarDays.map((day, index) => {
+              const muted = ['30', '31', '1', '2', '3'].includes(day) && index > 27;
+              return <button type="button" key={`${day}-${index}`} disabled={muted} onClick={() => setSelectedDay(day)} className={day === '21' ? 'dark' : day === selectedDay ? 'picked' : muted ? 'muted' : ''}>{day}</button>;
+            })}
           </div>
         </article>
 
         <article className="extension-detail">
           <h2>Detail Perpanjangan</h2>
-          <p>Slot yang dipilih: Kamis, 24 September 2026 • 16:00 - 18:00 WIB</p>
+          <p>Slot yang dipilih: {selectedSlot}</p>
           <ExtensionRow icon="booking" title="Slot Tersedia" text="Slot ini dapat dipilih untuk perpanjangan dan tidak bentrok dengan jadwal lain." />
           <ExtensionRow icon="invoice" title="Biaya Tambahan" text="Rp 480.000 untuk 2 jam tambahan, terhitung dari slot yang dipilih." />
           <ExtensionRow icon="quotation" title="Konsekuensi Pembayaran" text="Pembayaran perpanjangan harus diselesaikan sebelum slot ditambahkan ke jadwal project." />
           <div className="extension-summary"><strong>Ringkasan Sebelum Konfirmasi</strong><span>• Slot tersedia dan tidak bentrok dengan jadwal lain.</span><span>• Biaya tambahan Rp 480.000 sudah terhitung untuk 2 jam perpanjangan.</span><span>• Pembayaran harus diselesaikan sebelum perubahan disimpan.</span></div>
-          <div className="extension-actions"><button type="button">Batal</button><button type="button">Konfirmasi Perpanjangan</button></div>
+          {status.message && <p className="offer-feedback success">{status.message}</p>}
+          {status.error && <p className="offer-feedback error">{status.error}</p>}
+          <div className="extension-actions"><button type="button" onClick={() => setSelectedDay('24')}>Batal</button><button type="button" disabled={status.loading} onClick={handleConfirm}>{status.loading ? 'Mengirim...' : 'Konfirmasi Perpanjangan'}</button></div>
           <div className="extension-warning"><strong>Tidak Ada Slot Tersedia</strong><span>Jika tidak ada slot yang tersedia, klien dapat memilih hari lain atau membatalkan permintaan perpanjangan.</span></div>
         </article>
       </main>
@@ -327,22 +361,55 @@ function ProjectDetailPage({ project = demoProjects[0] }) {
   return <section className="client-panel-page"><PageTitle title={project.name || project.title} subtitle="Detail progress dan link file project." /><ProjectHero project={project} large /><div className="detail-grid"><InfoTile label="Tahap" value={project.stage || 'Mixing'} /><InfoTile label="Progress" value={`${clampPercent(project.progress ?? 68)}%`} /><InfoTile label="Folder Google Drive" value={project.driveFolderUrl || 'Link belum tersedia'} /><InfoTile label="Deadline" value={project.deadline || '26 September 2026'} /></div></section>;
 }
 
-function TransactionsPage() {
-  return <section className="client-panel-page"><PageTitle title="Transaksi" subtitle="Status invoice, tagihan, dan bukti pembayaran." /><div className="transaction-list">{demoTransactions.map((item) => <article key={item.invoice}><div><strong>{item.invoice}</strong><span>{item.package}</span></div><b>{item.amount}</b><mark className={item.status === 'Lunas' ? 'paid' : ''}>{item.status}</mark></article>)}</div></section>;
+function TransactionsPage({ payments }) {
+  const rows = payments.length ? payments : demoTransactions;
+  return <section className="client-panel-page"><PageTitle title="Transaksi" subtitle="Status invoice, tagihan, dan bukti pembayaran." /><div className="transaction-list">{rows.map((item, index) => <article key={item.id || item.invoice || index}><div><strong>{item.invoice || `INV-${String(index + 1).padStart(3, '0')}`}</strong><span>{item.packageName || item.package || 'Paket Tungku Studio'}</span></div><b>{formatRupiah(item.amount || item.total || item.price || 0)}</b><mark className={isPaidPayment(item) ? 'paid' : ''}>{paymentLabel(item)}</mark><a href={item.paymentUrl || '/transactions'}>{isPaidPayment(item) ? 'Detail' : 'Bayar'}</a></article>)}</div></section>;
 }
 
-function CreateProjectPage({ packages }) {
+function CreateProjectPage({ packages, user, profile }) {
   const [selected, setSelected] = React.useState(packages[0]?.name || demoPackages[0].name);
+  const [form, setForm] = React.useState({ name: '', driveUrl: '', note: '' });
+  const [state, setState] = React.useState({ loading: false, message: '', error: '' });
+  const selectedPackage = packages.find((item) => (item.name || item.title) === selected) || demoPackages.find((item) => item.name === selected) || demoPackages[0];
+  const updateField = (field) => (event) => setForm((value) => ({ ...value, [field]: event.target.value }));
+  const handleCreateProject = async (event) => {
+    event.preventDefault();
+    setState({ loading: true, message: '', error: '' });
+    try {
+      await addDoc(collection(db, 'projects'), {
+        clientId: user.uid,
+        clientName: profile?.name || user.displayName || user.email || 'Client',
+        clientEmail: user.email || '',
+        name: form.name,
+        packageName: selected,
+        packagePrice: Number(selectedPackage.price || selectedPackage.total || 0),
+        driveFolderUrl: form.driveUrl,
+        note: form.note,
+        stages: selectedPackage.stages || ['Recording', 'Editing', 'Mixing', 'Mastering'],
+        status: 'draft',
+        stage: 'Booking',
+        progress: 0,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+      setState({ loading: false, message: 'Project terkirim ke manager. Kamu bisa cek status di halaman Project.', error: '' });
+      setForm({ name: '', driveUrl: '', note: '' });
+    } catch (error) {
+      setState({ loading: false, message: '', error: `Gagal kirim project: ${error.message}` });
+    }
+  };
   return (
     <section className="client-panel-page">
       <PageTitle title="Buat Proyek" subtitle="Pilih paket, isi brief, lalu manager Tungku akan follow up." />
       <div className="create-project-layout">
-        <div className="package-grid compact">{packages.slice(0, 4).map((item) => <button className={`select-package ${selected === (item.name || item.title) ? 'selected' : ''}`} type="button" onClick={() => setSelected(item.name || item.title)} key={item.id || item.name}><PackageCard item={item} /></button>)}</div>
-        <form className="project-form" onSubmit={(event) => { event.preventDefault(); window.location.href = '/projects'; }}>
-          <label>Nama Project<input placeholder="Contoh: Single Pertama" required /></label>
-          <label>Link Referensi Google Drive<input placeholder="https://drive.google.com/..." /></label>
-          <label>Catatan<textarea placeholder="Tulis kebutuhan recording/editing/mixing..." /></label>
-          <button type="submit">Kirim Project</button>
+        <div className="package-grid compact">{packages.slice(0, 4).map((item) => <button className={`select-package ${selected === (item.name || item.title) ? 'selected' : ''}`} type="button" onClick={() => setSelected(item.name || item.title)} key={item.id || item.name}><PackageCard item={item} showMenu={false} /></button>)}</div>
+        <form className="project-form" onSubmit={handleCreateProject}>
+          <label>Nama Project<input placeholder="Contoh: Single Pertama" value={form.name} onChange={updateField('name')} required /></label>
+          <label>Link Referensi Google Drive<input placeholder="https://drive.google.com/..." value={form.driveUrl} onChange={updateField('driveUrl')} /></label>
+          <label>Catatan<textarea placeholder="Tulis kebutuhan recording/editing/mixing..." value={form.note} onChange={updateField('note')} /></label>
+          {state.message && <p className="offer-feedback success">{state.message}</p>}
+          {state.error && <p className="offer-feedback error">{state.error}</p>}
+          <button type="submit" disabled={state.loading}>{state.loading ? 'Mengirim...' : 'Kirim Project'}</button>
         </form>
       </div>
     </section>
@@ -471,7 +538,7 @@ function PackagesPage({ packages, user, profile }) {
         <div><h2>Paket Siap Pakai</h2><p>Pilih paket yang sudah jadi, lalu lanjutkan ke pemilihan slot waktu, nama proyek, dan pembayaran pre-order.</p></div>
         <span>Siap Pakai</span>
       </div>
-      <div className="quote-package-grid">{packageItems.map((item) => <button className={`quote-package-choice ${selectedPackage === (item.name || item.title) ? 'selected' : ''}`} type="button" onClick={() => pickReadyPackage(item)} key={item.id || item.name}><PackageCard item={item} /></button>)}</div>
+      <div className="quote-package-grid">{packageItems.map((item) => <button className={`quote-package-choice ${selectedPackage === (item.name || item.title) ? 'selected' : ''}`} type="button" onClick={() => pickReadyPackage(item)} key={item.id || item.name}><PackageCard item={item} showMenu={false} /></button>)}</div>
 
       <article className="package-detail-panel">
         <div>
@@ -547,9 +614,9 @@ function Stepper({ label, value, onChange, onDecrease, onIncrease }) {
   return <label className="offer-stepper"><span>{label}</span><div><button type="button" onClick={onDecrease}>-</button><input value={value} onChange={onChange} inputMode="numeric" /><button type="button" onClick={onIncrease}>+</button></div></label>;
 }
 
-function PackageCard({ item }) {
+function PackageCard({ item, showMenu = true }) {
   const stages = item.stages || ['Recording', 'Editing', 'Mixing', 'Mastering'];
-  return <article className="client-package"><button type="button" aria-label="Menu paket" onClick={() => { window.location.href = '/packages'; }}><img src={iconMore} alt="" /></button><h3>{item.name || item.title}</h3><p>{item.description || 'Paket lengkap untuk satu lagu, dari rekaman sampai siap dirilis.'}</p><div className="package-tags">{stages.map((stage) => <span key={stage}><FigmaIcon name={stageIcon(stage)} />{stage}</span>)}</div><div className="package-price"><strong>{formatRupiah(item.price || item.total || 970000)}</strong><small>{item.duration || '6 Jam Rekaman'} | {item.songs || '1 Lagu'}</small></div></article>;
+  return <article className="client-package">{showMenu && <button type="button" aria-label="Menu paket" onClick={() => { window.location.href = '/packages'; }}><img src={iconMore} alt="" /></button>}<h3>{item.name || item.title}</h3><p>{item.description || 'Paket lengkap untuk satu lagu, dari rekaman sampai siap dirilis.'}</p><div className="package-tags">{stages.map((stage) => <span key={stage}><FigmaIcon name={stageIcon(stage)} />{stage}</span>)}</div><div className="package-price"><strong>{formatRupiah(item.price || item.total || 970000)}</strong><small>{item.duration || '6 Jam Rekaman'} | {item.songs || '1 Lagu'}</small></div></article>;
 }
 
 function PageTitle({ title, subtitle }) {
@@ -583,6 +650,18 @@ function formatRupiah(value) {
 
 function parseCurrency(value) {
   return Number(String(value).replace(/\D/g, '')) || 0;
+}
+
+function isPaidPayment(payment) {
+  return ['paid', 'lunas', 'settled', 'success'].includes(String(payment.status || '').toLowerCase());
+}
+
+function paymentLabel(payment) {
+  const status = String(payment.status || '').toLowerCase();
+  if (isPaidPayment(payment)) return 'Lunas';
+  if (status === 'pending') return 'Menunggu';
+  if (status === 'failed') return 'Gagal';
+  return 'Belum Lunas';
 }
 
 function isActivePath(currentPath, targetPath) {
