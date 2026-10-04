@@ -349,7 +349,76 @@ function CreateProjectPage({ packages }) {
 }
 
 function PackagesPage({ packages }) {
-  return <section className="client-panel-page"><PageTitle title="Paket Tersedia" subtitle="Pilih paket studio sesuai kebutuhan produksi musikmu." /><div className="package-grid">{packages.map((item) => <PackageCard key={item.id || item.name} item={item} />)}</div></section>;
+  const readyPackages = [
+    { name: 'Paket Lengkap A', price: 970000, duration: '6 Jam Rekaman', songs: '1 Lagu', stages: ['Recording', 'Editing', 'Mixing', 'Mastering'] },
+    { name: 'Paket Lengkap B', price: 1840000, duration: '12 Jam Rekaman', songs: '2 Lagu', stages: ['Recording', 'Editing', 'Mixing', 'Mastering'] },
+    { name: 'Paket Lengkap C', price: 2710000, duration: '18 Jam Rekaman', songs: '3 Lagu', stages: ['Recording', 'Editing', 'Mixing'] },
+  ];
+  const packageItems = packages.length ? packages.slice(0, 3) : readyPackages;
+
+  return (
+    <section className="packages-quote-page">
+      <div className="packages-hero">
+        <h1>Paket yang Kami Sediakan</h1>
+        <p>Pilih paket siap pakai atau buat penawaran kustom untuk project Anda. Setiap langkah sudah jelas agar tim dan manager bisa melanjutkan ke tahap berikutnya tanpa keraguan.</p>
+      </div>
+
+      <div className="package-section-title">
+        <div><h2>Paket Siap Pakai</h2><p>Pilih paket yang sudah jadi, lalu lanjutkan ke pemilihan slot waktu, nama proyek, dan pembayaran pre-order.</p></div>
+        <span>Siap Pakai</span>
+      </div>
+      <div className="quote-package-grid">{packageItems.map((item) => <PackageCard key={item.id || item.name} item={item} />)}</div>
+
+      <div className="package-section-title custom">
+        <div><h2>Penawaran Kustom</h2><p>Buat penawaran sesuai kebutuhan proyek Anda. Tim akan meninjau harga, mengirimkan penawaran, dan melanjutkan ke checkout jika disetujui.</p></div>
+        <span>Kustom</span>
+      </div>
+
+      <div className="custom-offer-board">
+        <article className="offer-builder">
+          <h3>Buat Penawaran Kustom</h3>
+          <p>Pilih tahap yang dibutuhkan, tentukan durasi rekaman dan jumlah lagu, lalu masukkan harga manual jika diperlukan. Penawaran akan dikirim ke manager untuk ditinjau.</p>
+          <div className="offer-stage-grid">
+            <OfferStage icon="mic" title="Recording" price="Rp 150.000 / Jam" />
+            <OfferStage icon="cut" title="Editing" price="Rp 200.000 / Lagu" />
+            <OfferStage icon="mix" title="Mixing" price="Rp 350.000 / Lagu" />
+            <OfferStage icon="master" title="Mastering" price="Rp 250.000 / Lagu" />
+          </div>
+          <div className="offer-controls">
+            <Stepper label="Durasi Rekaman / Lagu" value="3" />
+            <Stepper label="Jumlah Lagu" value="1" />
+          </div>
+          <label className="manual-price">Input Harga Tawaran<input defaultValue="Rp 1.250.000" /></label>
+          <div className="manual-toggle"><span>Atur Harga Manual</span><button type="button" aria-pressed="true" /></div>
+        </article>
+
+        <article className="offer-summary">
+          <h3>Ringkasan Penawaran</h3>
+          <p>Total estimasi akan muncul setelah parameter rekaman dan tahap dipilih oleh manager.</p>
+          <dl><dt>Tahap Produksi</dt><dd>4 Tahap</dd><dt>Durasi Rekaman</dt><dd>3 Jam / Lagu</dd><dt>Jumlah Lagu</dt><dd>1 Lagu</dd><dt>Status</dt><dd>Menunggu Tinjauan</dd></dl>
+          <span>Estimasi Total</span>
+          <strong>Rp 1.250.000</strong>
+          <p>Harga akhir akan dikonfirmasi setelah manager meninjau penawaran.</p>
+          <button type="button">Kirim Penawaran</button>
+          <a href="/packages">Batal</a>
+        </article>
+
+        <article className="offer-history">
+          <div className="history-head"><h3>Riwayat Revisi Penawaran</h3><div><button type="button" /><button type="button" /></div></div>
+          {offerHistory.map((item) => <div className={`history-item ${item.active ? 'active' : ''}`} key={item.date}><div><strong>{item.date}</strong><span>{item.note}</span></div><b>{item.price}</b></div>)}
+          <a href="/transactions">Lihat Semua Revisi</a>
+        </article>
+      </div>
+    </section>
+  );
+}
+
+function OfferStage({ icon, title, price }) {
+  return <button className="offer-stage" type="button"><FigmaIcon name={icon} /><strong>{title}</strong><span>{price}</span></button>;
+}
+
+function Stepper({ label, value }) {
+  return <label className="offer-stepper"><span>{label}</span><div><button type="button">-</button><input value={value} readOnly /><button type="button">+</button></div></label>;
 }
 
 function PackageCard({ item }) {
@@ -407,6 +476,13 @@ const demoPackages = [
 const demoTransactions = [
   { invoice: 'INV-001', package: 'Paket Lengkap A', amount: 'Rp 970.000', status: 'Belum Lunas' },
   { invoice: 'INV-002', package: 'Rekaman Suara', amount: 'Rp 360.000', status: 'Lunas' },
+];
+
+const offerHistory = [
+  { date: 'Hari ini, 14:20', note: 'Client menawar harga', price: 'Rp 1.250.000', active: true },
+  { date: '20 Okt 2026', note: 'Client menawar harga - 1 lagu', price: 'Rp 1.400.000' },
+  { date: '15 Okt 2026', note: 'Client menawar harga - Penyesuaian', price: 'Rp 1.000.000' },
+  { date: '01 Okt 2026', note: 'Client menawar harga - Draft awal', price: 'Rp 970.000' },
 ];
 
 function App() {
