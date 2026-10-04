@@ -1645,6 +1645,33 @@ input {
   font-weight: 600;
 }
 
+.custom-offer-title-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.custom-offer-title-actions span {
+  padding: 6px 12px;
+  color: #8d3e37;
+  background: #f7d9d6;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.custom-offer-title-actions button {
+  height: 30px;
+  padding: 0 13px;
+  color: #df4438;
+  background: #ffffff;
+  border: 1px solid #df4438;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .package-section-title.custom {
   margin-top: 4px;
 }

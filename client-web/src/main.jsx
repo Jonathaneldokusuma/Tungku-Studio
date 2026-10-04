@@ -794,7 +794,10 @@ function PackagesPage({ packages, user, profile }) {
 
       {quoteMode && <div className="package-section-title custom" id="custom-offer">
         <div><h2>Penawaran Kustom</h2><p>Buat penawaran sesuai kebutuhan proyek Anda. Tim akan meninjau harga, mengirimkan penawaran, dan melanjutkan ke checkout jika disetujui.</p></div>
-        <span>Kustom</span>
+        <div className="custom-offer-title-actions">
+          <span>Kustom</span>
+          <button type="button" onClick={() => setQuoteMode(false)}>Tutup</button>
+        </div>
       </div>}
 
       {quoteMode && <div className="custom-offer-board">
