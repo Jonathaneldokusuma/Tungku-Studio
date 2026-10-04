@@ -318,6 +318,10 @@ input {
 }
 
 .client-greeting {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
   margin-bottom: 27px;
 }
 
@@ -335,6 +339,40 @@ input {
   font-weight: 400;
 }
 
+.dashboard-quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.dashboard-quick-actions a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 12px;
+  color: #231f20;
+  background: #ffffff;
+  border: 1px solid #d6c7c3;
+  border-radius: 4px;
+  font-size: 10px;
+  text-decoration: none;
+  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease, color 0.16s ease;
+}
+
+.dashboard-quick-actions a:hover {
+  color: #df4438;
+  border-color: #df4438;
+  box-shadow: 0 7px 18px rgba(223, 68, 56, 0.12);
+  transform: translateY(-1px);
+}
+
+.dashboard-quick-actions .figma-icon {
+  width: 14px;
+  height: 14px;
+}
+
 .client-stats {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -347,10 +385,25 @@ input {
   min-height: 60px;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
   padding: 10px 12px;
   background: #ffffff;
   border: 1px solid #d6c7c3;
   border-radius: 4px;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+.client-stat:hover,
+.client-stat.active {
+  border-color: #df4438;
+  box-shadow: 0 8px 22px rgba(48, 37, 34, 0.08);
+  transform: translateY(-2px);
+}
+
+.client-stat.active {
+  background: #fff8f7;
 }
 
 .client-stat span {
@@ -397,6 +450,23 @@ input {
   background: #ffd1df;
 }
 
+.dashboard-live-note {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: -6px 0 16px;
+  color: #665b58;
+  font-size: 10px;
+}
+
+.dashboard-live-note span {
+  width: 7px;
+  height: 7px;
+  background: #df4438;
+  border-radius: 50%;
+  box-shadow: 0 0 0 5px rgba(223, 68, 56, 0.12);
+}
+
 .client-dashboard .figma-icon {
   filter: brightness(0) saturate(100%) invert(40%) sepia(70%) saturate(1510%) hue-rotate(334deg) brightness(88%) contrast(96%);
 }
@@ -420,6 +490,21 @@ input {
   color: #ffffff;
   background: #231f20;
   border-radius: 4px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.project-hero:hover,
+.project-hero.selected {
+  border-color: rgba(223, 68, 56, 0.9);
+  box-shadow: 0 14px 30px rgba(35, 31, 32, 0.16);
+  transform: translateY(-2px);
+}
+
+.project-hero:focus-visible {
+  outline: 2px solid #df4438;
+  outline-offset: 3px;
 }
 
 .project-hero.large {
@@ -497,6 +582,7 @@ input {
   display: block;
   height: 100%;
   background: #df4438;
+  transition: width 0.3s ease;
 }
 
 .project-tracks {
@@ -536,6 +622,12 @@ input {
   font-size: 8px;
   font-weight: 600;
   text-decoration: none;
+  transition: background 0.16s ease, transform 0.16s ease;
+}
+
+.project-tracks a:hover {
+  background: #c9362c;
+  transform: translateY(-1px);
 }
 
 .project-hero:not(.large) .project-tracks {
@@ -576,6 +668,74 @@ input {
   font-size: 22px;
 }
 
+.selected-project-panel {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  background: #fff8f7;
+  border: 1px solid #e4c3bd;
+  border-radius: 4px;
+}
+
+.selected-project-panel > span {
+  color: #df4438;
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.selected-project-panel h3,
+.selected-project-panel p {
+  margin: 0;
+}
+
+.selected-project-panel h3 {
+  color: #141111;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.selected-project-panel p {
+  color: #554a47;
+  font-size: 10px;
+}
+
+.selected-project-panel div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.selected-project-panel button {
+  min-height: 40px;
+  padding: 8px;
+  color: #453a37;
+  background: #ffffff;
+  border: 1px solid #ead5d0;
+  border-radius: 4px;
+  text-align: left;
+  font-size: 8px;
+}
+
+.selected-project-panel button b {
+  display: block;
+  margin-top: 3px;
+  color: #141111;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.selected-project-panel a {
+  display: inline-grid;
+  place-items: center;
+  height: 32px;
+  color: #ffffff;
+  background: #df4438;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
 .package-head {
   display: flex;
   align-items: center;
@@ -608,6 +768,13 @@ input {
   background: #ffffff;
   border: 1px solid #d6c7c3;
   border-radius: 3px;
+  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.client-package.interactive:hover {
+  border-color: #df4438;
+  box-shadow: 0 12px 24px rgba(48, 37, 34, 0.08);
+  transform: translateY(-2px);
 }
 
 .client-package > button {
@@ -626,6 +793,22 @@ input {
 .client-package > button img {
   width: 14px;
   height: 14px;
+}
+
+.client-package > .package-buy-now {
+  position: static;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 30px;
+  margin-top: 12px;
+  color: #ffffff;
+  background: #df4438;
+  border: 0;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .client-package h3 {
@@ -1918,6 +2101,14 @@ input {
     padding: 28px 16px;
   }
 
+  .client-greeting {
+    display: grid;
+  }
+
+  .dashboard-quick-actions {
+    justify-content: flex-start;
+  }
+
   .client-stats,
   .project-showcase,
   .package-grid,
@@ -1943,5 +2134,9 @@ input {
   .project-tracks a {
     grid-column: 1 / -1;
     justify-self: start;
+  }
+
+  .selected-project-panel div {
+    grid-template-columns: 1fr;
   }
 }

@@ -231,34 +231,65 @@ function ClientRouteContent({ path, displayName, profile, user, stats, projects,
 }
 
 function DashboardHome({ displayName, stats, projects, packages, payments }) {
-  const featuredProject = projects[0] || demoProjects[0];
-  const sideProjects = projects.slice(1, 3);
+  const projectItems = projects.length ? projects : demoProjects;
+  const [activeStat, setActiveStat] = React.useState('all');
+  const [selectedProjectId, setSelectedProjectId] = React.useState(projectItems[0]?.id || projectItems[0]?.name || 'demo-a');
+  const featuredProject = projectItems.find((item) => (item.id || item.name) === selectedProjectId) || projectItems[0] || demoProjects[0];
+  const sideProjects = projectItems.filter((item) => (item.id || item.name) !== (featuredProject.id || featuredProject.name)).slice(0, 2);
   const unpaidTotal = payments.filter((item) => !isPaidPayment(item)).reduce((total, item) => total + Number(item.amount || item.total || 0), 0);
+  const selectedTracks = featuredProject.tracks || ['Vokal Utama', 'Gitar', 'Drum', 'Bass', 'Backing Vocal'];
+  const activeLabel = {
+    all: 'Semua data dashboard aktif',
+    active: 'Menampilkan project yang masih berjalan',
+    done: 'Menampilkan project selesai',
+    unpaid: 'Menampilkan invoice yang belum lunas',
+  }[activeStat];
   return (
     <>
-      <div className="client-greeting"><h1>Halo {displayName}!</h1><p>Selamat Datang di <strong>Tungku Studio</strong></p></div>
-      <div className="client-stats">
-        <StatCard title="Total Project Anda" value={Math.max(stats.projects + stats.done, projects.length)} icon="project" tone="red" />
-        <StatCard title="Project Dalam Pengerjaan" value={stats.projects || projects.filter((item) => !isDoneProject(item)).length} icon="mix" tone="green" />
-        <StatCard title="Project Selesai" value={stats.done || projects.filter(isDoneProject).length} icon="booking" tone="gold" />
-        <StatCard title="Total Pembayaran Belum Lunas" value={formatRupiah(unpaidTotal)} icon="invoice" tone="pink" />
+      <div className="client-greeting">
+        <div><h1>Halo {displayName}!</h1><p>Selamat Datang di <strong>Tungku Studio</strong></p></div>
+        <div className="dashboard-quick-actions">
+          <a href="/packages"><FigmaIcon name="quotation" />Beli Paket</a>
+          <a href="/booking"><FigmaIcon name="booking" />Extend Jadwal</a>
+          <a href="/transactions"><FigmaIcon name="invoice" />Invoice</a>
+        </div>
       </div>
-      <div className="project-showcase"><ProjectHero project={featuredProject} large /><div className="project-side-list">{sideProjects.map((project) => <ProjectHero key={project.id || project.name} project={project} />)}</div></div>
+      <div className="client-stats">
+        <StatCard title="Total Project Anda" value={Math.max(stats.projects + stats.done, projectItems.length)} icon="project" tone="red" active={activeStat === 'all'} onClick={() => setActiveStat('all')} />
+        <StatCard title="Project Dalam Pengerjaan" value={stats.projects || projectItems.filter((item) => !isDoneProject(item)).length} icon="mix" tone="green" active={activeStat === 'active'} onClick={() => setActiveStat('active')} />
+        <StatCard title="Project Selesai" value={stats.done || projectItems.filter(isDoneProject).length} icon="booking" tone="gold" active={activeStat === 'done'} onClick={() => setActiveStat('done')} />
+        <StatCard title="Total Pembayaran Belum Lunas" value={formatRupiah(unpaidTotal)} icon="invoice" tone="pink" active={activeStat === 'unpaid'} onClick={() => setActiveStat('unpaid')} />
+      </div>
+      <p className="dashboard-live-note"><span />{activeLabel}</p>
+      <div className="project-showcase">
+        <ProjectHero project={featuredProject} large selected onSelect={setSelectedProjectId} />
+        <div className="project-side-list">
+          {sideProjects.map((project) => <ProjectHero key={project.id || project.name} project={project} selected={(project.id || project.name) === selectedProjectId} onSelect={setSelectedProjectId} />)}
+          <article className="selected-project-panel">
+            <span>Project Terpilih</span>
+            <h3>{featuredProject.name || featuredProject.title}</h3>
+            <p>{featuredProject.stage || 'Mixing'} - {clampPercent(featuredProject.progress ?? 68)}% progress</p>
+            <div>{selectedTracks.slice(0, 5).map((track, index) => <button type="button" key={`${track}-${index}`}>Track {index + 1}<b>{track}</b></button>)}</div>
+            <a href={`/projects/${featuredProject.id || 'detail'}`}>Buka Detail Project</a>
+          </article>
+        </div>
+      </div>
       <div className="package-head"><h2>Paket Tersedia</h2><a href="/packages">Lihat lainnya</a></div>
-      <div className="package-grid">{packages.slice(0, 4).map((item) => <PackageCard key={item.id || item.name} item={item} />)}</div>
+      <div className="package-grid">{packages.slice(0, 4).map((item) => <PackageCard key={item.id || item.name} item={item} interactive />)}</div>
     </>
   );
 }
 
-function StatCard({ title, value, icon, tone }) {
-  return <article className={`client-stat ${tone}`}><div><span>{title}</span><strong>{value}</strong></div><span className="stat-icon"><FigmaIcon name={icon} /></span></article>;
+function StatCard({ title, value, icon, tone, active = false, onClick }) {
+  return <button className={`client-stat ${tone} ${active ? 'active' : ''}`} type="button" onClick={onClick}><div><span>{title}</span><strong>{value}</strong></div><span className="stat-icon"><FigmaIcon name={icon} /></span></button>;
 }
 
-function ProjectHero({ project, large = false }) {
+function ProjectHero({ project, large = false, selected = false, onSelect }) {
   const progress = clampPercent(project.progress ?? 68);
   const tracks = project.tracks || ['Vokal Utama', 'Gitar', 'Drum', 'Bass', 'Backing Vocal'];
+  const projectKey = project.id || project.name || project.title;
   return (
-    <article className={`project-hero ${large ? 'large' : ''}`}>
+    <article className={`project-hero ${large ? 'large' : ''} ${selected ? 'selected' : ''}`} role={onSelect ? 'button' : undefined} tabIndex={onSelect ? 0 : undefined} onClick={() => onSelect?.(projectKey)} onKeyDown={(event) => { if (event.key === 'Enter') onSelect?.(projectKey); }}>
       <img src={heroImage} alt="" />
       <div className="project-hero-overlay">
         <div className="project-hero-top"><div><h2>{project.name || project.title}</h2><span>{project.date || '26 September 2026'}</span></div><mark><FigmaIcon name={project.stage === 'Mixing' ? 'mix' : 'booking'} />{project.stage || 'Selesai'}</mark></div>
@@ -723,9 +754,9 @@ function Stepper({ label, value, onChange, onDecrease, onIncrease }) {
   return <label className="offer-stepper"><span>{label}</span><div><button type="button" onClick={onDecrease}>-</button><input value={value} onChange={onChange} inputMode="numeric" /><button type="button" onClick={onIncrease}>+</button></div></label>;
 }
 
-function PackageCard({ item, showMenu = true }) {
+function PackageCard({ item, showMenu = true, interactive = false }) {
   const stages = item.stages || ['Recording', 'Editing', 'Mixing', 'Mastering'];
-  return <article className="client-package">{showMenu && <button type="button" aria-label="Menu paket" onClick={() => { window.location.href = '/packages'; }}><img src={iconMore} alt="" /></button>}<h3>{item.name || item.title}</h3><p>{item.description || 'Paket lengkap untuk satu lagu, dari rekaman sampai siap dirilis.'}</p><div className="package-tags">{stages.map((stage) => <span key={stage}><FigmaIcon name={stageIcon(stage)} />{stage}</span>)}</div><div className="package-price"><strong>{formatRupiah(item.price || item.total || 970000)}</strong><small>{item.duration || '6 Jam Rekaman'} | {item.songs || '1 Lagu'}</small></div></article>;
+  return <article className={`client-package ${interactive ? 'interactive' : ''}`}>{showMenu && <button type="button" aria-label="Menu paket" onClick={() => { window.location.href = '/packages'; }}><img src={iconMore} alt="" /></button>}<h3>{item.name || item.title}</h3><p>{item.description || 'Paket lengkap untuk satu lagu, dari rekaman sampai siap dirilis.'}</p><div className="package-tags">{stages.map((stage) => <span key={stage}><FigmaIcon name={stageIcon(stage)} />{stage}</span>)}</div><div className="package-price"><strong>{formatRupiah(item.price || item.total || 970000)}</strong><small>{item.duration || '6 Jam Rekaman'} | {item.songs || '1 Lagu'}</small></div>{interactive && <button className="package-buy-now" type="button" onClick={() => { window.location.href = '/packages'; }}>Lihat & Beli</button>}</article>;
 }
 
 function PageTitle({ title, subtitle }) {
