@@ -234,7 +234,7 @@ function ClientNav({ user, onLogout, currentPath = '/dashboard' }) {
 
   return (
     <header className="client-nav">
-      <a className="client-nav-brand" href="/dashboard"><img src={logo} alt="" /><span>Tungku Studio</span></a>
+      <a className="client-nav-brand" href="/dashboard"><img src={logoMark} alt="" /><span>Tungku Studio</span></a>
       <nav>
         <a className={isActivePath(currentPath, '/dashboard') ? 'active' : ''} href="/dashboard">Dashboard</a>
         <a className={isActivePath(currentPath, '/booking') ? 'active' : ''} href="/booking">Jadwal Booking</a>
