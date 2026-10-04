@@ -215,9 +215,12 @@ input {
 }
 
 .client-nav-brand img {
-  width: 28px;
-  height: 28px;
-  border-radius: 5px;
+  width: 104px;
+  height: auto;
+}
+
+.client-nav-brand span {
+  display: none;
 }
 
 .client-nav nav {
@@ -1520,6 +1523,11 @@ input {
 .empty-state .figma-icon {
   width: 28px;
   height: 28px;
+}
+
+.empty-state-asset {
+  width: min(220px, 100%);
+  height: auto;
 }
 
 .empty-state h3,

@@ -2,12 +2,13 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
 
-import logo from './assets/logo.svg';
+import logo from './assets/tungku-primary.svg';
 import logoMark from './assets/logo-mark-cropped.png';
 import figmaIcons from './assets/figma-icons.svg';
 import heroImage from './assets/studio-dashboard-hero.png';
 import userProfile from './assets/image-user-profile.png';
 import iconMore from './assets/icon-more.svg';
+import invoiceAsset from './assets/tungku-full-invoice.svg';
 import { createUserWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { addDoc, collection, doc, getDoc, onSnapshot, query, serverTimestamp, setDoc, where } from 'firebase/firestore';
 import { auth, db } from './lib/firebase';
@@ -477,7 +478,7 @@ function TransactionsPage({ payments, error }) {
         <StatCard title="Nominal Belum Lunas" value={formatRupiah(unpaidTotal)} icon="invoice" tone="gold" />
       </div>
       {error && <p className="offer-feedback error">Gagal mengambil transaksi realtime: {error}</p>}
-      {!error && !sortedPayments.length && <div className="empty-state"><FigmaIcon name="invoice" /><h3>Belum ada transaksi</h3><p>Invoice akan muncul otomatis setelah kamu beli paket atau manager membuat tagihan.</p><a href="/packages">Pilih Paket</a></div>}
+      {!error && !sortedPayments.length && <div className="empty-state"><img className="empty-state-asset" src={invoiceAsset} alt="" /><h3>Belum ada transaksi</h3><p>Invoice akan muncul otomatis setelah kamu beli paket atau manager membuat tagihan.</p><a href="/packages">Pilih Paket</a></div>}
       {!!sortedPayments.length && (
         <div className="transaction-layout">
           <div className="transaction-list">

@@ -1,7 +1,8 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
-import brandLogo from './assets/brand/logo.svg';
+import brandLogo from './assets/tungku-icon.svg';
+import brandPrimary from './assets/tungku-primary.svg';
 import figmaIcons from './assets/icons/figma-icons.svg';
 
 const menuSections = [
@@ -210,7 +211,7 @@ function AuthPage({ mode = 'login' }) {
     <main className="auth-page">
       <section className="auth-hero">
         <div className="auth-brand">
-          <img src={brandLogo} alt="" />
+          <img src={brandPrimary} alt="" />
           <div><strong>Tungku Studio</strong><span>Internal Portal</span></div>
         </div>
         <div className="auth-copy">
