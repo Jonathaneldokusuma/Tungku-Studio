@@ -210,13 +210,14 @@ function ClientPortal() {
     window.location.href = '/login';
   };
 
-  const activeProjects = projects.length ? projects : demoProjects;
+  const activeProjects = projects;
   const packageItems = packages.length ? packages : demoPackages;
   const displayName = profile?.name || user?.displayName || 'Singha';
+  const totalProjectCount = stats.projects + stats.done;
 
   return (
     <main className="client-dashboard">
-      <ClientNav user={user} onLogout={handleLogout} currentPath={currentPath} />
+      <ClientNav user={user} onLogout={handleLogout} currentPath={currentPath} projectCount={totalProjectCount} />
       <section className="client-shell">
         {isLoading ? <PageTitle title="Loading..." subtitle="Mengambil data akun client." /> : <ClientRouteContent path={currentPath} displayName={displayName} profile={profile} user={user} stats={stats} projects={activeProjects} packages={packageItems} payments={payments} paymentsError={paymentsError} />}
         <footer>(c) 2026 Studio Recording Tungku. All Rights Reserved</footer>
@@ -225,7 +226,7 @@ function ClientPortal() {
   );
 }
 
-function ClientNav({ user, onLogout, currentPath = '/dashboard' }) {
+function ClientNav({ user, onLogout, currentPath = '/dashboard', projectCount = 0 }) {
   const [search, setSearch] = React.useState('');
   const handleSearch = (event) => {
     event.preventDefault();
@@ -239,7 +240,7 @@ function ClientNav({ user, onLogout, currentPath = '/dashboard' }) {
         <a className={isActivePath(currentPath, '/dashboard') ? 'active' : ''} href="/dashboard">Dashboard</a>
         <a className={isActivePath(currentPath, '/booking') ? 'active' : ''} href="/booking">Jadwal Booking</a>
         <a className={isActivePath(currentPath, '/packages') ? 'active' : ''} href="/packages">Paket</a>
-        <a className={isActivePath(currentPath, '/projects') ? 'active' : ''} href="/projects">Project <b>2</b></a>
+        <a className={isActivePath(currentPath, '/projects') ? 'active' : ''} href="/projects">Project {projectCount > 0 && <b>{projectCount}</b>}</a>
         <a className={isActivePath(currentPath, '/transactions') ? 'active' : ''} href="/transactions">Transaksi</a>
       </nav>
       <div className="client-nav-actions">
@@ -264,13 +265,20 @@ function ClientRouteContent({ path, displayName, profile, user, stats, projects,
 }
 
 function DashboardHome({ displayName, stats, projects, packages, payments }) {
-  const projectItems = projects.length ? projects : demoProjects;
+  const projectItems = projects;
   const [activeStat, setActiveStat] = React.useState('all');
-  const [selectedProjectId, setSelectedProjectId] = React.useState(projectItems[0]?.id || projectItems[0]?.name || 'demo-a');
-  const featuredProject = projectItems.find((item) => (item.id || item.name) === selectedProjectId) || projectItems[0] || demoProjects[0];
-  const sideProjects = projectItems.filter((item) => (item.id || item.name) !== (featuredProject.id || featuredProject.name)).slice(0, 2);
+  const [selectedProjectId, setSelectedProjectId] = React.useState('');
+  React.useEffect(() => {
+    const hasSelectedProject = projectItems.some((item) => (item.id || item.name) === selectedProjectId);
+    if (!hasSelectedProject) {
+      setSelectedProjectId(projectItems[0]?.id || projectItems[0]?.name || '');
+    }
+  }, [projectItems, selectedProjectId]);
+  const featuredProject = projectItems.find((item) => (item.id || item.name) === selectedProjectId) || projectItems[0] || null;
+  const sideProjects = featuredProject ? projectItems.filter((item) => (item.id || item.name) !== (featuredProject.id || featuredProject.name)).slice(0, 2) : [];
   const unpaidTotal = payments.filter((item) => !isPaidPayment(item)).reduce((total, item) => total + Number(item.amount || item.total || 0), 0);
-  const selectedTracks = featuredProject.tracks || ['Vokal Utama', 'Gitar', 'Drum', 'Bass', 'Backing Vocal'];
+  const selectedTracks = featuredProject?.tracks || [];
+  const totalProjects = stats.projects + stats.done;
   const activeLabel = {
     all: 'Semua data dashboard aktif',
     active: 'Menampilkan project yang masih berjalan',
@@ -288,13 +296,13 @@ function DashboardHome({ displayName, stats, projects, packages, payments }) {
         </div>
       </div>
       <div className="client-stats">
-        <StatCard title="Total Project Anda" value={Math.max(stats.projects + stats.done, projectItems.length)} icon="project" tone="red" active={activeStat === 'all'} onClick={() => setActiveStat('all')} />
-        <StatCard title="Project Dalam Pengerjaan" value={stats.projects || projectItems.filter((item) => !isDoneProject(item)).length} icon="mix" tone="green" active={activeStat === 'active'} onClick={() => setActiveStat('active')} />
-        <StatCard title="Project Selesai" value={stats.done || projectItems.filter(isDoneProject).length} icon="booking" tone="gold" active={activeStat === 'done'} onClick={() => setActiveStat('done')} />
+        <StatCard title="Total Project Anda" value={totalProjects} icon="project" tone="red" active={activeStat === 'all'} onClick={() => setActiveStat('all')} />
+        <StatCard title="Project Dalam Pengerjaan" value={stats.projects} icon="mix" tone="green" active={activeStat === 'active'} onClick={() => setActiveStat('active')} />
+        <StatCard title="Project Selesai" value={stats.done} icon="booking" tone="gold" active={activeStat === 'done'} onClick={() => setActiveStat('done')} />
         <StatCard title="Total Pembayaran Belum Lunas" value={formatRupiah(unpaidTotal)} icon="invoice" tone="pink" active={activeStat === 'unpaid'} onClick={() => setActiveStat('unpaid')} />
       </div>
       <p className="dashboard-live-note"><span />{activeLabel}</p>
-      <div className="project-showcase">
+      {featuredProject ? <div className="project-showcase">
         <ProjectHero project={featuredProject} large selected onSelect={setSelectedProjectId} />
         <div className="project-side-list">
           {sideProjects.map((project) => <ProjectHero key={project.id || project.name} project={project} selected={(project.id || project.name) === selectedProjectId} onSelect={setSelectedProjectId} />)}
@@ -306,7 +314,7 @@ function DashboardHome({ displayName, stats, projects, packages, payments }) {
             <a href={`/projects/${featuredProject.id || 'detail'}`}>Buka Detail Project</a>
           </article>
         </div>
-      </div>
+      </div> : <article className="dashboard-empty-state"><h2>Belum ada project aktif</h2><p>Project yang kamu beli atau buat akan muncul di sini setelah tersimpan di akunmu.</p><a href="/packages">Pilih Paket</a></article>}
       <div className="package-head"><h2>Paket Tersedia</h2><a href="/packages">Lihat lainnya</a></div>
       <div className="package-grid">{packages.slice(0, 4).map((item) => <PackageCard key={item.id || item.name} item={item} interactive />)}</div>
     </>

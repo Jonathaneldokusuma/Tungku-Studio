@@ -1,0 +1,74 @@
+:root {
+  --color-primary: #ce4337;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #ffdad5;
+  --color-on-primary-container: #410002;
+  --color-secondary: #2b2626;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #e8e1df;
+  --color-on-secondary-container: #1f1a19;
+  --color-tertiary: #7a5900;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #ffdea0;
+  --color-on-tertiary-container: #261900;
+  --color-success: #006d3b;
+  --color-on-success: #ffffff;
+  --color-success-container: #bce8c3;
+  --color-on-success-container: #00210e;
+  --color-warning: #b25e00;
+  --color-on-warning: #ffffff;
+  --color-warning-container: #ffdbb5;
+  --color-on-warning-container: #341a00;
+  --color-error: #b0002a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffd9dc;
+  --color-on-error-container: #410009;
+  --color-background: #fbf8f6;
+  --color-on-background: #1d1b1a;
+  --color-inverse-background: #322f2e;
+  --color-on-inverse-background: #f5efed;
+  --color-surface: #ffffff;
+  --color-on-surface: #1d1b1a;
+  --color-surface-variant: #efe6e3;
+  --color-on-surface-variant: #4f4543;
+  --color-outline: #857370;
+  --color-outline-variant: #d6cbc8;
+
+  --font-family-base: "DM Sans", "Segoe UI", Arial, sans-serif;
+
+  --text-display-large: 57px;
+  --text-display-medium: 45px;
+  --text-display-small: 36px;
+  --text-headline-large: 32px;
+  --text-headline-medium: 28px;
+  --text-headline-small: 24px;
+  --text-title-large: 22px;
+  --text-title-medium: 16px;
+  --text-title-small: 14px;
+  --text-body-large: 16px;
+  --text-body-medium: 14px;
+  --text-body-small: 13px;
+  --text-label-large: 14px;
+  --text-label-medium: 12px;
+  --text-label-small: 11px;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-bold: 700;
+
+  --tracking-display-large: -0.0025em;
+  --tracking-display-medium: 0;
+  --tracking-display-small: 0;
+  --tracking-headline-large: 0;
+  --tracking-headline-medium: 0;
+  --tracking-headline-small: 0;
+  --tracking-title-large: 0;
+  --tracking-title-medium: 0.0015em;
+  --tracking-title-small: 0.001em;
+  --tracking-body-large: 0.005em;
+  --tracking-body-medium: 0.0025em;
+  --tracking-body-small: 0.004em;
+  --tracking-label-large: 0.001em;
+  --tracking-label-medium: 0.005em;
+  --tracking-label-small: 0.005em;
+}

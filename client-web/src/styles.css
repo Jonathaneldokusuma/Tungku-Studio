@@ -1,3 +1,4 @@
+@import "./tokens.css";
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap");
 
 * {
@@ -499,6 +500,46 @@ input {
 
 .client-dashboard .figma-icon {
   filter: brightness(0) saturate(100%) invert(40%) sepia(70%) saturate(1510%) hue-rotate(334deg) brightness(88%) contrast(96%);
+}
+
+.dashboard-empty-state {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  margin-bottom: 21px;
+  padding: 28px;
+  background: #ffffff;
+  border: 1px solid #d6c7c3;
+  border-radius: 6px;
+}
+
+.dashboard-empty-state h2 {
+  margin: 0;
+  color: #231f20;
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.dashboard-empty-state p {
+  max-width: 520px;
+  margin: 0;
+  color: #554a47;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.dashboard-empty-state a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 16px;
+  color: #ffffff;
+  background: #ce4337;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
 }
 
 .project-showcase {
