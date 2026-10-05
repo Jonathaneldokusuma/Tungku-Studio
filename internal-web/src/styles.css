@@ -2952,6 +2952,54 @@ mark.red {
   filter: brightness(0) saturate(100%) invert(40%) sepia(70%) saturate(1510%) hue-rotate(334deg) brightness(88%) contrast(96%);
 }
 
+.not-implemented {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  min-height: 420px;
+  padding: 48px;
+  text-align: center;
+}
+
+.not-implemented .mini-icon {
+  margin-bottom: 16px;
+}
+
+.not-implemented span {
+  color: #df4438;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.not-implemented h1 {
+  margin: 10px 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.not-implemented p {
+  max-width: 560px;
+  margin: 0 0 20px;
+  color: #5a5351;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.not-implemented a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  padding: 0 16px;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  text-decoration: none;
+  background: #df4438;
+  border-radius: 3px;
+}
+
 .client-stats {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
@@ -3688,6 +3736,10 @@ mark.red {
   font-weight: 500;
 }
 
+.price-row.discount b {
+  color: #2f8f55;
+}
+
 .price-total {
   display: flex;
   justify-content: space-between;
@@ -3710,6 +3762,61 @@ mark.red {
   margin-top: 18px;
   font-size: 11px;
   font-weight: 500;
+}
+
+.bundle-picker {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 10px 0 16px;
+}
+
+.bundle-picker button {
+  min-height: 62px;
+  padding: 10px;
+  text-align: left;
+  background: #ffffff;
+  border: 1px solid #d8cecb;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.bundle-picker button.active {
+  background: #fff2f0;
+  border-color: #df4438;
+}
+
+.bundle-picker strong,
+.bundle-picker span {
+  display: block;
+}
+
+.bundle-picker strong {
+  margin-bottom: 5px;
+  font-size: 11px;
+}
+
+.bundle-picker span {
+  color: #4f4543;
+  font-size: 10px;
+}
+
+.discount-select {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.discount-select select {
+  height: 38px;
+  padding: 0 10px;
+  color: #4f4543;
+  font-size: 12px;
+  background: #ffffff;
+  border: 1px solid #857370;
+  border-radius: 2px;
 }
 
 .manual-row button {

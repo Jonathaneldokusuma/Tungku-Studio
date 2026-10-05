@@ -14,6 +14,19 @@ import { createUserWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEm
 import { addDoc, collection, doc, getDoc, onSnapshot, query, serverTimestamp, setDoc, where } from 'firebase/firestore';
 import { auth, db } from './lib/firebase';
 
+const discountOptions = [
+  { label: 'Tanpa Diskon', value: 0 },
+  { label: 'Diskon Hemat 5%', value: 5 },
+  { label: 'Diskon Bundle 10%', value: 10 },
+  { label: 'Diskon Loyal 15%', value: 15 },
+];
+
+const offerBundles = [
+  { name: 'Bundle Rilis Single', stages: ['Recording', 'Editing', 'Mixing', 'Mastering'], duration: 6, songs: 1, discount: 10 },
+  { name: 'Bundle Mini Album', stages: ['Recording', 'Editing', 'Mixing', 'Mastering'], duration: 4, songs: 3, discount: 15 },
+  { name: 'Bundle Vocal Polish', stages: ['Recording', 'Editing', 'Mixing'], duration: 4, songs: 1, discount: 5 },
+];
+
 function FigmaIcon({ name }) {
   const positions = { mic: [689, 263], cut: [801, 263], mix: [913, 263], master: [1025, 263], booking: [353, 17], quotation: [801, 386], project: [577, 17], 'thumb-up': [353, 509], invoice: [465, 509] };
   const [x, y] = positions[name] || positions.project;
@@ -598,8 +611,8 @@ function PackagesPage({ packages, user, profile }) {
   const [selectedStages, setSelectedStages] = React.useState(['Recording', 'Editing', 'Mixing', 'Mastering']);
   const [duration, setDuration] = React.useState(3);
   const [songCount, setSongCount] = React.useState(1);
-  const [manualPriceEnabled, setManualPriceEnabled] = React.useState(true);
-  const [manualPrice, setManualPrice] = React.useState('Rp 1.250.000');
+  const [discountPercent, setDiscountPercent] = React.useState(10);
+  const [bundleName, setBundleName] = React.useState('Bundle Rilis Single');
   const [selectedPackage, setSelectedPackage] = React.useState('');
   const [detailPackage, setDetailPackage] = React.useState(packageItems[0]);
   const [packageFlow, setPackageFlow] = React.useState({ open: false, step: 'detail', item: null });
@@ -611,8 +624,8 @@ function PackagesPage({ packages, user, profile }) {
     const unit = stage === 'Recording' ? duration : songCount;
     return total + (stagePrices[stage] || 0) * Math.max(1, unit);
   }, 0);
-  const offeredPrice = manualPriceEnabled ? parseCurrency(manualPrice) : computedTotal;
-  const summaryTotal = offeredPrice || computedTotal;
+  const discountAmount = Math.round(computedTotal * discountPercent / 100);
+  const summaryTotal = Math.max(0, computedTotal - discountAmount);
   const toggleStage = (stage) => setSelectedStages((value) => value.includes(stage) ? value.filter((item) => item !== stage) : [...value, stage]);
   const updateNumber = (setter) => (event) => {
     const next = Number(event.target.value.replace(/\D/g, ''));
@@ -628,10 +641,18 @@ function PackagesPage({ packages, user, profile }) {
     setSelectedStages(item.stages || ['Recording', 'Editing', 'Mixing', 'Mastering']);
     setSongCount(songs);
     setDuration(Math.max(1, Math.round(hours / songs)));
-    setManualPriceEnabled(true);
-    setManualPrice(formatRupiah(item.price || item.total || 0));
+    setDiscountPercent(Number(item.discountPercent || 10));
+    setBundleName(item.bundleName || name);
     setSubmitState({ loading: false, message: `${name} dipilih. Penawaran siap dikirim.`, error: '' });
     setBuyState({ loading: false, message: '', error: '' });
+  };
+  const applyOfferBundle = (bundle) => {
+    setBundleName(bundle.name);
+    setSelectedPackage(bundle.name);
+    setSelectedStages(bundle.stages);
+    setDuration(bundle.duration);
+    setSongCount(bundle.songs);
+    setDiscountPercent(bundle.discount);
   };
   const openPackageDetail = (item) => {
     setDetailPackage(item);
@@ -753,10 +774,13 @@ function PackagesPage({ packages, user, profile }) {
         stages: selectedStages,
         durationPerSong: Number(duration),
         songCount: Number(songCount),
-        manualPriceEnabled,
+        discountPercent,
+        discountAmount,
+        basePrice: computedTotal,
+        bundleName,
         offeredPrice: summaryTotal,
         status: 'client_submitted',
-        note: 'Client submit tawaran. Studio perlu tinjau harga lalu mengirim offer.',
+        note: 'Client submit tawaran berbasis pilihan paket diskon. Studio perlu tinjau harga lalu mengirim offer.',
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       };
@@ -829,7 +853,15 @@ function PackagesPage({ packages, user, profile }) {
       {quoteMode && <div className="custom-offer-board">
         <article className="offer-builder">
           <h3>Buat Penawaran Kustom</h3>
-          <p>Pilih tahap yang dibutuhkan, tentukan durasi rekaman dan jumlah lagu, lalu masukkan harga manual jika diperlukan. Penawaran akan dikirim ke manager untuk ditinjau.</p>
+          <p>Pilih bundle atau tahap yang dibutuhkan, lalu tentukan diskon penawaran. Penawaran akan dikirim ke manager untuk ditinjau.</p>
+          <div className="offer-bundle-grid">
+            {offerBundles.map((bundle) => (
+              <button className={bundleName === bundle.name ? 'active' : ''} type="button" onClick={() => applyOfferBundle(bundle)} key={bundle.name}>
+                <strong>{bundle.name}</strong>
+                <span>{bundle.songs} lagu - diskon {bundle.discount}%</span>
+              </button>
+            ))}
+          </div>
           <div className="offer-stage-grid">
             <OfferStage icon="mic" title="Recording" price="Rp 150.000 / Jam" selected={selectedStages.includes('Recording')} onClick={() => toggleStage('Recording')} />
             <OfferStage icon="cut" title="Editing" price="Rp 200.000 / Lagu" selected={selectedStages.includes('Editing')} onClick={() => toggleStage('Editing')} />
@@ -840,16 +872,16 @@ function PackagesPage({ packages, user, profile }) {
             <Stepper label="Durasi Rekaman / Lagu" value={duration} onChange={updateNumber(setDuration)} onDecrease={() => changeNumber(setDuration, -1)} onIncrease={() => changeNumber(setDuration, 1)} />
             <Stepper label="Jumlah Lagu" value={songCount} onChange={updateNumber(setSongCount)} onDecrease={() => changeNumber(setSongCount, -1)} onIncrease={() => changeNumber(setSongCount, 1)} />
           </div>
-          <label className="manual-price">Input Harga Tawaran<input value={manualPrice} onChange={(event) => setManualPrice(event.target.value)} disabled={!manualPriceEnabled} /></label>
-          <div className="manual-toggle"><span>Atur Harga Manual</span><button className={manualPriceEnabled ? 'active' : ''} type="button" aria-pressed={manualPriceEnabled} onClick={() => setManualPriceEnabled((value) => !value)} /></div>
+          <label className="manual-price">Pilihan Diskon<select value={discountPercent} onChange={(event) => setDiscountPercent(Number(event.target.value))}>{discountOptions.map((option) => <option value={option.value} key={option.label}>{option.label}</option>)}</select></label>
         </article>
 
         <article className="offer-summary">
           <h3>Ringkasan Penawaran</h3>
           <p>Total estimasi akan muncul setelah parameter rekaman dan tahap dipilih oleh manager.</p>
-          <dl><dt>Tahap Produksi</dt><dd>{selectedStages.length} Tahap</dd><dt>Durasi Rekaman</dt><dd>{duration} Jam / Lagu</dd><dt>Jumlah Lagu</dt><dd>{songCount} Lagu</dd><dt>Status</dt><dd>Menunggu Tinjauan</dd></dl>
+          <dl><dt>Paket Diskon</dt><dd>{bundleName || 'Kustom'}</dd><dt>Tahap Produksi</dt><dd>{selectedStages.length} Tahap</dd><dt>Durasi Rekaman</dt><dd>{duration} Jam / Lagu</dd><dt>Jumlah Lagu</dt><dd>{songCount} Lagu</dd><dt>Diskon</dt><dd>{discountPercent}%</dd><dt>Status</dt><dd>Menunggu Tinjauan</dd></dl>
           <span>Estimasi Total</span>
           <strong>{formatRupiah(summaryTotal)}</strong>
+          <p>Harga awal {formatRupiah(computedTotal)} dipotong {formatRupiah(discountAmount)}.</p>
           <p>Harga akhir akan dikonfirmasi setelah manager meninjau penawaran.</p>
           {submitState.message && <p className="offer-feedback success">{submitState.message}</p>}
           {submitState.error && <p className="offer-feedback error">{submitState.error}</p>}

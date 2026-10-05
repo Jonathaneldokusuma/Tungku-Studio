@@ -116,6 +116,19 @@ const productionStages = [
   { name: 'Mastering', icon: 'master', unit: 'Lagu', price: 250000 },
 ];
 
+const discountOptions = [
+  { label: 'Tanpa Diskon', value: 0 },
+  { label: 'Diskon 5%', value: 5 },
+  { label: 'Diskon 10%', value: 10 },
+  { label: 'Diskon 15%', value: 15 },
+];
+
+const bundleTemplates = [
+  { name: 'Bundle Rilis Single', stages: ['Recording', 'Editing', 'Mixing', 'Mastering'], recordingHours: 6, songCount: 1, discount: 10 },
+  { name: 'Bundle Mini Album', stages: ['Recording', 'Editing', 'Mixing', 'Mastering'], recordingHours: 12, songCount: 3, discount: 15 },
+  { name: 'Bundle Vocal Polish', stages: ['Recording', 'Editing', 'Mixing'], recordingHours: 4, songCount: 1, discount: 5 },
+];
+
 const schedule = [['Nama Project A', 'John Doe', '13:00 - 16:00'], ['Nama Project B', 'Jane Doe', '13:00 - 16:00'], ['Nama Project C', 'John Doe', '13:00 - 16:00']];
 const progress = [['Nama Project D', 'Jane Doe', 'Mastering', 'purple'], ['Nama Project E', 'John Doe', 'Editing', 'green'], ['Nama Project F', 'Jane Doe', 'Mixing', 'yellow']];
 const offers = [['Penawaran A', 'Klien X', 'Klien Menawarkan Harga', 'orange'], ['Penawaran B', 'Klien Y', 'Ditolak', 'red'], ['Penawaran C', 'Klien Z', 'Diterima', 'green']];
@@ -359,7 +372,14 @@ function MiniIcon({ type }) {
 }
 
 function StatCard({ item, onDetail }) {
-  return <article className="stat-card"><div className={`pill ${item.trendClass}`}>{item.trend}</div><button className="stat-arrow" type="button" aria-label={`Detail ${item.title}`} onClick={() => onDetail(item.title, item.value, `Data ${item.title} diperbarui realtime di dashboard.`)}><FigmaIcon name="arrow-right" /></button><p>{item.title}</p><strong>{item.value}</strong><MiniIcon type={item.shape} /></article>;
+  const handleOpen = () => {
+    if (item.title === 'Pengeluaran Bulan Ini') {
+      window.location.href = '/manager/expenses';
+      return;
+    }
+    onDetail(item.title, item.value, `Data ${item.title} diperbarui realtime di dashboard.`);
+  };
+  return <article className="stat-card"><div className={`pill ${item.trendClass}`}>{item.trend}</div><button className="stat-arrow" type="button" aria-label={`Detail ${item.title}`} onClick={handleOpen}><FigmaIcon name="arrow-right" /></button><p>{item.title}</p><strong>{item.value}</strong><MiniIcon type={item.shape} /></article>;
 }
 
 function PackageStatCard({ item }) {
@@ -441,6 +461,7 @@ function normalizePackage(item) {
   const recordingHours = Number(item.recordingHours || item.recording_hours || 0);
   const songCount = Number(item.songCount || item.trackCount || item.track_count || item.songs || 1);
   const price = Number(item.price || item.total || item.manual_price || item.auto_price || parseCurrency(item.priceText));
+  const discountPercent = Number(item.discountPercent || item.discount_percent || item.discount || 0);
   return {
     ...item,
     title: item.title || item.name || 'Paket Tungku Studio',
@@ -449,6 +470,8 @@ function normalizePackage(item) {
     description: item.description || item.desc || 'Paket produksi musik Tungku Studio.',
     price: formatRupiah(price),
     total: price,
+    discountPercent,
+    bundleName: item.bundleName || item.bundle_name || '',
     meta: item.meta || `${tags.includes('Recording') ? `${recordingHours || Number.parseInt(String(item.duration || '0'), 10) || 0} Jam Rekaman` : '0 Jam Rekaman'} | ${songCount} Lagu`,
     tags: tags.length ? tags : ['Recording'],
   };
@@ -481,6 +504,8 @@ function normalizeQuotation(item) {
 function packagePayload(item) {
   const tags = item.tags || [];
   const { duration, songs } = packageDuration(item.meta);
+  const discountPercent = Number(item.discountPercent || 0);
+  const basePrice = Number(item.basePrice || parseCurrency(item.price));
   return {
     name: item.title,
     title: item.title,
@@ -491,6 +516,9 @@ function packagePayload(item) {
     songCount: Number.parseInt(songs, 10) || 1,
     price: parseCurrency(item.price),
     total: parseCurrency(item.price),
+    basePrice,
+    discountPercent,
+    bundleName: item.bundleName || '',
     duration,
     songs,
     isActive: true,
@@ -1140,18 +1168,26 @@ function CreatePackageModal({ initialPackage, onClose, onSubmit, title, submitLa
   const [selectedStages, setSelectedStages] = React.useState(initialPackage?.tags || ['Recording', 'Editing', 'Mixing', 'Mastering']);
   const [recordingHours, setRecordingHours] = React.useState(initialDuration ? Number.parseInt(initialDuration.duration, 10) || 0 : 3);
   const [songCount, setSongCount] = React.useState(initialDuration ? Number.parseInt(initialDuration.songs, 10) || 1 : 1);
-  const [manualPrice, setManualPrice] = React.useState(false);
-  const [manualPriceValue, setManualPriceValue] = React.useState('');
+  const [discountPercent, setDiscountPercent] = React.useState(Number(initialPackage?.discountPercent || 0));
+  const [bundleName, setBundleName] = React.useState(initialPackage?.bundleName || '');
 
   const totalPrice = productionStages.reduce((total, stage) => {
     if (!selectedStages.includes(stage.name)) return total;
     const qty = stage.name === 'Recording' ? recordingHours : songCount;
     return total + (stage.price * qty);
   }, 0);
-  const finalPrice = manualPrice && Number(manualPriceValue) > 0 ? Number(manualPriceValue) : totalPrice;
+  const finalPrice = Math.max(0, Math.round(totalPrice - (totalPrice * discountPercent / 100)));
 
   const toggleStage = (stage) => {
     setSelectedStages((stages) => stages.includes(stage) ? stages.filter((item) => item !== stage) : [...stages, stage]);
+  };
+  const applyBundle = (bundle) => {
+    setBundleName(bundle.name);
+    setName(bundle.name);
+    setSelectedStages(bundle.stages);
+    setRecordingHours(bundle.recordingHours);
+    setSongCount(bundle.songCount);
+    setDiscountPercent(bundle.discount);
   };
 
   const submitPackage = () => {
@@ -1161,6 +1197,9 @@ function CreatePackageModal({ initialPackage, onClose, onSubmit, title, submitLa
       title,
       desc: description.trim() || 'Paket baru untuk kebutuhan produksi musik.',
       price: formatRupiah(finalPrice),
+      basePrice: totalPrice,
+      discountPercent,
+      bundleName,
       meta: `${selectedStages.includes('Recording') ? `${recordingHours} Jam Rekaman` : '0 Jam Rekaman'} | ${songCount} Lagu`,
       tags: selectedStages.length ? selectedStages : ['Recording'],
     });
@@ -1176,6 +1215,15 @@ function CreatePackageModal({ initialPackage, onClose, onSubmit, title, submitLa
           <div className="modal-left">
             <label>Nama Paket<sup>*</sup><input value={name} onChange={(event) => setName(event.target.value)} placeholder="Example text" /></label>
             <label>Deskripsi Paket <span>(Opsional)</span><textarea value={description} onChange={(event) => setDescription(event.target.value)} placeholder="Example text" /></label>
+            <p className="field-title">Paket Bundle</p>
+            <div className="bundle-picker">
+              {bundleTemplates.map((bundle) => (
+                <button className={bundleName === bundle.name ? 'active' : ''} type="button" onClick={() => applyBundle(bundle)} key={bundle.name}>
+                  <strong>{bundle.name}</strong>
+                  <span>{bundle.songCount} lagu - diskon {bundle.discount}%</span>
+                </button>
+              ))}
+            </div>
             <div className="modal-divider" />
             <p className="field-title">Tahap Produksi<sup>*</sup></p>
             <div className="stage-picker">
@@ -1200,10 +1248,10 @@ function CreatePackageModal({ initialPackage, onClose, onSubmit, title, submitLa
                 const qty = stage.name === 'Recording' ? recordingHours : songCount;
                 return <div className="price-row" key={stage.name}><div><strong>{stage.name}</strong><span>{qty} {stage.unit} x {formatRupiah(stage.price)}</span></div><b>{formatRupiah(qty * stage.price)}</b></div>;
               })}
+              {discountPercent > 0 && <div className="price-row discount"><div><strong>Diskon Paket</strong><span>{discountPercent}% dari {formatRupiah(totalPrice)}</span></div><b>-{formatRupiah(totalPrice - finalPrice)}</b></div>}
               <div className="price-total"><span>Harga Paket</span><strong>{formatRupiah(finalPrice)}</strong></div>
             </div>
-            <div className="manual-row"><span>Atur Harga Manual</span><button className={manualPrice ? 'active' : ''} type="button" onClick={() => setManualPrice((value) => !value)} aria-label="Atur Harga Manual" /></div>
-            {manualPrice && <label className="manual-price-input">Harga Manual<input type="number" min="0" value={manualPriceValue} onChange={(event) => setManualPriceValue(event.target.value)} placeholder="1250000" /></label>}
+            <label className="discount-select">Diskon Paket<select value={discountPercent} onChange={(event) => setDiscountPercent(Number(event.target.value))}>{discountOptions.map((option) => <option value={option.value} key={option.label}>{option.label}</option>)}</select></label>
           </div>
         </div>
         <footer className="modal-actions"><button type="button" onClick={onClose}>Batal</button><button type="button" onClick={submitPackage}>{submitLabel || (initialPackage ? 'Simpan Paket' : 'Buat Paket')}</button></footer>
@@ -1321,6 +1369,23 @@ function PlaceholderPage({ pageKey }) {
   const [query, setQuery] = React.useState('');
   const [selectedRow, setSelectedRow] = React.useState(null);
   const rows = page.rows.filter((row) => row.join(' ').toLowerCase().includes(query.toLowerCase()));
+  if (pageKey === 'settings') {
+    return (
+      <div className="dashboard-frame data-page">
+        <Sidebar activeKey={pageKey} />
+        <main className="content">
+          <Header crumb={page.crumb} title={page.title} />
+          <section className="not-implemented panel">
+            <MiniIcon type="settings" />
+            <span>Belum Diimplementasikan</span>
+            <h1>Fitur Pengaturan belum aktif</h1>
+            <p>Halaman ini disiapkan untuk konfigurasi profil studio, role akses, notifikasi, dan aturan booking. Saat ini belum tersambung ke database agar tidak mengubah konfigurasi sistem secara tidak sengaja.</p>
+            <a href="/manager/dashboard">Kembali ke Dashboard</a>
+          </section>
+        </main>
+      </div>
+    );
+  }
   return (
     <div className="dashboard-frame data-page">
       <Sidebar activeKey={pageKey} />
