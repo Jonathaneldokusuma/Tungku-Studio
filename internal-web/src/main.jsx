@@ -1,9 +1,11 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import { collection, onSnapshot } from 'firebase/firestore';
 import './styles.css';
 import brandLogo from './assets/tungku-icon.svg';
 import brandPrimary from './assets/tungku-primary.svg';
 import figmaIcons from './assets/icons/figma-icons.svg';
+import { db } from './lib/firebase';
 
 const menuSections = [
   { title: 'UTAMA', items: [{ key: 'dashboard', label: 'Dashboard', icon: 'dashboard' }] },
@@ -43,6 +45,8 @@ const dashboardStats = [
   { trend: '4 Lagu', trendClass: 'neutral', title: 'Project Aktif', value: '3', shape: 'folder' },
   { trend: '1 Menunggu Persetujuan Klien', trendClass: 'warning', title: 'Dalam Penawaran', value: '2', shape: 'offer' },
 ];
+
+const emptyDashboardData = { projects: [], quotations: [], payments: [] };
 
 const packageStats = [
   { title: 'Semua Paket', value: '6', shape: 'package-box' },
@@ -310,18 +314,72 @@ function DashboardDetailModal({ detail, onClose }) {
   );
 }
 
+function isCompletedProject(item) {
+  const status = String(item.status || item.stage || '').toLowerCase();
+  return ['completed', 'complete', 'done', 'selesai', 'approved'].includes(status);
+}
+
+function isPaidPayment(item) {
+  const status = String(item.status || '').toLowerCase();
+  return ['paid', 'lunas', 'settlement', 'success', 'completed'].includes(status);
+}
+
+function paymentAmount(item) {
+  return Number(item.amount || item.total || item.price || item.packagePrice || item.offeredPrice || 0);
+}
+
+function projectTrackCount(item) {
+  if (Array.isArray(item.tracks)) return item.tracks.length;
+  if (Array.isArray(item.projectTracks)) return item.projectTracks.length;
+  return Number(item.trackCount || item.track_count || item.songs || item.songCount || 1);
+}
+
+function buildDashboardStats(data) {
+  const activeProjects = data.projects.filter((item) => !isCompletedProject(item));
+  const pendingQuotations = data.quotations.filter((item) => !['accepted', 'diterima', 'rejected', 'ditolak', 'closed'].includes(String(item.status || '').toLowerCase()));
+  const unpaidPayments = data.payments.filter((item) => !isPaidPayment(item));
+  const paidPayments = data.payments.filter(isPaidPayment);
+  const activeTrackCount = activeProjects.reduce((total, item) => total + projectTrackCount(item), 0);
+  const unpaidTotal = unpaidPayments.reduce((total, item) => total + paymentAmount(item), 0);
+  const paidThisMonthTotal = paidPayments.reduce((total, item) => total + paymentAmount(item), 0);
+
+  return [
+    { trend: `${paidPayments.length} pembayaran`, trendClass: 'good', title: 'Pendapatan Bulan Ini', value: formatRupiah(paidThisMonthTotal), shape: 'chart-up' },
+    { trend: 'Data lokal', trendClass: 'neutral', title: 'Pengeluaran Bulan Ini', value: 'Rp 0', shape: 'chart-down' },
+    { trend: `${unpaidPayments.length} invoice`, trendClass: unpaidPayments.length ? 'warning' : 'neutral', title: 'Pembayaran Belum Lunas', value: formatRupiah(unpaidTotal), shape: 'invoice' },
+    { trend: `${activeTrackCount} Lagu`, trendClass: 'neutral', title: 'Project Aktif', value: String(activeProjects.length), shape: 'folder' },
+    { trend: `${pendingQuotations.length} menunggu`, trendClass: pendingQuotations.length ? 'warning' : 'neutral', title: 'Dalam Penawaran', value: String(pendingQuotations.length), shape: 'offer' },
+  ];
+}
+
 function Dashboard() {
   const [now, setNow] = React.useState(new Date());
-  const [tick, setTick] = React.useState(0);
+  const [dashboardData, setDashboardData] = React.useState(emptyDashboardData);
   const [detail, setDetail] = React.useState(null);
   React.useEffect(() => {
     const interval = window.setInterval(() => {
       setNow(new Date());
-      setTick((value) => value + 1);
     }, 1000);
     return () => window.clearInterval(interval);
   }, []);
-  const liveStats = dashboardStats.map((item) => item.title === 'Project Aktif' ? { ...item, value: String(3 + (tick % 2)) } : item.title === 'Dalam Penawaran' ? { ...item, value: String(2 + (tick % 3 === 0 ? 1 : 0)) } : item);
+  React.useEffect(() => {
+    const unsubscribers = [
+      onSnapshot(collection(db, 'projects'), (snapshot) => {
+        const rows = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
+        setDashboardData((value) => ({ ...value, projects: rows }));
+      }, () => setDashboardData((value) => ({ ...value, projects: [] }))),
+      onSnapshot(collection(db, 'quotations'), (snapshot) => {
+        const rows = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
+        setDashboardData((value) => ({ ...value, quotations: rows }));
+      }, () => setDashboardData((value) => ({ ...value, quotations: [] }))),
+      onSnapshot(collection(db, 'payments'), (snapshot) => {
+        const rows = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
+        setDashboardData((value) => ({ ...value, payments: rows }));
+      }, () => setDashboardData((value) => ({ ...value, payments: [] }))),
+    ];
+    return () => unsubscribers.forEach((unsubscribe) => unsubscribe());
+  }, []);
+  const liveStats = buildDashboardStats(dashboardData);
   const monthLabel = now.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
   const openDetail = (title, value, description) => setDetail({ title, value, description });
   return (
