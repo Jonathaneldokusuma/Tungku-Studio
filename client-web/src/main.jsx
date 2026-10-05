@@ -726,6 +726,12 @@ function PackagesPage({ packages, user, profile }) {
         method: 'manual_confirmation',
         note: usedFallback ? 'Pembayaran PO untuk order paket. Data masuk fallback custom_offers sampai rules terbaru aktif.' : 'Pembayaran PO untuk mengaktifkan project. Setelah lunas, manager assign operator.',
       });
+      await createClientNotification({
+        title: 'Order paket baru',
+        body: `${profile?.name || user.email || 'Client'} membeli ${name} untuk project ${readyOrder.projectName.trim()}.`,
+        sourceId: orderRef.id,
+        sourceType: 'package_purchase',
+      });
       setSelectedPackage(name);
       setBuyState({ loading: false, message: usedFallback ? 'Order dan invoice PO berhasil dibuat. Rules project belum aktif, jadi order masuk jalur fallback manager.' : 'Project pending payment dibuat, slot di-hold, dan invoice PO muncul di Transaksi.', error: '' });
     } catch (error) {
@@ -755,10 +761,22 @@ function PackagesPage({ packages, user, profile }) {
         updatedAt: serverTimestamp(),
       };
       try {
-        await addDoc(collection(db, 'quotations'), quotePayload);
+        const quoteRef = await addDoc(collection(db, 'quotations'), quotePayload);
+        await createClientNotification({
+          title: 'Penawaran baru',
+          body: `${quotePayload.clientName} mengirim penawaran ${quotePayload.packageName} senilai ${formatRupiah(summaryTotal)}.`,
+          sourceId: quoteRef.id,
+          sourceType: 'quotation',
+        });
       } catch (quotationError) {
         if (!isPermissionDenied(quotationError)) throw quotationError;
-        await addDoc(collection(db, 'custom_offers'), { ...quotePayload, status: 'pending', type: 'custom_quotation', note: 'Fallback penawaran sampai Firestore rules quotations aktif.' });
+        const fallbackRef = await addDoc(collection(db, 'custom_offers'), { ...quotePayload, status: 'pending', type: 'custom_quotation', note: 'Fallback penawaran sampai Firestore rules quotations aktif.' });
+        await createClientNotification({
+          title: 'Penawaran baru',
+          body: `${quotePayload.clientName} mengirim penawaran fallback senilai ${formatRupiah(summaryTotal)}.`,
+          sourceId: fallbackRef.id,
+          sourceType: 'custom_offer',
+        });
       }
       setSubmitState({ loading: false, message: 'Penawaran terkirim ke manager. Nanti statusnya bisa dicek di Transaksi/Project.', error: '' });
     } catch (error) {
@@ -962,6 +980,24 @@ async function createClientPayment(payload) {
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
+  }
+}
+
+async function createClientNotification(payload) {
+  try {
+    return await addDoc(collection(db, 'notifications'), {
+      audience: payload.audience || 'manager',
+      title: payload.title,
+      body: payload.body,
+      sourceId: payload.sourceId || '',
+      sourceType: payload.sourceType || 'client_activity',
+      read: false,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+  } catch (error) {
+    console.warn('Notification skipped:', error.message);
+    return null;
   }
 }
 

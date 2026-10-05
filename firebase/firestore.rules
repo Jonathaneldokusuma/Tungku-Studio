@@ -90,8 +90,18 @@ service cloud.firestore {
     }
 
     match /notifications/{notificationId} {
-      allow read, update: if signedIn() && resource.data.userId == request.auth.uid;
-      allow create, delete: if internalUser();
+      allow read, update: if signedIn() && (
+        resource.data.userId == request.auth.uid ||
+        (resource.data.audience == 'manager' && hasRole('manager')) ||
+        (resource.data.audience == 'operator' && hasRole('operator')) ||
+        internalUser()
+      );
+      allow create: if signedIn() && (
+        internalUser() ||
+        request.resource.data.userId == request.auth.uid ||
+        request.resource.data.audience in ['manager', 'operator']
+      );
+      allow delete: if internalUser();
     }
 
     match /crm_messages/{messageId} {

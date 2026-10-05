@@ -1,11 +1,12 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { addDoc, collection, deleteDoc, doc, getDoc, onSnapshot, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
 import './styles.css';
 import brandLogo from './assets/tungku-icon.svg';
 import brandPrimary from './assets/tungku-primary.svg';
 import figmaIcons from './assets/icons/figma-icons.svg';
-import { db } from './lib/firebase';
+import { auth, db } from './lib/firebase';
 
 const menuSections = [
   { title: 'UTAMA', items: [{ key: 'dashboard', label: 'Dashboard', icon: 'dashboard' }] },
@@ -185,6 +186,29 @@ function Sidebar({ activeKey = 'dashboard' }) {
 
 function Header({ crumb = 'Utama / Dashboard', title = 'Dashboard', showProjectButton = true }) {
   const [query, setQuery] = React.useState('');
+  const [notificationOpen, setNotificationOpen] = React.useState(false);
+  const [notifications, setNotifications] = React.useState([]);
+
+  React.useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, 'notifications'), (snapshot) => {
+      const items = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
+      setNotifications(items.sort((a, b) => {
+        const aTime = a.createdAt?.toMillis?.() || 0;
+        const bTime = b.createdAt?.toMillis?.() || 0;
+        return bTime - aTime;
+      }).slice(0, 8));
+    }, () => setNotifications([]));
+    return unsubscribe;
+  }, []);
+
+  const unreadCount = notifications.filter((item) => !item.read).length;
+  const markNotificationRead = async (item) => {
+    try {
+      await updateDoc(doc(db, 'notifications', item.id), { read: true, updatedAt: serverTimestamp() });
+    } catch (error) {
+      console.warn('Notification update skipped:', error.message);
+    }
+  };
 
   return (
     <header className="topbar">
@@ -193,7 +217,23 @@ function Header({ crumb = 'Utama / Dashboard', title = 'Dashboard', showProjectB
         {showProjectButton && <button className="create-project-header-button" type="button" onClick={() => { window.location.href = '/manager/project/create'; }}>Buat Project</button>}
         <label className="search"><FigmaIcon name="search" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Cari project, klien, operator..." /></label>
         <button className="icon-button" type="button" aria-label="Filter"><FigmaIcon name="sliders" className="top-icon" /></button>
-        <button className="icon-button" type="button" aria-label="Notifikasi"><FigmaIcon name="bell" className="top-icon" /></button>
+        <div className="notification-shell">
+          <button className="icon-button" type="button" aria-label="Notifikasi" onClick={() => setNotificationOpen((value) => !value)}>
+            <FigmaIcon name="bell" className="top-icon" />
+            {unreadCount > 0 && <em className="notification-badge">{unreadCount}</em>}
+          </button>
+          {notificationOpen && (
+            <section className="notification-panel">
+              <strong>Notifikasi</strong>
+              {notifications.length ? notifications.map((item) => (
+                <button className={`notification-item ${item.read ? '' : 'unread'}`} type="button" key={item.id} onClick={() => markNotificationRead(item)}>
+                  <span>{item.title || 'Update Tungku Studio'}</span>
+                  <small>{item.body || 'Ada pembaruan data.'}</small>
+                </button>
+              )) : <p>Belum ada notifikasi.</p>}
+            </section>
+          )}
+        </div>
       </div>
     </header>
   );
@@ -202,13 +242,58 @@ function Header({ crumb = 'Utama / Dashboard', title = 'Dashboard', showProjectB
 function AuthPage({ mode = 'login' }) {
   const isRegister = mode === 'register';
   const [role, setRole] = React.useState('Manager');
+  const [form, setForm] = React.useState({ name: '', email: '', phone: '+62 ', password: '', confirmPassword: '' });
+  const [error, setError] = React.useState('');
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const submitLabel = isRegister ? 'Daftar' : 'Masuk';
   const switchHref = isRegister ? '/login' : '/register';
   const switchText = isRegister ? 'Sudah punya akun?' : 'Belum punya akun?';
   const switchLabel = isRegister ? 'Masuk' : 'Daftar';
-  const submitInternalLogin = (event) => {
+  const updateField = (field) => (event) => setForm((value) => ({ ...value, [field]: event.target.value }));
+  const submitInternalLogin = async (event) => {
     event.preventDefault();
-    window.location.href = role === 'Operator' ? '/manager/operator' : '/manager/dashboard';
+    setError('');
+    setIsSubmitting(true);
+    const selectedRole = role.toLowerCase();
+    try {
+      let credential;
+      if (isRegister) {
+        if (form.password !== form.confirmPassword) {
+          setError('Password dan konfirmasi password tidak sama.');
+          return;
+        }
+        credential = await createUserWithEmailAndPassword(auth, form.email, form.password);
+        await setDoc(doc(db, 'users', credential.user.uid), {
+          name: form.name.trim() || credential.user.email,
+          email: credential.user.email,
+          phone: form.phone.trim(),
+          role: selectedRole,
+          is_active: true,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
+      } else {
+        credential = await signInWithEmailAndPassword(auth, form.email, form.password);
+      }
+
+      const profileSnapshot = await getDoc(doc(db, 'users', credential.user.uid));
+      const profileRole = String(profileSnapshot.data()?.role || '').toLowerCase();
+      if (!['manager', 'operator'].includes(profileRole)) {
+        await signOut(auth);
+        setError('Akun ini belum punya role internal. Buat user di Firestore dengan role manager/operator.');
+        return;
+      }
+      if (profileRole !== selectedRole) {
+        await signOut(auth);
+        setError(`Akun ini terdaftar sebagai ${profileRole}. Pilih role yang sesuai.`);
+        return;
+      }
+      window.location.href = profileRole === 'operator' ? '/manager/operator' : '/manager/dashboard';
+    } catch (authError) {
+      setError(authError.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -234,16 +319,17 @@ function AuthPage({ mode = 'login' }) {
           <p>{isRegister ? 'Lengkapi data staff internal.' : 'Gunakan email dan password manager atau operator.'}</p>
         </div>
         <form className="auth-form" onSubmit={submitInternalLogin}>
-          {isRegister && <label>Nama Lengkap<input type="text" placeholder="Nama lengkap" required /></label>}
-          <label>Email<input type="email" placeholder="contoh@gmail.com" required /></label>
-          {isRegister && <label>No. Telepon<input type="tel" placeholder="+62" required /></label>}
-          <label>Password<input type="password" placeholder="Password" required /></label>
-          {isRegister && <label>Konfirmasi Password<input type="password" placeholder="Ulangi password" required /></label>}
+          {isRegister && <label>Nama Lengkap<input type="text" value={form.name} onChange={updateField('name')} placeholder="Nama lengkap" required /></label>}
+          <label>Email<input type="email" value={form.email} onChange={updateField('email')} placeholder="contoh@gmail.com" required /></label>
+          {isRegister && <label>No. Telepon<input type="tel" value={form.phone} onChange={updateField('phone')} placeholder="+62" required /></label>}
+          <label>Password<input type="password" value={form.password} onChange={updateField('password')} placeholder="Password" required /></label>
+          {isRegister && <label>Konfirmasi Password<input type="password" value={form.confirmPassword} onChange={updateField('confirmPassword')} placeholder="Ulangi password" required /></label>}
           <div className="auth-role">
             {['Manager', 'Operator'].map((item) => <button className={role === item ? 'active' : ''} type="button" onClick={() => setRole(item)} key={item}>{item}</button>)}
           </div>
           {!isRegister && <a className="auth-forgot" href="/register">Lupa password?</a>}
-          <button className="auth-submit" type="submit">{submitLabel}</button>
+          {error && <p className="auth-message error">{error}</p>}
+          <button className="auth-submit" type="submit" disabled={isSubmitting}>{isSubmitting ? 'Memproses...' : submitLabel}</button>
         </form>
         <p className="auth-switch">{switchText} <a href={switchHref}>{switchLabel}</a></p>
       </section>
@@ -328,10 +414,105 @@ function paymentAmount(item) {
   return Number(item.amount || item.total || item.price || item.packagePrice || item.offeredPrice || 0);
 }
 
+function parseCurrency(value) {
+  if (typeof value === 'number') return value;
+  return Number(String(value || '').replace(/[^\d]/g, '')) || 0;
+}
+
 function projectTrackCount(item) {
   if (Array.isArray(item.tracks)) return item.tracks.length;
   if (Array.isArray(item.projectTracks)) return item.projectTracks.length;
   return Number(item.trackCount || item.track_count || item.songs || item.songCount || 1);
+}
+
+function packageStages(item) {
+  if (Array.isArray(item.stages)) return item.stages;
+  if (Array.isArray(item.tags)) return item.tags;
+  return [
+    item.include_recording || item.includeRecording ? 'Recording' : null,
+    item.include_editing || item.includeEditing ? 'Editing' : null,
+    item.include_mixing || item.includeMixing ? 'Mixing' : null,
+    item.include_mastering || item.includeMastering ? 'Mastering' : null,
+  ].filter(Boolean);
+}
+
+function normalizePackage(item) {
+  const tags = packageStages(item);
+  const recordingHours = Number(item.recordingHours || item.recording_hours || 0);
+  const songCount = Number(item.songCount || item.trackCount || item.track_count || item.songs || 1);
+  const price = Number(item.price || item.total || item.manual_price || item.auto_price || parseCurrency(item.priceText));
+  return {
+    ...item,
+    title: item.title || item.name || 'Paket Tungku Studio',
+    name: item.name || item.title || 'Paket Tungku Studio',
+    desc: item.desc || item.description || 'Paket produksi musik Tungku Studio.',
+    description: item.description || item.desc || 'Paket produksi musik Tungku Studio.',
+    price: formatRupiah(price),
+    total: price,
+    meta: item.meta || `${tags.includes('Recording') ? `${recordingHours || Number.parseInt(String(item.duration || '0'), 10) || 0} Jam Rekaman` : '0 Jam Rekaman'} | ${songCount} Lagu`,
+    tags: tags.length ? tags : ['Recording'],
+  };
+}
+
+function quotationStatusLabel(status) {
+  const normalized = String(status || '').toLowerCase();
+  if (['accepted', 'diterima'].includes(normalized)) return 'Diterima';
+  if (['rejected', 'ditolak'].includes(normalized)) return 'Ditolak';
+  if (['studio_offered', 'studio_review', 'reviewed'].includes(normalized)) return 'Tungku Menawarkan Harga';
+  return 'Klien Menawarkan Harga';
+}
+
+function normalizeQuotation(item) {
+  const tags = packageStages(item);
+  const status = quotationStatusLabel(item.status);
+  const duration = item.duration || `${Number(item.durationPerSong || item.recordingHours || 0)} Jam Rekaman`;
+  const songs = item.songs || `${Number(item.songCount || item.trackCount || 1)} Lagu`;
+  return {
+    ...item,
+    title: item.title || item.clientName || item.clientEmail || 'Client Tungku Studio',
+    price: formatRupiah(Number(item.agreedPrice || item.agreed_price || item.offeredPrice || item.autoPrice || item.auto_price || 0)),
+    meta: item.meta || `${duration} | ${songs}`,
+    tags: tags.length ? tags : ['Recording'],
+    status,
+    tone: status === 'Diterima' ? 'accepted' : status === 'Ditolak' ? 'rejected' : undefined,
+  };
+}
+
+function packagePayload(item) {
+  const tags = item.tags || [];
+  const { duration, songs } = packageDuration(item.meta);
+  return {
+    name: item.title,
+    title: item.title,
+    description: item.desc,
+    desc: item.desc,
+    stages: tags,
+    recordingHours: Number.parseInt(duration, 10) || 0,
+    songCount: Number.parseInt(songs, 10) || 1,
+    price: parseCurrency(item.price),
+    total: parseCurrency(item.price),
+    duration,
+    songs,
+    isActive: true,
+    updatedAt: serverTimestamp(),
+  };
+}
+
+async function createInternalNotification(payload) {
+  try {
+    await addDoc(collection(db, 'notifications'), {
+      audience: payload.audience || 'manager',
+      title: payload.title,
+      body: payload.body,
+      sourceId: payload.sourceId || '',
+      sourceType: payload.sourceType || 'system',
+      read: false,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+  } catch (error) {
+    console.warn('Notification skipped:', error.message);
+  }
 }
 
 function buildDashboardStats(data) {
@@ -647,7 +828,7 @@ function QuotationCard({ item, onOffer, onStatusChange, onDelete }) {
   );
 }
 
-function QuotationTable({ items, onOffer, onStatusChange, onDelete }) {
+function QuotationTable({ items, total, onOffer, onStatusChange, onDelete }) {
   return (
     <section className="package-table quotation-table panel">
       <div className="package-table-head">
@@ -673,7 +854,7 @@ function QuotationTable({ items, onOffer, onStatusChange, onDelete }) {
           </div>
         );
       })}
-      <div className="package-table-foot"><div className="pager"><button type="button">&lt;</button><span>1</span><button type="button">&gt;</button></div><span>{items.length} dari {quotations.length} penawaran</span></div>
+      <div className="package-table-foot"><div className="pager"><button type="button">&lt;</button><span>1</span><button type="button">&gt;</button></div><span>{items.length} dari {total} penawaran</span></div>
     </section>
   );
 }
@@ -685,29 +866,63 @@ function QuotationPage() {
   const [sortMode, setSortMode] = React.useState('A-Z');
   const [quotationToOffer, setQuotationToOffer] = React.useState(null);
   const [quotationToDelete, setQuotationToDelete] = React.useState(null);
-  const [quotationItems, setQuotationItems] = React.useState(quotations);
-  const updateQuotationStatus = (title, status) => {
-    setQuotationItems((items) => items.map((item) => item.title === title ? { ...item, status, tone: status === 'Diterima' ? 'accepted' : 'rejected' } : item));
+  const [quotationItems, setQuotationItems] = React.useState([]);
+  React.useEffect(() => {
+    return onSnapshot(collection(db, 'quotations'), (snapshot) => {
+      setQuotationItems(snapshot.docs.map((item) => normalizeQuotation({ id: item.id, ...item.data() })));
+    }, () => setQuotationItems([]));
+  }, []);
+  const updateQuotationStatus = async (title, status) => {
+    const target = quotationItems.find((item) => item.title === title);
+    if (!target?.id) return;
+    await updateDoc(doc(db, 'quotations', target.id), {
+      status: status === 'Diterima' ? 'accepted' : 'rejected',
+      updatedAt: serverTimestamp(),
+    });
+    await createInternalNotification({
+      audience: 'client',
+      sourceType: 'quotation',
+      sourceId: target.id,
+      title: `Penawaran ${status}`,
+      body: `${target.title} ${status.toLowerCase()} oleh manager.`,
+    });
   };
-  const deleteQuotation = (title) => {
-    setQuotationItems((items) => items.filter((item) => item.title !== title));
+  const deleteQuotation = async (title) => {
+    const target = quotationItems.find((item) => item.title === title);
+    if (target?.id) await deleteDoc(doc(db, 'quotations', target.id));
     setQuotationToDelete(null);
   };
-  const submitQuotationOffer = (packageOffer) => {
-    setQuotationItems((items) => items.map((item) => item.title === packageOffer.originalTitle ? {
-      ...item,
-      status: 'Tungku Menawarkan Harga',
-      price: packageOffer.price,
+  const submitQuotationOffer = async (packageOffer) => {
+    const target = quotationItems.find((item) => item.title === packageOffer.originalTitle);
+    if (!target?.id) return;
+    await updateDoc(doc(db, 'quotations', target.id), {
+      status: 'studio_offered',
+      offeredPrice: parseCurrency(packageOffer.price),
+      stages: packageOffer.tags,
       meta: packageOffer.meta,
-      tags: packageOffer.tags,
-      tone: undefined,
-    } : item));
+      updatedAt: serverTimestamp(),
+    });
+    await createInternalNotification({
+      audience: 'client',
+      sourceType: 'quotation',
+      sourceId: target.id,
+      title: 'Manager mengirim harga penawaran',
+      body: `${target.title}: ${packageOffer.price}`,
+    });
     setQuotationToOffer(null);
   };
+  const dynamicQuotationFilters = ['Semua Penawaran', 'Klien Menawarkan Harga', 'Tungku Menawarkan Harga', 'Diterima', 'Ditolak'].map((item) => `${item}${item === 'Semua Penawaran' ? ` (${quotationItems.length})` : ` (${quotationItems.filter((quote) => quote.status === item).length})`}`);
+  const dynamicQuotationStats = [
+    { title: 'Semua Penawaran', value: String(quotationItems.length), shape: 'quotation' },
+    { title: 'Klien Menawarkan Harga', value: String(quotationItems.filter((item) => item.status === 'Klien Menawarkan Harga').length), shape: 'mic-box' },
+    { title: 'Tungku Menawarkan Harga', value: String(quotationItems.filter((item) => item.status === 'Tungku Menawarkan Harga').length), shape: 'cut-box' },
+    { title: 'Diterima', value: String(quotationItems.filter((item) => item.status === 'Diterima').length), shape: 'circle-add' },
+    { title: 'Ditolak', value: String(quotationItems.filter((item) => item.status === 'Ditolak').length), shape: 'delete' },
+  ];
   const filteredItems = quotationItems
     .filter((item) => {
       const matchesQuery = item.title.toLowerCase().includes(query.toLowerCase()) || item.status.toLowerCase().includes(query.toLowerCase());
-      const matchesFilter = filter === quotationFilters[0] || filter.includes(item.status);
+      const matchesFilter = filter.startsWith('Semua Penawaran') || filter.includes(item.status);
       return matchesQuery && matchesFilter;
     })
     .sort((a, b) => (sortMode === 'A-Z' ? a.title.localeCompare(b.title) : quotationItems.indexOf(a) - quotationItems.indexOf(b)));
@@ -717,7 +932,7 @@ function QuotationPage() {
       <Sidebar activeKey="quotation" />
       <main className="content">
         <Header crumb="Operasional / Quotation" title="Quotation" />
-        <section className="package-stats">{quotationStats.map((item) => <PackageStatCard item={item} key={item.title} />)}</section>
+        <section className="package-stats">{dynamicQuotationStats.map((item) => <PackageStatCard item={item} key={item.title} />)}</section>
         <section className="package-toolbar quotation-toolbar panel">
           <label className="package-search"><FigmaIcon name="search" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Cari penawaran..." /></label>
           <div className="view-mode"><span>Mode Lihat:</span>{['Kartu', 'Tabel'].map((mode) => <button className={viewMode === mode ? 'active' : ''} type="button" onClick={() => setViewMode(mode)} key={mode}><FigmaIcon name={mode === 'Kartu' ? 'grid' : 'table'} />{mode}</button>)}</div>
@@ -726,8 +941,8 @@ function QuotationPage() {
             <button className={sortMode === 'Terbaru' ? 'active' : ''} type="button" onClick={() => setSortMode('Terbaru')}><FigmaIcon name="sliders" />Terbaru</button>
           </div>
         </section>
-        <div className="package-filter-row quotation-filters">{quotationFilters.map((name) => <button className={filter === name ? 'active' : ''} type="button" onClick={() => setFilter(name)} key={name}>{name}</button>)}</div>
-        {viewMode === 'Kartu' ? <section className="quotation-grid">{filteredItems.map((item) => <QuotationCard item={item} onOffer={setQuotationToOffer} onStatusChange={updateQuotationStatus} onDelete={(title) => setQuotationToDelete(quotationItems.find((quote) => quote.title === title))} key={item.title} />)}</section> : <QuotationTable items={filteredItems} onOffer={setQuotationToOffer} onStatusChange={updateQuotationStatus} onDelete={(title) => setQuotationToDelete(quotationItems.find((quote) => quote.title === title))} />}
+        <div className="package-filter-row quotation-filters">{dynamicQuotationFilters.map((name) => <button className={filter === name ? 'active' : ''} type="button" onClick={() => setFilter(name)} key={name}>{name}</button>)}</div>
+        {viewMode === 'Kartu' ? <section className="quotation-grid">{filteredItems.map((item) => <QuotationCard item={item} onOffer={setQuotationToOffer} onStatusChange={updateQuotationStatus} onDelete={(title) => setQuotationToDelete(quotationItems.find((quote) => quote.title === title))} key={item.id || item.title} />)}</section> : <QuotationTable items={filteredItems} total={quotationItems.length} onOffer={setQuotationToOffer} onStatusChange={updateQuotationStatus} onDelete={(title) => setQuotationToDelete(quotationItems.find((quote) => quote.title === title))} />}
         <div className="page-bottom-line" />
       </main>
       {quotationToOffer && <CreatePackageModal initialPackage={{ ...quotationToOffer, desc: quotationToOffer.status }} title="Sunting Paket" submitLabel="Buat Paket" onClose={() => setQuotationToOffer(null)} onSubmit={submitQuotationOffer} />}
@@ -1016,10 +1231,15 @@ function PackageManagement() {
   const [filter, setFilter] = React.useState('Semua Paket');
   const [viewMode, setViewMode] = React.useState('Tabel');
   const [query, setQuery] = React.useState('');
-  const [packageItems, setPackageItems] = React.useState(packages);
+  const [packageItems, setPackageItems] = React.useState([]);
   const [showCreateModal, setShowCreateModal] = React.useState(false);
   const [packageToEdit, setPackageToEdit] = React.useState(null);
   const [packageToDelete, setPackageToDelete] = React.useState(null);
+  React.useEffect(() => {
+    return onSnapshot(collection(db, 'packages'), (snapshot) => {
+      setPackageItems(snapshot.docs.map((item) => normalizePackage({ id: item.id, ...item.data() })));
+    }, () => setPackageItems([]));
+  }, []);
   const filteredPackages = packageItems.filter((item) => {
     const matchesQuery = item.title.toLowerCase().includes(query.toLowerCase());
     const matchesFilter = filter === 'Semua Paket' || item.tags.includes(filter);
@@ -1028,24 +1248,46 @@ function PackageManagement() {
   const addPackage = () => {
     setShowCreateModal(true);
   };
-  const savePackage = (item) => {
-    setPackageItems((items) => item.originalTitle ? items.map((pkg) => pkg.title === item.originalTitle ? { title: item.title, desc: item.desc, price: item.price, meta: item.meta, tags: item.tags } : pkg) : [...items, { title: item.title, desc: item.desc, price: item.price, meta: item.meta, tags: item.tags }]);
+  const savePackage = async (item) => {
+    const existing = item.originalTitle ? packageItems.find((pkg) => pkg.title === item.originalTitle) : null;
+    const payload = packagePayload(item);
+    if (existing?.id) {
+      await setDoc(doc(db, 'packages', existing.id), payload, { merge: true });
+    } else {
+      await addDoc(collection(db, 'packages'), { ...payload, createdAt: serverTimestamp() });
+    }
+    await createInternalNotification({
+      audience: 'client',
+      sourceType: 'package',
+      sourceId: existing?.id || item.title,
+      title: existing ? 'Paket diperbarui' : 'Paket baru tersedia',
+      body: `${item.title} - ${item.price}`,
+    });
     setPackageToEdit(null);
   };
-  const duplicatePackage = (item) => {
-    setPackageItems((items) => [...items, { ...item, title: `${item.title} Copy` }]);
+  const duplicatePackage = async (item) => {
+    const copy = { ...item, title: `${item.title} Copy`, name: `${item.title} Copy` };
+    await addDoc(collection(db, 'packages'), { ...packagePayload(copy), createdAt: serverTimestamp() });
   };
-  const deletePackage = (title) => {
-    setPackageItems((items) => items.filter((item) => item.title !== title));
+  const deletePackage = async (title) => {
+    const target = packageItems.find((item) => item.title === title);
+    if (target?.id) await deleteDoc(doc(db, 'packages', target.id));
     setPackageToDelete(null);
   };
+  const dynamicPackageStats = [
+    { title: 'Semua Paket', value: String(packageItems.length), shape: 'package-box' },
+    { title: 'Recording', value: String(packageItems.filter((item) => item.tags.includes('Recording')).length), shape: 'mic-box' },
+    { title: 'Editing', value: String(packageItems.filter((item) => item.tags.includes('Editing')).length), shape: 'cut-box' },
+    { title: 'Mixing', value: String(packageItems.filter((item) => item.tags.includes('Mixing')).length), shape: 'mix-box' },
+    { title: 'Mastering', value: String(packageItems.filter((item) => item.tags.includes('Mastering')).length), shape: 'master-box' },
+  ];
 
   return (
     <div className="dashboard-frame package-page">
       <Sidebar activeKey="packages" />
       <main className="content">
         <Header crumb="Penjualan / Manajemen Paket" title="Manajemen Paket" />
-        <section className="package-stats">{packageStats.map((item) => <PackageStatCard item={item} key={item.title} />)}</section>
+        <section className="package-stats">{dynamicPackageStats.map((item) => <PackageStatCard item={item} key={item.title} />)}</section>
         <section className="package-toolbar panel">
           <label className="package-search"><FigmaIcon name="search" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Cari nama paket..." /></label>
           <div className="view-mode"><span>Mode Lihat:</span>{['Kartu', 'Tabel'].map((mode) => <button className={viewMode === mode ? 'active' : ''} type="button" onClick={() => setViewMode(mode)} key={mode}><FigmaIcon name={mode === 'Kartu' ? 'grid' : 'table'} />{mode}</button>)}</div>
@@ -1245,10 +1487,43 @@ function OperatorPage() {
   );
 }
 
-function App() {
+function InternalGate({ children }) {
+  const [state, setState] = React.useState({ loading: true, allowed: false });
+
+  React.useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (!currentUser) {
+        window.location.href = '/login';
+        return;
+      }
+      try {
+        const profileSnapshot = await getDoc(doc(db, 'users', currentUser.uid));
+        const role = String(profileSnapshot.data()?.role || '').toLowerCase();
+        if (!['manager', 'operator'].includes(role)) {
+          await signOut(auth);
+          window.location.href = '/login';
+          return;
+        }
+        setState({ loading: false, allowed: true });
+      } catch (error) {
+        console.warn('Internal auth guard failed:', error.message);
+        setState({ loading: false, allowed: false });
+      }
+    });
+    return unsubscribe;
+  }, []);
+
+  if (state.loading) {
+    return <main className="auth-page"><section className="auth-card"><div className="auth-card-head"><span>Memuat</span><h2>Mengecek akses internal...</h2><p>Tunggu sebentar.</p></div></section></main>;
+  }
+  if (!state.allowed) {
+    return <AuthPage mode="login" />;
+  }
+  return children;
+}
+
+function ManagerRoutes() {
   const path = window.location.pathname;
-  if (path.includes('/register')) return <AuthPage mode="register" />;
-  if (path.includes('/login') || path === '/') return <AuthPage mode="login" />;
   if (window.location.pathname.includes('/manager/packages')) return <PackageManagement />;
   if (window.location.pathname.includes('/manager/booking')) return <BookingPage />;
   if (window.location.pathname.includes('/manager/quotation')) return <QuotationPage />;
@@ -1262,6 +1537,13 @@ function App() {
   if (path.includes('/manager/operator')) return <OperatorPage />;
   if (path.includes('/manager/settings')) return <PlaceholderPage pageKey="settings" />;
   return <Dashboard />;
+}
+
+function App() {
+  const path = window.location.pathname;
+  if (path.includes('/register')) return <AuthPage mode="register" />;
+  if (path.includes('/login') || path === '/') return <AuthPage mode="login" />;
+  return <InternalGate><ManagerRoutes /></InternalGate>;
 }
 
 createRoot(document.getElementById('root')).render(<App />);
