@@ -1,0 +1,170 @@
+{
+  "fileName": "Capstone",
+  "textStyles": [
+    {
+      "name": "Tungku Studio/Display/Display Large",
+      "fontFamily": "DM Sans",
+      "fontWeight": "Bold",
+      "fontSize": 57,
+      "letterSpacing": {
+        "unit": "PERCENT",
+        "value": -0.25
+      },
+      "textCase": "ORIGINAL"
+    },
+    {
+      "name": "Tungku Studio/Display/Display Medium",
+      "fontFamily": "DM Sans",
+      "fontWeight": "Bold",
+      "fontSize": 45,
+      "letterSpacing": {
+        "unit": "PERCENT",
+        "value": 0
+      },
+      "textCase": "ORIGINAL"
+    },
+    {
+      "name": "Tungku Studio/Display/Display Small",
+      "fontFamily": "DM Sans",
+      "fontWeight": "Bold",
+      "fontSize": 36,
+      "letterSpacing": {
+        "unit": "PERCENT",
+        "value": 0
+      },
+      "textCase": "ORIGINAL"
+    },
+    {
+      "name": "Tungku Studio/Headline/Headline Large",
+      "fontFamily": "DM Sans",
+      "fontWeight": "Bold",
+      "fontSize": 32,
+      "letterSpacing": {
+        "unit": "PERCENT",
+        "value": 0
+      },
+      "textCase": "ORIGINAL"
+    },
+    {
+      "name": "Tungku Studio/Headline/Headline Medium",
+      "fontFamily": "DM Sans",
+      "fontWeight": "Bold",
+      "fontSize": 28,
+      "letterSpacing": {
+        "unit": "PERCENT",
+        "value": 0
+      },
+      "textCase": "ORIGINAL"
+    },
+    {
+      "name": "Tungku Studio/Headline/Headline Small",
+      "fontFamily": "DM Sans",
+      "fontWeight": "Regular",
+      "fontSize": 24,
+      "letterSpacing": {
+        "unit": "PERCENT",
+        "value": 0
+      },
+      "textCase": "ORIGINAL"
+    },
+    {
+      "name": "Tungku Studio/Title/Title Large",
+      "fontFamily": "DM Sans",
+      "fontWeight": "Regular",
+      "fontSize": 22,
+      "letterSpacing": {
+        "unit": "PERCENT",
+        "value": 0
+      },
+      "textCase": "ORIGINAL"
+    },
+    {
+      "name": "Tungku Studio/Title/Title Medium",
+      "fontFamily": "DM Sans",
+      "fontWeight": "Medium",
+      "fontSize": 16,
+      "letterSpacing": {
+        "unit": "PERCENT",
+        "value": 0.15000000596046448
+      },
+      "textCase": "ORIGINAL"
+    },
+    {
+      "name": "Tungku Studio/Title/Title Small",
+      "fontFamily": "DM Sans",
+      "fontWeight": "Medium",
+      "fontSize": 14,
+      "letterSpacing": {
+        "unit": "PERCENT",
+        "value": 0.10000000149011612
+      },
+      "textCase": "ORIGINAL"
+    },
+    {
+      "name": "Tungku Studio/Body/Body Large",
+      "fontFamily": "DM Sans",
+      "fontWeight": "Regular",
+      "fontSize": 16,
+      "letterSpacing": {
+        "unit": "PERCENT",
+        "value": 0.5
+      },
+      "textCase": "ORIGINAL"
+    },
+    {
+      "name": "Tungku Studio/Body/Body Medium",
+      "fontFamily": "DM Sans",
+      "fontWeight": "Regular",
+      "fontSize": 14,
+      "letterSpacing": {
+        "unit": "PERCENT",
+        "value": 0.25
+      },
+      "textCase": "ORIGINAL"
+    },
+    {
+      "name": "Tungku Studio/Body/Body Small",
+      "fontFamily": "DM Sans",
+      "fontWeight": "Regular",
+      "fontSize": 13,
+      "letterSpacing": {
+        "unit": "PERCENT",
+        "value": 0.4000000059604645
+      },
+      "textCase": "ORIGINAL"
+    },
+    {
+      "name": "Tungku Studio/Label/Label Large",
+      "fontFamily": "DM Sans",
+      "fontWeight": "Medium",
+      "fontSize": 14,
+      "letterSpacing": {
+        "unit": "PERCENT",
+        "value": 0.10000000149011612
+      },
+      "textCase": "ORIGINAL"
+    },
+    {
+      "name": "Tungku Studio/Label/Label Medium",
+      "fontFamily": "DM Sans",
+      "fontWeight": "Medium",
+      "fontSize": 12,
+      "letterSpacing": {
+        "unit": "PERCENT",
+        "value": 0.5
+      },
+      "textCase": "ORIGINAL"
+    },
+    {
+      "name": "Tungku Studio/Label/Label Small",
+      "fontFamily": "DM Sans",
+      "fontWeight": "Medium",
+      "fontSize": 11,
+      "letterSpacing": {
+        "unit": "PERCENT",
+        "value": 0.5
+      },
+      "textCase": "ORIGINAL"
+    }
+  ]
+}

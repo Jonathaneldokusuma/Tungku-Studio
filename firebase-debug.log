@@ -1,0 +1,46 @@
+[debug] [2026-10-04T07:14:37.291Z] ----------------------------------------------------------------------
+[debug] [2026-10-04T07:14:37.298Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\shini\AppData\Local\npm-cache\_npx\7750544ccf494d8b\node_modules\firebase-tools\lib\bin\firebase.js deploy --only firestore:rules --project ruangtungku
+[debug] [2026-10-04T07:14:37.298Z] CLI Version:   15.32.1
+[debug] [2026-10-04T07:14:37.299Z] Platform:      win32
+[debug] [2026-10-04T07:14:37.299Z] Node Version:  v24.19.0
+[debug] [2026-10-04T07:14:37.299Z] Detected Agent: codex_cli
+[debug] [2026-10-04T07:14:37.299Z] Time:          Sun Oct 04 2026 14:14:37 GMT+0700 (Western Indonesia Time)
+[debug] [2026-10-04T07:14:37.299Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-10-04T07:14:37.326Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2026-10-04T07:14:40.956Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-10-04T07:14:40.985Z] Error: Could not load the default credentials. Browse to https://cloud.google.com/docs/authentication/getting-started for more information.
+    at GoogleAuth.getApplicationDefaultAsync (C:\Users\shini\AppData\Local\npm-cache\_npx\7750544ccf494d8b\node_modules\google-auth-library\build\src\auth\googleauth.js:287:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async GoogleAuth._GoogleAuth_determineClient (C:\Users\shini\AppData\Local\npm-cache\_npx\7750544ccf494d8b\node_modules\google-auth-library\build\src\auth\googleauth.js:834:32)
+    at async GoogleAuth.getClient (C:\Users\shini\AppData\Local\npm-cache\_npx\7750544ccf494d8b\node_modules\google-auth-library\build\src\auth\googleauth.js:698:20)
+    at async GoogleAuth.getAccessToken (C:\Users\shini\AppData\Local\npm-cache\_npx\7750544ccf494d8b\node_modules\google-auth-library\build\src\auth\googleauth.js:722:24)
+    at async autoAuth (C:\Users\shini\AppData\Local\npm-cache\_npx\7750544ccf494d8b\node_modules\firebase-tools\lib\requireAuth.js:38:19)
+    at async requireAuth (C:\Users\shini\AppData\Local\npm-cache\_npx\7750544ccf494d8b\node_modules\firebase-tools\lib\requireAuth.js:100:20)
+    at async requirePermissions (C:\Users\shini\AppData\Local\npm-cache\_npx\7750544ccf494d8b\node_modules\firebase-tools\lib\requirePermissions.js:12:5)
+    at async C:\Users\shini\AppData\Local\npm-cache\_npx\7750544ccf494d8b\node_modules\firebase-tools\lib\command.js:278:17
+[error] 
+[error] Error: Failed to authenticate, have you run firebase login?
+[debug] [2026-10-04T14:18:16.590Z] ----------------------------------------------------------------------
+[debug] [2026-10-04T14:18:16.593Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\shini\AppData\Local\npm-cache\_npx\7750544ccf494d8b\node_modules\firebase-tools\lib\bin\firebase.js deploy --only firestore:rules --project ruangtungku
+[debug] [2026-10-04T14:18:16.593Z] CLI Version:   15.32.1
+[debug] [2026-10-04T14:18:16.594Z] Platform:      win32
+[debug] [2026-10-04T14:18:16.594Z] Node Version:  v24.19.0
+[debug] [2026-10-04T14:18:16.594Z] Detected Agent: codex_cli
+[debug] [2026-10-04T14:18:16.594Z] Time:          Sun Oct 04 2026 21:18:16 GMT+0700 (Western Indonesia Time)
+[debug] [2026-10-04T14:18:16.594Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-10-04T14:18:16.607Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2026-10-04T14:18:19.402Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-10-04T14:18:19.432Z] Error: Could not load the default credentials. Browse to https://cloud.google.com/docs/authentication/getting-started for more information.
+    at GoogleAuth.getApplicationDefaultAsync (C:\Users\shini\AppData\Local\npm-cache\_npx\7750544ccf494d8b\node_modules\google-auth-library\build\src\auth\googleauth.js:287:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async GoogleAuth._GoogleAuth_determineClient (C:\Users\shini\AppData\Local\npm-cache\_npx\7750544ccf494d8b\node_modules\google-auth-library\build\src\auth\googleauth.js:834:32)
+    at async GoogleAuth.getClient (C:\Users\shini\AppData\Local\npm-cache\_npx\7750544ccf494d8b\node_modules\google-auth-library\build\src\auth\googleauth.js:698:20)
+    at async GoogleAuth.getAccessToken (C:\Users\shini\AppData\Local\npm-cache\_npx\7750544ccf494d8b\node_modules\google-auth-library\build\src\auth\googleauth.js:722:24)
+    at async autoAuth (C:\Users\shini\AppData\Local\npm-cache\_npx\7750544ccf494d8b\node_modules\firebase-tools\lib\requireAuth.js:38:19)
+    at async requireAuth (C:\Users\shini\AppData\Local\npm-cache\_npx\7750544ccf494d8b\node_modules\firebase-tools\lib\requireAuth.js:100:20)
+    at async requirePermissions (C:\Users\shini\AppData\Local\npm-cache\_npx\7750544ccf494d8b\node_modules\firebase-tools\lib\requirePermissions.js:12:5)
+    at async C:\Users\shini\AppData\Local\npm-cache\_npx\7750544ccf494d8b\node_modules\firebase-tools\lib\command.js:278:17
+[error] 
+[error] Error: Failed to authenticate, have you run firebase login?
