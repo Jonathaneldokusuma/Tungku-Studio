@@ -1,7 +1,26 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap");
 
 * {
   box-sizing: border-box;
+}
+
+:root {
+  --font-family-base: "DM Sans", "Segoe UI", Arial, sans-serif;
+  --text-display-large: 57px;
+  --text-display-medium: 45px;
+  --text-display-small: 36px;
+  --text-headline-large: 32px;
+  --text-headline-medium: 28px;
+  --text-headline-small: 24px;
+  --text-title-large: 22px;
+  --text-title-medium: 16px;
+  --text-title-small: 14px;
+  --text-body-large: 16px;
+  --text-body-medium: 14px;
+  --text-body-small: 13px;
+  --text-label-large: 14px;
+  --text-label-medium: 12px;
+  --text-label-small: 11px;
 }
 
 html,
@@ -15,9 +34,10 @@ body,
 body {
   background: #efe6e3;
   color: #231f20;
-  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+  font-family: var(--font-family-base);
   font-synthesis: none;
   text-rendering: geometricPrecision;
+  letter-spacing: 0;
 }
 
 button,
@@ -62,7 +82,7 @@ input {
 .auth-card-head h1 {
   margin: 0 0 15px;
   color: #000000;
-  font-size: 25px;
+  font-size: 24px;
   line-height: 1.1;
   font-weight: 400;
 }
@@ -76,8 +96,8 @@ input {
   display: grid;
   gap: 5px;
   color: #000000;
-  font-size: 9px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 500;
 }
 
 .auth-form input {
@@ -88,7 +108,7 @@ input {
   background: transparent;
   border: 1px solid #b9aaa6;
   border-radius: 0;
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .auth-form input:focus {
@@ -105,7 +125,7 @@ input {
 
 .auth-row a {
   color: #df4438;
-  font-size: 7px;
+  font-size: 11px;
   text-decoration: none;
 }
 
@@ -114,7 +134,7 @@ input {
   align-items: center;
   gap: 5px;
   color: #000000;
-  font-size: 7px;
+  font-size: 11px;
   font-weight: 400;
   background: transparent;
   border: 0;
@@ -155,7 +175,7 @@ input {
 .auth-submit {
   height: 31px;
   color: #ffffff;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 500;
   background: #df4438;
   border: 0;
@@ -170,7 +190,7 @@ input {
 
 .auth-message {
   margin: 0;
-  font-size: 8px;
+  font-size: 11px;
   line-height: 1.45;
 }
 
@@ -185,7 +205,7 @@ input {
 .auth-switch {
   margin: 6px 0 0;
   color: #000000;
-  font-size: 7px;
+  font-size: 11px;
 }
 
 .auth-switch a {
@@ -240,7 +260,7 @@ input {
 .client-nav nav a {
   position: relative;
   color: #231f20;
-  font-size: 9px;
+  font-size: 11px;
   text-decoration: none;
 }
 
@@ -258,8 +278,8 @@ input {
   color: #ffffff;
   background: #df4438;
   border-radius: 50%;
-  font-size: 8px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 500;
 }
 
 .client-nav-actions {
@@ -276,8 +296,8 @@ input {
   color: #ffffff;
   background: #df4438;
   border-radius: 3px;
-  font-size: 10px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 500;
   text-decoration: none;
 }
 
@@ -301,7 +321,7 @@ input {
   width: 100%;
   border: 0;
   outline: 0;
-  font-size: 10px;
+  font-size: 11px;
 }
 
 .nav-icon-link .figma-icon {
@@ -318,7 +338,7 @@ input {
 
 .logout-link {
   color: #df4438;
-  font-size: 10px;
+  font-size: 11px;
 }
 
 .client-shell {
@@ -339,7 +359,7 @@ input {
 .client-greeting p {
   margin: 0;
   color: #141111;
-  font-size: 26px;
+  font-size: 24px;
   line-height: 1.16;
   font-weight: 400;
 }
@@ -366,7 +386,7 @@ input {
   background: #ffffff;
   border: 1px solid #d6c7c3;
   border-radius: 4px;
-  font-size: 10px;
+  font-size: 11px;
   text-decoration: none;
   transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease, color 0.16s ease;
 }
@@ -420,13 +440,13 @@ input {
   display: block;
   margin-bottom: 8px;
   color: #453a37;
-  font-size: 8px;
+  font-size: 11px;
 }
 
 .client-stat strong {
   color: #141111;
-  font-size: 17px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .stat-icon {
@@ -466,7 +486,7 @@ input {
   gap: 7px;
   margin: -6px 0 16px;
   color: #665b58;
-  font-size: 10px;
+  font-size: 11px;
 }
 
 .dashboard-live-note span {
@@ -552,7 +572,7 @@ input {
 
 .project-hero h2 {
   margin: 0 0 6px;
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 500;
 }
 
@@ -562,7 +582,7 @@ input {
 
 .project-hero-top span {
   color: #ffffff;
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .project-hero mark {
@@ -573,7 +593,7 @@ input {
   color: #453a37;
   background: #fff7e7;
   border-radius: 3px;
-  font-size: 8px;
+  font-size: 11px;
 }
 
 .project-hero mark .figma-icon {
@@ -607,7 +627,7 @@ input {
   padding: 0 13px;
   color: #ffffff;
   border-left: 1px solid rgba(255, 255, 255, 0.65);
-  font-size: 8px;
+  font-size: 11px;
 }
 
 .project-tracks span:first-child {
@@ -629,8 +649,8 @@ input {
   color: #ffffff;
   background: #df4438;
   border-radius: 3px;
-  font-size: 8px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 500;
   text-decoration: none;
   transition: background 0.16s ease, transform 0.16s ease;
 }
@@ -689,8 +709,8 @@ input {
 
 .selected-project-panel > span {
   color: #df4438;
-  font-size: 9px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 500;
 }
 
 .selected-project-panel h3,
@@ -706,7 +726,7 @@ input {
 
 .selected-project-panel p {
   color: #554a47;
-  font-size: 10px;
+  font-size: 11px;
 }
 
 .selected-project-panel div {
@@ -723,14 +743,14 @@ input {
   border: 1px solid #ead5d0;
   border-radius: 4px;
   text-align: left;
-  font-size: 8px;
+  font-size: 11px;
 }
 
 .selected-project-panel button b {
   display: block;
   margin-top: 3px;
   color: #141111;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 500;
 }
 
@@ -741,8 +761,8 @@ input {
   color: #ffffff;
   background: #df4438;
   border-radius: 4px;
-  font-size: 9px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 500;
   text-decoration: none;
 }
 
@@ -755,13 +775,13 @@ input {
 
 .package-head h2 {
   margin: 0;
-  font-size: 19px;
+  font-size: 16px;
   font-weight: 400;
 }
 
 .package-head a {
   color: #df4438;
-  font-size: 9px;
+  font-size: 11px;
   text-decoration: none;
 }
 
@@ -816,8 +836,8 @@ input {
   background: #df4438;
   border: 0;
   border-radius: 4px;
-  font-size: 9px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 500;
   cursor: pointer;
 }
 
@@ -831,7 +851,7 @@ input {
   min-height: 25px;
   margin: 0 0 12px;
   color: #554a47;
-  font-size: 8px;
+  font-size: 11px;
   line-height: 1.45;
 }
 
@@ -851,7 +871,7 @@ input {
   border-radius: 3px;
   background: #dfe7ff;
   color: #305a9c;
-  font-size: 6px;
+  font-size: 11px;
 }
 
 .package-tags span:nth-child(2) {
@@ -893,7 +913,7 @@ input {
 
 .package-price small {
   color: #554a47;
-  font-size: 7px;
+  font-size: 11px;
   white-space: nowrap;
 }
 
@@ -901,7 +921,7 @@ input {
   margin-top: 103px;
   color: #554a47;
   text-align: center;
-  font-size: 8px;
+  font-size: 11px;
 }
 
 .client-panel-page {
@@ -965,7 +985,7 @@ input {
 
 .selected-head > span {
   color: #231f20;
-  font-size: 10px;
+  font-size: 11px;
 }
 
 .selected-head mark {
@@ -976,7 +996,7 @@ input {
   color: #8d3e37;
   background: #f7d9d6;
   border-radius: 3px;
-  font-size: 8px;
+  font-size: 11px;
 }
 
 .selected-head .figma-icon {
@@ -986,14 +1006,14 @@ input {
 
 .selected-project-card h2 {
   margin: 0 0 5px;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 500;
 }
 
 .selected-project-card p {
   margin: 0 0 14px;
   color: #554a47;
-  font-size: 10px;
+  font-size: 11px;
 }
 
 .booking-info,
@@ -1016,8 +1036,8 @@ input {
 .extension-row strong {
   display: block;
   color: #231f20;
-  font-size: 9px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 500;
 }
 
 .booking-info span,
@@ -1025,7 +1045,7 @@ input {
   display: block;
   margin-top: 3px;
   color: #554a47;
-  font-size: 8px;
+  font-size: 11px;
   line-height: 1.45;
 }
 
@@ -1044,14 +1064,14 @@ input {
 .extension-title h1 {
   margin: 0 0 4px;
   color: #141111;
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 500;
 }
 
 .extension-title p {
   margin: 0;
   color: #665b58;
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .slot-legend {
@@ -1065,7 +1085,7 @@ input {
   color: #8d3e37;
   background: #f7d9d6;
   border-radius: 999px;
-  font-size: 8px;
+  font-size: 11px;
 }
 
 .extension-calendar {
@@ -1089,7 +1109,7 @@ input {
   background: #ffffff;
   border: 1px solid #e1d5d1;
   border-radius: 4px;
-  font-size: 10px;
+  font-size: 11px;
 }
 
 .calendar-toolbar button:last-child {
@@ -1112,7 +1132,7 @@ input {
 .calendar-week {
   margin-bottom: 10px;
   color: #8a7e7a;
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .extension-date-grid {
@@ -1128,7 +1148,7 @@ input {
   background: transparent;
   border: 0;
   border-radius: 50%;
-  font-size: 9px;
+  font-size: 11px;
   cursor: pointer;
 }
 
@@ -1164,7 +1184,7 @@ input {
 .extension-detail > p {
   margin: 0 0 14px;
   color: #554a47;
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .extension-summary,
@@ -1180,13 +1200,13 @@ input {
 .extension-summary strong,
 .extension-warning strong {
   color: #8d3e37;
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .extension-summary span,
 .extension-warning span {
   color: #5a302c;
-  font-size: 8px;
+  font-size: 11px;
   line-height: 1.45;
 }
 
@@ -1204,14 +1224,14 @@ input {
   border-radius: 3px;
   background: transparent;
   color: #df4438;
-  font-size: 9px;
+  font-size: 11px;
   cursor: pointer;
 }
 
 .extension-actions button:last-child {
   color: #ffffff;
   background: #df4438;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .extension-actions button:disabled {
@@ -1304,7 +1324,7 @@ input {
   border: 0;
   border-radius: 3px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   text-decoration: none;
   cursor: pointer;
 }
@@ -1335,7 +1355,7 @@ input {
 
 .info-tile strong {
   color: #231f20;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
   word-break: break-word;
 }
@@ -1382,7 +1402,7 @@ input {
 
 .transaction-list strong,
 .transaction-list b {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
 }
 
@@ -1397,7 +1417,7 @@ input {
   display: block;
   margin-top: 4px;
   color: #8a807c;
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .transaction-list mark {
@@ -1428,8 +1448,8 @@ input {
   background: #df4438;
   border: 0;
   border-radius: 3px;
-  font-size: 10px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 500;
   text-decoration: none;
   cursor: pointer;
 }
@@ -1449,14 +1469,14 @@ input {
 
 .payment-detail > span {
   color: #df4438;
-  font-size: 9px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 500;
 }
 
 .payment-detail h3 {
   margin: 0;
   color: #231f20;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 500;
 }
 
@@ -1466,7 +1486,7 @@ input {
   gap: 8px 14px;
   margin: 0;
   color: #231f20;
-  font-size: 10px;
+  font-size: 11px;
 }
 
 .payment-detail dt {
@@ -1475,13 +1495,13 @@ input {
 
 .payment-detail dd {
   margin: 0;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .payment-detail p {
   margin: 0;
   color: #554a47;
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.5;
 }
 
@@ -1502,8 +1522,8 @@ input {
   color: #ffffff;
   background: #df4438;
   border-radius: 3px;
-  font-size: 10px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 500;
   text-decoration: none;
 }
 
@@ -1544,7 +1564,7 @@ input {
 
 .empty-state h3 {
   color: #231f20;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 500;
 }
 
@@ -1584,7 +1604,7 @@ input {
   gap: 7px;
   color: #231f20;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .project-form input,
@@ -1610,7 +1630,7 @@ input {
 .packages-hero h1 {
   margin: 0 0 6px;
   color: #141111;
-  font-size: 30px;
+  font-size: 28px;
   font-weight: 500;
 }
 
@@ -1632,7 +1652,7 @@ input {
 .package-section-title h2 {
   margin: 0 0 4px;
   color: #231f20;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 500;
 }
 
@@ -1641,8 +1661,8 @@ input {
   color: #8d3e37;
   background: #f7d9d6;
   border-radius: 999px;
-  font-size: 9px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 500;
 }
 
 .custom-offer-title-actions {
@@ -1656,8 +1676,8 @@ input {
   color: #8d3e37;
   background: #f7d9d6;
   border-radius: 999px;
-  font-size: 9px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 500;
 }
 
 .custom-offer-title-actions button {
@@ -1667,7 +1687,7 @@ input {
   background: #ffffff;
   border: 1px solid #df4438;
   border-radius: 4px;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   cursor: pointer;
 }
@@ -1718,7 +1738,7 @@ input {
 
 .custom-offer-banner span {
   color: #df4438;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
 }
 
@@ -1744,7 +1764,7 @@ input {
   background: #df4438;
   border: 0;
   border-radius: 4px;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
@@ -1787,7 +1807,7 @@ input {
   background: #f8f2f0;
   border: 1px solid #e3d6d2;
   border-radius: 50%;
-  font-size: 18px;
+  font-size: 16px;
   line-height: 1;
   cursor: pointer;
 }
@@ -1806,7 +1826,7 @@ input {
   color: #8d7a74;
   background: #f4ebe8;
   border-radius: 50%;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
 }
 
@@ -1817,7 +1837,7 @@ input {
 
 .package-modal-head span {
   color: #df4438;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
 }
 
@@ -1868,7 +1888,7 @@ input {
   display: grid;
   gap: 7px;
   color: #231f20;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
 }
 
@@ -1892,7 +1912,7 @@ input {
 
 .package-payment-review strong {
   color: #df4438;
-  font-size: 25px;
+  font-size: 24px;
   font-weight: 500;
 }
 
@@ -1910,7 +1930,7 @@ input {
   border: 1px solid #df4438;
   color: #df4438;
   background: #ffffff;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   cursor: pointer;
 }
@@ -1939,21 +1959,21 @@ input {
 
 .package-detail-panel span {
   color: #df4438;
-  font-size: 9px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 500;
 }
 
 .package-detail-panel h3 {
   margin: 5px 0 8px;
   color: #231f20;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 500;
 }
 
 .package-detail-panel p {
   margin: 0;
   color: #554a47;
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.5;
 }
 
@@ -1963,7 +1983,7 @@ input {
   gap: 7px 13px;
   margin: 0;
   color: #231f20;
-  font-size: 10px;
+  font-size: 11px;
 }
 
 .package-detail-panel dt {
@@ -1972,7 +1992,7 @@ input {
 
 .package-detail-panel dd {
   margin: 0;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .package-detail-actions {
@@ -1987,8 +2007,8 @@ input {
   border: 1px solid #df4438;
   color: #df4438;
   background: #ffffff;
-  font-size: 10px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
 }
@@ -2027,7 +2047,7 @@ input {
 .offer-history h3 {
   margin: 0 0 8px;
   color: #231f20;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
 }
 
@@ -2035,7 +2055,7 @@ input {
 .offer-summary p {
   margin: 0 0 13px;
   color: #554a47;
-  font-size: 9px;
+  font-size: 11px;
   line-height: 1.45;
 }
 
@@ -2071,12 +2091,12 @@ input {
 .offer-stage strong {
   color: #231f20;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .offer-stage span {
   color: #554a47;
-  font-size: 8px;
+  font-size: 11px;
 }
 
 .offer-controls {
@@ -2089,8 +2109,8 @@ input {
   display: grid;
   gap: 6px;
   color: #231f20;
-  font-size: 9px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 500;
 }
 
 .offer-stepper div {
@@ -2126,15 +2146,15 @@ input {
   gap: 6px;
   margin-top: 13px;
   color: #231f20;
-  font-size: 9px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 500;
 }
 
 .manual-price input {
   height: 31px;
   padding: 0 10px;
   border: 1px solid #cfc1bd;
-  font-size: 10px;
+  font-size: 11px;
 }
 
 .manual-price input:disabled {
@@ -2148,7 +2168,7 @@ input {
   justify-content: space-between;
   margin-top: 14px;
   color: #231f20;
-  font-size: 10px;
+  font-size: 11px;
 }
 
 .manual-toggle button {
@@ -2186,7 +2206,7 @@ input {
   grid-template-columns: 1fr auto;
   gap: 7px 10px;
   margin: 0 0 12px;
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .offer-summary dt {
@@ -2204,14 +2224,14 @@ input {
 
 .offer-summary > span {
   color: #554a47;
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .offer-summary > strong {
   display: block;
   margin: 4px 0 8px;
   color: #df4438;
-  font-size: 21px;
+  font-size: 22px;
   font-weight: 500;
 }
 
@@ -2224,8 +2244,8 @@ input {
   background: #df4438;
   border: 0;
   border-radius: 3px;
-  font-size: 10px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 500;
   cursor: pointer;
 }
 
@@ -2238,7 +2258,7 @@ input {
   margin: 0 0 10px !important;
   padding: 8px 10px;
   border-radius: 3px;
-  font-size: 9px !important;
+  font-size: 11px !important;
   line-height: 1.4 !important;
 }
 
@@ -2256,7 +2276,7 @@ input {
   display: inline-block;
   margin-top: 12px;
   color: #df4438;
-  font-size: 9px;
+  font-size: 11px;
   text-decoration: none;
 }
 
@@ -2302,15 +2322,15 @@ input {
 .history-item b {
   display: block;
   color: #231f20;
-  font-size: 9px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 500;
 }
 
 .history-item span {
   display: block;
   margin-top: 3px;
   color: #665b58;
-  font-size: 8px;
+  font-size: 11px;
 }
 
 .offer-history > a {
@@ -2322,7 +2342,7 @@ input {
   border-radius: 4px;
   text-align: center;
   text-decoration: none;
-  font-size: 9px;
+  font-size: 11px;
   line-height: 24px;
 }
 

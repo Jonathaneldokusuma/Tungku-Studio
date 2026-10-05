@@ -1005,28 +1005,28 @@ function downloadInvoice(payment) {
   const logoDataUri = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(invoiceLogoSvg)}`;
   const html = `<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(invoiceNumber)}</title><style>
     :root{--red:#ce4336;--ink:#191515;--muted:#6f625f;--line:#d8cbc7;--paper:#fffdfc;--soft:#fbf4f2}
-    *{box-sizing:border-box}body{margin:0;background:#eee7e5;color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+    *{box-sizing:border-box}body{margin:0;background:#eee7e5;color:var(--ink);font-family:"DM Sans","Segoe UI",Arial,sans-serif}
     .page{width:210mm;min-height:297mm;margin:0 auto;background:var(--paper);padding:16mm;position:relative}
     .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12mm;padding:4mm 8mm 0 0}
-    h1{margin:0;color:var(--red);font-size:42px;line-height:1;font-weight:800;letter-spacing:0}
-    .logo{width:30mm;height:auto;object-fit:contain;display:block}
-    .meta{display:grid;grid-template-columns:28mm 4mm 1fr;gap:2mm 0;margin-top:8mm;font-size:11px}
-    .meta b{font-weight:800}.meta span:nth-child(3n+1){color:var(--muted);font-weight:700}
-    .info{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14mm;margin:14mm 0 10mm;font-size:11px;line-height:1.55}
-    .info h2{font-size:12px;margin:0 0 5mm;font-weight:800;text-transform:uppercase}
+    h1{margin:0;color:var(--red);font-size:45px;line-height:1;font-weight:700;letter-spacing:0}
+    .invoice-logo img{width:30mm;height:auto;object-fit:contain;display:block}
+    .meta{display:grid;grid-template-columns:28mm 4mm 1fr;gap:2mm 0;margin-top:8mm;font-size: 11px}
+    .meta b{font-weight:700}.meta span:nth-child(3n+1){color:var(--muted);font-weight:700}
+    .info{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14mm;margin:14mm 0 10mm;font-size: 11px;line-height:1.55}
+    .info h2{font-size:12px;margin:0 0 5mm;font-weight:700;text-transform:uppercase}
     .info p{margin:0;color:var(--muted)}.info strong{color:var(--ink)}
-    table{width:100%;border-collapse:collapse;margin-top:7mm;font-size:11px}
-    thead th{border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:4mm 2mm;text-align:left;font-size:10px}
+    table{width:100%;border-collapse:collapse;margin-top:7mm;font-size: 11px}
+    thead th{border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:4mm 2mm;text-align:left;font-size: 11px}
     tbody td{padding:5mm 2mm;border-bottom:1px solid var(--line);vertical-align:top}
     th.qty,td.qty{text-align:center;width:20mm}th.money,td.money{text-align:right;width:34mm}
     .closing{display:grid;grid-template-columns:1fr 72mm;gap:16mm;align-items:start;margin-top:12mm}
-    .summary{font-size:11px}.summary-row{display:flex;justify-content:space-between;padding:2.2mm 0}
-    .summary-row.total{border-top:1px solid var(--ink);margin-top:2mm;padding-top:4mm;font-size:18px;font-weight:800}
-    .status{text-align:right;margin-top:3mm;color:var(--red);font-weight:800}
-    .thanks{color:var(--red);font-size:30px;font-weight:800;line-height:.95;margin-top:8mm;text-align:right}
-    .terms{margin-top:16mm;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:5mm 0;font-size:10px;color:var(--muted);line-height:1.55}
-    .terms h2{margin:0 0 3mm;color:var(--ink);font-size:11px;text-transform:uppercase}.terms p{margin:0 0 2mm}
-    .actions{position:fixed;right:24px;bottom:24px;display:flex;gap:10px}.actions button{border:0;background:var(--red);color:#fff;padding:12px 18px;font-weight:800;cursor:pointer}
+    .summary{font-size: 11px}.summary-row{display:flex;justify-content:space-between;padding:2.2mm 0}
+    .summary-row.total{border-top:1px solid var(--ink);margin-top:2mm;padding-top:4mm;font-size:16px;font-weight:700}
+    .status{text-align:right;margin-top:3mm;color:var(--red);font-weight:700}
+    .thanks{color:var(--red);font-size:28px;font-weight:700;line-height:.95;margin-top:8mm;text-align:right}
+    .terms{margin-top:16mm;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:5mm 0;font-size: 11px;color:var(--muted);line-height:1.55}
+    .terms h2{margin:0 0 3mm;color:var(--ink);font-size: 11px;text-transform:uppercase}.terms p{margin:0 0 2mm}
+    .actions{position:fixed;right:24px;bottom:24px;display:flex;gap:10px}.actions button{border:0;background:var(--red);color:#fff;padding:12px 18px;font-weight:700;cursor:pointer}
     @page{size:A4;margin:0}@media print{body{background:white}.page{margin:0;box-shadow:none}.actions{display:none}}
     @media screen{.page{box-shadow:0 20px 60px rgba(25,21,21,.12)}}
   </style></head><body><main class="page">
