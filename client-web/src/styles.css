@@ -325,10 +325,39 @@ input {
   font-size: 11px;
 }
 
+.nav-icon-link {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+}
+
 .nav-icon-link .figma-icon {
   width: 17px;
   height: 17px;
   filter: grayscale(1) brightness(0.25);
+}
+
+.nav-icon-link.quotation-notification .figma-icon {
+  filter: brightness(0) saturate(100%) invert(40%) sepia(70%) saturate(1510%) hue-rotate(334deg) brightness(88%) contrast(96%);
+}
+
+.nav-icon-link b {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  display: grid;
+  place-items: center;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 4px;
+  color: #ffffff;
+  background: #df4438;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
 }
 
 .client-nav-actions > img {

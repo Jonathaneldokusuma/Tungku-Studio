@@ -28,7 +28,7 @@ const offerBundles = [
 ];
 
 function FigmaIcon({ name }) {
-  const positions = { mic: [689, 263], cut: [801, 263], mix: [913, 263], master: [1025, 263], booking: [353, 17], quotation: [801, 386], project: [577, 17], 'thumb-up': [353, 509], invoice: [465, 509] };
+  const positions = { mic: [689, 263], cut: [801, 263], mix: [913, 263], master: [1025, 263], booking: [353, 17], quotation: [801, 386], project: [577, 17], bell: [577, 140], 'thumb-up': [353, 509], invoice: [465, 509] };
   const [x, y] = positions[name] || positions.project;
   return <svg className="figma-icon" viewBox="0 0 96 96" aria-hidden="true"><image href={figmaIcons} x={-x} y={-y} width="1139" height="868" /></svg>;
 }
@@ -230,7 +230,7 @@ function ClientPortal() {
 
   return (
     <main className="client-dashboard">
-      <ClientNav user={user} onLogout={handleLogout} currentPath={currentPath} projectCount={totalProjectCount} />
+      <ClientNav user={user} onLogout={handleLogout} currentPath={currentPath} projectCount={totalProjectCount} quotationCount={stats.offers} />
       <section className="client-shell">
         {isLoading ? <PageTitle title="Loading..." subtitle="Mengambil data akun client." /> : <ClientRouteContent path={currentPath} displayName={displayName} profile={profile} user={user} stats={stats} projects={activeProjects} packages={packageItems} payments={payments} paymentsError={paymentsError} />}
         <footer>(c) 2026 Studio Recording Tungku. All Rights Reserved</footer>
@@ -239,7 +239,7 @@ function ClientPortal() {
   );
 }
 
-function ClientNav({ user, onLogout, currentPath = '/dashboard', projectCount = 0 }) {
+function ClientNav({ user, onLogout, currentPath = '/dashboard', projectCount = 0, quotationCount = 0 }) {
   const [search, setSearch] = React.useState('');
   const handleSearch = (event) => {
     event.preventDefault();
@@ -259,7 +259,10 @@ function ClientNav({ user, onLogout, currentPath = '/dashboard', projectCount = 
       <div className="client-nav-actions">
         <a className="create-project" href="/projects/new">Buat Proyek</a>
         <form className="client-search" onSubmit={handleSearch}><FigmaIcon name="project" /><input placeholder="Cari project..." value={search} onChange={(event) => setSearch(event.target.value)} /></form>
-        <a className="nav-icon-link" href="/transactions" aria-label="Transaksi"><FigmaIcon name="quotation" /></a>
+        <a className="nav-icon-link quotation-notification" href="/transactions" aria-label="Notifikasi quotation" title="Notifikasi quotation">
+          <FigmaIcon name="bell" />
+          {quotationCount > 0 && <b>{quotationCount}</b>}
+        </a>
         <img src={userProfile} alt={user?.email || 'User'} />
         <a className="logout-link" href="/login" onClick={onLogout}>Keluar</a>
       </div>
