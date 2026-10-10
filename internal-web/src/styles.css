@@ -492,15 +492,19 @@ label:focus-visible {
 .content {
   min-width: 0;
   height: 100vh;
-  padding: 0 16px 14px;
+  padding: 0 14px 12px;
   overflow: auto;
+}
+
+.dashboard-frame:not(.booking-page):not(.package-page):not(.project-create-page):not(.data-page):not(.client-page):not(.operator-page) .content {
+  overflow: hidden;
 }
 
 .topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 62px;
+  height: 60px;
 }
 
 .crumb span {
@@ -705,9 +709,9 @@ label:focus-visible {
 .stats {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 18px;
-  margin-top: 16px;
-  margin-bottom: 16px;
+  gap: 14px;
+  margin-top: 10px;
+  margin-bottom: 12px;
 }
 
 .stat-card,
@@ -719,8 +723,8 @@ label:focus-visible {
 
 .stat-card {
   position: relative;
-  height: 86px;
-  padding: 12px 12px 10px;
+  height: 76px;
+  padding: 10px 12px 8px;
   transition: transform 180ms var(--ease-soft), box-shadow 180ms var(--ease-soft), border-color 180ms var(--ease-soft);
 }
 
@@ -793,7 +797,7 @@ label:focus-visible {
 }
 
 .stat-card p {
-  margin: 8px 0 5px;
+  margin: 6px 0 4px;
   color: #504947;
   font-size: 11px;
 }
@@ -809,8 +813,8 @@ label:focus-visible {
   position: absolute;
   right: 12px;
   bottom: 10px;
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   display: grid;
   place-items: center;
   border-radius: 2px;
@@ -904,29 +908,19 @@ label:focus-visible {
 
 .middle-grid {
   display: grid;
-  grid-template-columns: 1fr 216px 216px;
-  gap: 18px;
-  margin-bottom: 16px;
+  grid-template-columns: 1fr 220px 220px;
+  gap: 14px;
+  margin-bottom: 12px;
 }
 
 .live-strip {
   display: flex;
   align-items: center;
   gap: 10px;
-  height: 28px;
-  margin-bottom: 14px;
+  height: 22px;
+  margin-bottom: 6px;
   color: #6a605d;
   font-size: 11px;
-}
-
-.live-strip span {
-  display: inline-flex;
-  align-items: center;
-  height: 18px;
-  padding: 0 8px;
-  color: #df4438;
-  background: #ffdeda;
-  border-radius: 999px;
 }
 
 .live-strip strong {
@@ -945,15 +939,15 @@ label:focus-visible {
 }
 
 .finance {
-  height: 300px;
+  height: 250px;
 }
 
 .panel-title {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 42px;
-  padding: 0 18px;
+  height: 38px;
+  padding: 0 16px;
   border-bottom: 1px solid #e9e1df;
 }
 
@@ -1043,7 +1037,7 @@ label:focus-visible {
 .legend {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 14px;
   color: #504947;
   font-size: 11px;
 }
@@ -1080,13 +1074,13 @@ label:focus-visible {
 
 .chart {
   position: relative;
-  height: 254px;
-  padding: 18px 18px 26px 42px;
+  height: 212px;
+  padding: 14px 16px 22px 38px;
 }
 
 .chart svg {
   width: 100%;
-  height: 200px;
+  height: 166px;
 }
 
 .grid {
@@ -1110,10 +1104,10 @@ label:focus-visible {
 
 .y-axis {
   position: absolute;
-  top: 18px;
-  left: 18px;
+  top: 14px;
+  left: 16px;
   display: grid;
-  grid-template-rows: repeat(8, 25px);
+  grid-template-rows: repeat(8, 20px);
   color: #312b29;
   font-size: 11px;
 }
@@ -1131,25 +1125,25 @@ label:focus-visible {
 }
 
 .pie-panel {
-  height: 300px;
+  height: 250px;
 }
 
 .pie {
-  width: 112px;
-  height: 112px;
-  margin: 30px auto 26px;
-  background: conic-gradient(#1f1d1f 0 18%, #907000 18% 43%, #df4438 43% 100%);
+  width: 98px;
+  height: 98px;
+  margin: 22px auto 18px;
+  background: var(--pie-fill, conic-gradient(#1f1d1f 0 18%, #907000 18% 43%, #df4438 43% 100%));
   border-radius: 50%;
 }
 
 .pie.donut {
-  background: radial-gradient(circle, #ffffff 0 43%, transparent 44%), conic-gradient(#1f1d1f 0 32%, #907000 32% 43%, #df4438 43% 100%);
+  background: radial-gradient(circle, #ffffff 0 43%, transparent 44%), var(--pie-fill, conic-gradient(#1f1d1f 0 32%, #907000 32% 43%, #df4438 43% 100%));
 }
 
 .pie-labels {
   display: grid;
-  gap: 13px;
-  padding: 0 22px;
+  gap: 10px;
+  padding: 0 18px;
 }
 
 .pie-labels div {
@@ -1189,11 +1183,11 @@ label:focus-visible {
 .bottom-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 18px;
+  gap: 14px;
 }
 
 .small-panel {
-  height: 205px;
+  height: 170px;
 }
 
 .small-panel.is-expanded {
@@ -1512,8 +1506,8 @@ label:focus-visible {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 53px;
-  padding: 0 18px;
+  min-height: 42px;
+  padding: 0 16px;
   border-bottom: 1px solid #f0e9e7;
   transition: background 160ms var(--ease-soft);
 }
@@ -1592,7 +1586,7 @@ mark.red {
 
 .activity {
   display: block;
-  padding-top: 14px;
+  padding-top: 9px;
 }
 
 .package-page .topbar {

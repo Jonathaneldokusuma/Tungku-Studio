@@ -68,7 +68,7 @@ const dashboardStats = [
   { trend: '1 Menunggu Persetujuan Klien', trendClass: 'warning', title: 'Dalam Penawaran', value: '2', shape: 'offer' },
 ];
 
-const emptyDashboardData = { projects: [], quotations: [], payments: [] };
+const emptyDashboardData = { projects: [], quotations: [], payments: [], expenses: [], packages: [] };
 
 const packageStats = [
   { title: 'Semua Paket', value: '6', shape: 'package-box' },
@@ -409,7 +409,7 @@ function StatCard({ item, onDetail }) {
       window.location.href = '/manager/expenses';
       return;
     }
-    onDetail(item.title, item.value, `Data ${item.title} diperbarui realtime di dashboard.`);
+    onDetail(item.title, item.value, `Data ${item.title} diperbarui otomatis dari database dashboard.`);
   };
   return <article className="stat-card"><div className={`pill ${item.trendClass}`}>{item.trend}</div><button className="stat-arrow" type="button" aria-label={`Detail ${item.title}`} onClick={handleOpen}><FigmaIcon name="arrow-right" /></button><p>{item.title}</p><strong>{item.value}</strong><MiniIcon type={item.shape} /></article>;
 }
@@ -418,20 +418,86 @@ function PackageStatCard({ item }) {
   return <article className="package-stat-card"><p>{item.title}</p><strong>{item.value}</strong><MiniIcon type={item.shape} /></article>;
 }
 
-function FinanceChart({ monthLabel = 'September 2026' }) {
+const monthShortLabels = ['JAN', 'FEB', 'MAR', 'APR', 'MEI', 'JUN', 'JUL', 'AGS', 'SEP', 'OCT', 'NOV', 'DEC'];
+
+function itemDate(item) {
+  const raw = item.date || item.createdAt || item.created_at || item.paidAt || item.paid_at || item.updatedAt || item.updated_at;
+  if (raw?.toDate) return raw.toDate();
+  const parsed = raw ? new Date(raw) : new Date();
+  return Number.isNaN(parsed.getTime()) ? new Date() : parsed;
+}
+
+function expenseAmount(item) {
+  return Number(item.amount || item.total || item.nominal || item.price || 0);
+}
+
+function buildMonthlySeries(items, amountGetter, filter = () => true) {
+  const values = Array.from({ length: 12 }, () => 0);
+  items.filter(filter).forEach((item) => {
+    values[itemDate(item).getMonth()] += amountGetter(item);
+  });
+  const max = Math.max(...values, 1);
+  return values.map((value, index) => ({
+    label: monthShortLabels[index],
+    raw: value,
+    value: Math.round((value / max) * 160),
+  }));
+}
+
+function linePoints(series) {
+  const width = 760;
+  const height = 190;
+  return series.map((item, index) => {
+    const x = Math.round((index / Math.max(series.length - 1, 1)) * width);
+    const y = Math.round(height - ((item.value / 160) * (height - 10)));
+    return `${x},${y}`;
+  }).join(' ');
+}
+
+function FinanceChart({ monthLabel = 'Oktober 2026', payments = [], expenses = [] }) {
+  const incomeSeries = buildMonthlySeries(payments, paymentAmount, isPaidPayment);
+  const expenseSeries = buildMonthlySeries(expenses, expenseAmount);
   return (
     <section className="panel finance">
       <div className="panel-title"><h2>Laporan Keuangan</h2><div className="legend"><span>Pendapatan</span><span className="expense">Pengeluaran</span><span className="month">{monthLabel}</span></div></div>
-      <div className="chart"><div className="y-axis">{[160, 140, 120, 100, 80, 60, 40, 20].map((n) => <span key={n}>{n}</span>)}</div><svg viewBox="0 0 760 230" preserveAspectRatio="none"><path className="grid" d="M0 20H760 M0 49H760 M0 78H760 M0 107H760 M0 136H760 M0 165H760 M0 194H760 M0 223H760" /><polyline className="line income-line" points="0,190 85,184 160,222 235,70 315,155 395,35 475,110 560,48 650,42 760,38" /><polyline className="line expense-line" points="0,178 85,174 160,188 235,145 315,198 395,118 475,132 560,28 650,4 760,14" /></svg><div className="months">{['JAN', 'FEB', 'MAR', 'APR', 'MEI', 'JUN', 'JUL', 'AGS', 'SEP', 'OCT', 'NOV', 'DEC'].map((m) => <span key={m}>{m}</span>)}</div></div>
+      <div className="chart"><div className="y-axis">{[160, 140, 120, 100, 80, 60, 40, 20].map((n) => <span key={n}>{n}</span>)}</div><svg viewBox="0 0 760 205" preserveAspectRatio="none"><path className="grid" d="M0 20H760 M0 45H760 M0 70H760 M0 95H760 M0 120H760 M0 145H760 M0 170H760 M0 195H760" /><polyline className="line income-line" points={linePoints(incomeSeries)} /><polyline className="line expense-line" points={linePoints(expenseSeries)} /></svg><div className="months">{monthShortLabels.map((m) => <span key={m}>{m}</span>)}</div></div>
     </section>
   );
 }
 
-function PiePanel({ kind, onDetail }) {
+function summarizeBy(items, getName, getAmount, fallback) {
+  const totals = items.reduce((map, item) => {
+    const name = getName(item) || fallback;
+    map[name] = (map[name] || 0) + Math.max(0, getAmount(item));
+    return map;
+  }, {});
+  const sorted = Object.entries(totals).sort((a, b) => b[1] - a[1]).slice(0, 3);
+  const source = sorted.length ? sorted : [[fallback, 1]];
+  const total = source.reduce((sum, [, value]) => sum + value, 0) || 1;
+  const colors = ['red', 'dark', 'gold'];
+  return source.map(([name, value], index) => [name, `${Math.round((value / total) * 100)}%`, colors[index]]);
+}
+
+function conicFromLabels(labels) {
+  const colorMap = { red: '#df4438', dark: '#1f1d1f', gold: '#907000' };
+  let start = 0;
+  const stops = labels.map(([, pct, color]) => {
+    const end = start + Number(String(pct).replace('%', ''));
+    const stop = `${colorMap[color] || '#df4438'} ${start}% ${end}%`;
+    start = end;
+    return stop;
+  });
+  return `conic-gradient(${stops.join(', ')})`;
+}
+
+function PiePanel({ kind, onDetail, packages = [], quotations = [], expenses = [] }) {
   const isDonut = kind === 'donut';
-  const labels = isDonut ? [['Maintenance', '57%', 'red'], ['Pembelian Alat', '32%', 'dark'], ['Operasional', '11%', 'gold']] : [['Paket A', '57%', 'red'], ['Paket B', '32%', 'dark'], ['Paket C', '11%', 'gold']];
+  const packageSource = packages.length ? packages : quotations;
+  const labels = isDonut
+    ? summarizeBy(expenses, (item) => item.category || item.categoryName || item.type || 'Operasional', expenseAmount, 'Belum ada pengeluaran')
+    : summarizeBy(packageSource, (item) => item.title || item.name || item.packageName || item.package_name || 'Paket Tungku', (item) => Number(item.sold || item.count || 1), 'Belum ada paket');
   const title = isDonut ? 'Pengeluaran Bulan Ini' : 'Paket Terlaris Bulanan';
-  return <section className="panel pie-panel"><div className="panel-title"><h2>{title}</h2><button className="panel-action" type="button" aria-label={`Detail ${title}`} onClick={() => onDetail(title, labels[0][1], labels.map(([name, pct]) => `${name}: ${pct}`).join('\n'))}><FigmaIcon name="arrow-right" /></button></div><div className={`pie ${isDonut ? 'donut' : ''}`} /><div className="pie-labels">{labels.map(([name, pct, color]) => <div key={name}><span className={color} /><p>{name}</p><strong>{pct}</strong></div>)}</div></section>;
+  return <section className="panel pie-panel"><div className="panel-title"><h2>{title}</h2><button className="panel-action" type="button" aria-label={`Detail ${title}`} onClick={() => onDetail(title, labels[0][1], labels.map(([name, pct]) => `${name}: ${pct}`).join('\n'))}><FigmaIcon name="arrow-right" /></button></div><div className={`pie ${isDonut ? 'donut' : ''}`} style={{ '--pie-fill': conicFromLabels(labels) }} /><div className="pie-labels">{labels.map(([name, pct, color]) => <div key={name}><span className={color} /><p>{name}</p><strong>{pct}</strong></div>)}</div></section>;
 }
 
 function SmallPanel({ title, detail, children, onDetail }) {
@@ -580,17 +646,28 @@ function buildDashboardStats(data) {
   const pendingQuotations = data.quotations.filter((item) => !['accepted', 'diterima', 'rejected', 'ditolak', 'closed'].includes(String(item.status || '').toLowerCase()));
   const unpaidPayments = data.payments.filter((item) => !isPaidPayment(item));
   const paidPayments = data.payments.filter(isPaidPayment);
+  const expenseTotal = data.expenses.reduce((total, item) => total + expenseAmount(item), 0);
   const activeTrackCount = activeProjects.reduce((total, item) => total + projectTrackCount(item), 0);
   const unpaidTotal = unpaidPayments.reduce((total, item) => total + paymentAmount(item), 0);
   const paidThisMonthTotal = paidPayments.reduce((total, item) => total + paymentAmount(item), 0);
 
   return [
     { trend: `${paidPayments.length} pembayaran`, trendClass: 'good', title: 'Pendapatan Bulan Ini', value: formatRupiah(paidThisMonthTotal), shape: 'chart-up' },
-    { trend: 'Data lokal', trendClass: 'neutral', title: 'Pengeluaran Bulan Ini', value: 'Rp 0', shape: 'chart-down' },
+    { trend: `${data.expenses.length} data`, trendClass: expenseTotal ? 'bad' : 'neutral', title: 'Pengeluaran Bulan Ini', value: formatRupiah(expenseTotal), shape: 'chart-down' },
     { trend: `${unpaidPayments.length} invoice`, trendClass: unpaidPayments.length ? 'warning' : 'neutral', title: 'Pembayaran Belum Lunas', value: formatRupiah(unpaidTotal), shape: 'invoice' },
     { trend: `${activeTrackCount} Lagu`, trendClass: 'neutral', title: 'Project Aktif', value: String(activeProjects.length), shape: 'folder' },
     { trend: `${pendingQuotations.length} menunggu`, trendClass: pendingQuotations.length ? 'warning' : 'neutral', title: 'Dalam Penawaran', value: String(pendingQuotations.length), shape: 'offer' },
   ];
+}
+
+function dashboardRows(data) {
+  const projects = data.projects.slice(0, 3);
+  const quotations = data.quotations.slice(0, 3);
+  return {
+    schedule: projects.length ? projects.map((item) => [item.name || item.projectName || 'Project Tungku', item.clientName || item.clientEmail || 'Client', item.schedule || item.time || item.deadline || '-']) : schedule,
+    progress: projects.length ? projects.map((item) => [item.name || item.projectName || 'Project Tungku', item.clientName || 'Client', item.stage || item.status || 'Berjalan', 'green']) : progress,
+    offers: quotations.length ? quotations.map((item) => [item.title || item.packageName || 'Penawaran', item.clientName || item.clientEmail || 'Client', quotationStatusLabel(item.status), item.status === 'rejected' ? 'red' : 'yellow']) : offers,
+  };
 }
 
 function Dashboard() {
@@ -617,10 +694,19 @@ function Dashboard() {
         const rows = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
         setDashboardData((value) => ({ ...value, payments: rows }));
       }, () => setDashboardData((value) => ({ ...value, payments: [] }))),
+      onSnapshot(collection(db, 'expenses'), (snapshot) => {
+        const rows = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
+        setDashboardData((value) => ({ ...value, expenses: rows }));
+      }, () => setDashboardData((value) => ({ ...value, expenses: [] }))),
+      onSnapshot(collection(db, 'packages'), (snapshot) => {
+        const rows = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
+        setDashboardData((value) => ({ ...value, packages: rows }));
+      }, () => setDashboardData((value) => ({ ...value, packages: [] }))),
     ];
     return () => unsubscribers.forEach((unsubscribe) => unsubscribe());
   }, []);
   const liveStats = buildDashboardStats(dashboardData);
+  const rows = dashboardRows(dashboardData);
   const monthLabel = now.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
   const openDetail = (title, value, description) => setDetail({ title, value, description });
   return (
@@ -628,14 +714,14 @@ function Dashboard() {
       <Sidebar activeKey="dashboard" />
       <main className="content">
         <Header />
-        <div className="live-strip"><span>Realtime</span><strong>{now.toLocaleTimeString('id-ID')}</strong><em>{now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</em></div>
+        <div className="live-strip"><strong>{now.toLocaleTimeString('id-ID')}</strong><em>{now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</em></div>
         <section className="stats">{liveStats.map((item) => <StatCard item={item} onDetail={openDetail} key={item.title} />)}</section>
-        <section className="middle-grid"><FinanceChart monthLabel={monthLabel} /><PiePanel onDetail={openDetail} /><PiePanel kind="donut" onDetail={openDetail} /></section>
+        <section className="middle-grid"><FinanceChart monthLabel={monthLabel} payments={dashboardData.payments} expenses={dashboardData.expenses} /><PiePanel onDetail={openDetail} packages={dashboardData.packages} quotations={dashboardData.quotations} /><PiePanel kind="donut" onDetail={openDetail} expenses={dashboardData.expenses} /></section>
         <section className="bottom-grid">
-          <SmallPanel title="Jadwal Rekaman Hari Ini" detail={schedule.map(([name, client, time]) => `${name} - ${client} (${time})`).join('\n')} onDetail={openDetail}>{schedule.map(([name, client, time]) => <div className="record-row" key={name}><div><strong>{name}</strong><span>{client}</span></div><time>{time}</time></div>)}</SmallPanel>
-          <SmallPanel title="Progress Proyek" detail={progress.map(([name, client, tag]) => `${name} - ${client}: ${tag}`).join('\n')} onDetail={openDetail}>{progress.map(([name, client, tag, color]) => <div className="record-row" key={name}><div><strong>{name}</strong><span>{client}</span></div><mark className={color}>{tag}</mark></div>)}</SmallPanel>
-          <SmallPanel title="Progress Penawaran" detail={offers.map(([name, client, tag]) => `${name} - ${client}: ${tag}`).join('\n')} onDetail={openDetail}>{offers.map(([name, client, tag, color]) => <div className="record-row" key={name}><div><strong>{name}</strong><span>{client}</span></div><mark className={color}>{tag}</mark></div>)}</SmallPanel>
-          <SmallPanel title="Aktivitas Operator" detail={activities.map(([text, time]) => `${text} - ${time}`).join('\n')} onDetail={openDetail}>{activities.map(([text, time]) => <div className="activity" key={text}><strong>{text}</strong><span>{time}</span></div>)}</SmallPanel>
+          <SmallPanel title="Jadwal Rekaman Hari Ini" detail={rows.schedule.map(([name, client, time]) => `${name} - ${client} (${time})`).join('\n')} onDetail={openDetail}>{rows.schedule.map(([name, client, time]) => <div className="record-row" key={name}><div><strong>{name}</strong><span>{client}</span></div><time>{time}</time></div>)}</SmallPanel>
+          <SmallPanel title="Progress Proyek" detail={rows.progress.map(([name, client, tag]) => `${name} - ${client}: ${tag}`).join('\n')} onDetail={openDetail}>{rows.progress.map(([name, client, tag, color]) => <div className="record-row" key={name}><div><strong>{name}</strong><span>{client}</span></div><mark className={color}>{tag}</mark></div>)}</SmallPanel>
+          <SmallPanel title="Progress Penawaran" detail={rows.offers.map(([name, client, tag]) => `${name} - ${client}: ${tag}`).join('\n')} onDetail={openDetail}>{rows.offers.map(([name, client, tag, color]) => <div className="record-row" key={name}><div><strong>{name}</strong><span>{client}</span></div><mark className={color}>{tag}</mark></div>)}</SmallPanel>
+          <SmallPanel title="Aktivitas Operator" detail={activities.map(([text, time]) => `${text} - ${time}`).join('\n')} onDetail={openDetail}>{activities.slice(0, 3).map(([text, time]) => <div className="activity" key={text}><strong>{text}</strong><span>{time}</span></div>)}</SmallPanel>
         </section>
       </main>
       {detail && <DashboardDetailModal detail={detail} onClose={() => setDetail(null)} />}
