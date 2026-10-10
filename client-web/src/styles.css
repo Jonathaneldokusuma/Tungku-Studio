@@ -1034,6 +1034,7 @@ input {
 }
 
 .selected-project-card,
+.extension-step-panel,
 .extension-calendar,
 .extension-detail {
   background: #ffffff;
@@ -1162,6 +1163,69 @@ input {
   padding: 14px;
 }
 
+.extension-step-panel {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+}
+
+.extension-step-panel > span,
+.extension-step-label {
+  width: fit-content;
+  padding: 4px 8px;
+  color: #df4438;
+  background: #fff1ef;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.extension-step-panel h2 {
+  margin: 0;
+  color: #231f20;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.extension-source-list {
+  display: grid;
+  gap: 8px;
+}
+
+.extension-source-list button,
+.slot-choice-grid button,
+.slot-picker-group button {
+  text-align: left;
+  background: #ffffff;
+  border: 1px solid #d6c7c3;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.extension-source-list button {
+  display: grid;
+  gap: 4px;
+  padding: 11px 12px;
+}
+
+.extension-source-list button.active,
+.slot-choice-grid button.active,
+.slot-picker-group button.active {
+  border-color: #df4438;
+  box-shadow: 0 0 0 1px #df4438 inset;
+}
+
+.extension-source-list strong {
+  color: #231f20;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.extension-source-list small {
+  color: #665b58;
+  font-size: 11px;
+}
+
 .calendar-toolbar {
   display: flex;
   align-items: center;
@@ -1254,6 +1318,20 @@ input {
 .extension-detail > p {
   margin: 0 0 14px;
   color: #554a47;
+  font-size: 11px;
+}
+
+.slot-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.slot-choice-grid button {
+  height: 34px;
+  padding: 0 10px;
+  color: #231f20;
   font-size: 11px;
 }
 
@@ -2011,6 +2089,47 @@ input {
   border: 1px solid #cdbfbb;
   border-radius: 3px;
   font-size: 11px;
+}
+
+.package-modal-form label strong {
+  display: block;
+  padding: 12px;
+  color: #231f20;
+  background: #fbf8f7;
+  border: 1px solid #e7d9d5;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.slot-picker-group {
+  display: grid;
+  gap: 8px;
+}
+
+.slot-picker-group > span {
+  color: #231f20;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.slot-picker-group > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.slot-picker-group button {
+  min-height: 38px;
+  padding: 9px 10px;
+  color: #231f20;
+  font-size: 11px;
+}
+
+.slot-picker-group button small {
+  display: block;
+  margin-top: 3px;
+  color: #665b58;
+  font-size: 10px;
 }
 
 .package-payment-review {

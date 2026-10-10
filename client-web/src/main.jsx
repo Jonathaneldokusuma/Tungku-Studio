@@ -27,6 +27,16 @@ const offerBundles = [
   { name: 'Bundle Vocal Polish', stages: ['Recording', 'Editing', 'Mixing'], duration: 4, songs: 1, discount: 5 },
 ];
 
+const bookingDateOptions = [
+  { day: '24', label: '24 September 2026', weekday: 'Kamis' },
+  { day: '25', label: '25 September 2026', weekday: 'Jumat' },
+  { day: '26', label: '26 September 2026', weekday: 'Sabtu' },
+  { day: '27', label: '27 September 2026', weekday: 'Minggu' },
+  { day: '28', label: '28 September 2026', weekday: 'Senin' },
+];
+
+const bookingTimeOptions = ['10:00 - 12:00', '13:00 - 15:00', '16:00 - 18:00', '19:00 - 21:00'];
+
 function FigmaIcon({ name }) {
   const positions = { mic: [689, 263], cut: [801, 263], mix: [913, 263], master: [1025, 263], booking: [353, 17], quotation: [801, 386], project: [577, 17], bell: [577, 140], 'thumb-up': [353, 509], invoice: [465, 509] };
   const [x, y] = positions[name] || positions.project;
@@ -136,6 +146,7 @@ function ClientPortal() {
   const [projects, setProjects] = React.useState([]);
   const [packages, setPackages] = React.useState([]);
   const [payments, setPayments] = React.useState([]);
+  const [bookings, setBookings] = React.useState([]);
   const [notifications, setNotifications] = React.useState([]);
   const [paymentsError, setPaymentsError] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(true);
@@ -195,8 +206,13 @@ function ClientPortal() {
       }, (error) => setPaymentsError(error.message));
       unsubscribers = [
         onSnapshot(query(collection(db, 'bookings'), where('clientId', '==', currentUser.uid)), (snapshot) => {
-          setStats((value) => ({ ...value, bookings: snapshot.docs.filter((item) => !['cancelled', 'done', 'completed'].includes(String(item.data().status || '').toLowerCase())).length }));
-        }, () => setStats((value) => ({ ...value, bookings: 0 }))),
+          const rows = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
+          setBookings(rows);
+          setStats((value) => ({ ...value, bookings: rows.filter((item) => !['cancelled', 'done', 'completed'].includes(String(item.status || '').toLowerCase())).length }));
+        }, () => {
+          setBookings([]);
+          setStats((value) => ({ ...value, bookings: 0 }));
+        }),
         onSnapshot(query(collection(db, 'projects'), where('clientId', '==', currentUser.uid)), (snapshot) => {
           const rows = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
           setProjects(rows);
@@ -236,7 +252,7 @@ function ClientPortal() {
     <main className="client-dashboard">
       <ClientNav user={user} onLogout={handleLogout} currentPath={currentPath} projectCount={totalProjectCount} notificationCount={notifications.length || stats.offers} />
       <section className="client-shell">
-        {isLoading ? <PageTitle title="Loading..." subtitle="Mengambil data akun client." /> : <ClientRouteContent path={currentPath} displayName={displayName} profile={profile} user={user} stats={stats} projects={activeProjects} packages={packageItems} payments={payments} paymentsError={paymentsError} notifications={notifications} />}
+        {isLoading ? <PageTitle title="Loading..." subtitle="Mengambil data akun client." /> : <ClientRouteContent path={currentPath} displayName={displayName} profile={profile} user={user} stats={stats} projects={activeProjects} packages={packageItems} payments={payments} paymentsError={paymentsError} notifications={notifications} bookings={bookings} />}
         <footer>(c) 2026 Studio Recording Tungku. All Rights Reserved</footer>
       </section>
     </main>
@@ -274,8 +290,8 @@ function ClientNav({ user, onLogout, currentPath = '/dashboard', projectCount = 
   );
 }
 
-function ClientRouteContent({ path, displayName, profile, user, stats, projects, packages, payments, paymentsError, notifications }) {
-  if (path.includes('/booking')) return <BookingPage user={user} profile={profile} />;
+function ClientRouteContent({ path, displayName, profile, user, stats, projects, packages, payments, paymentsError, notifications, bookings }) {
+  if (path.includes('/booking')) return <BookingPage user={user} profile={profile} bookings={bookings} />;
   if (path.includes('/notifications')) return <NotificationsPage notifications={notifications} payments={payments} projects={projects} />;
   if (path.includes('/transactions')) return <TransactionsPage payments={payments} error={paymentsError} />;
   if (path.includes('/projects/new')) return <CreateProjectPage packages={packages} user={user} profile={profile} />;
@@ -362,9 +378,15 @@ function ProjectHero({ project, large = false, selected = false, onSelect }) {
   );
 }
 
-function BookingPage({ user, profile }) {
+function BookingPage({ user, profile, bookings }) {
+  const extensionSources = bookings.length ? bookings : [
+    { id: 'demo-booking', projectName: 'Nama Project A', packageName: 'Recording', date: '2026-09-24', startTime: '13:00', endTime: '16:00', status: 'active' },
+  ];
+  const [selectedBookingId, setSelectedBookingId] = React.useState(extensionSources[0]?.id || '');
   const [selectedDay, setSelectedDay] = React.useState('24');
+  const [selectedTime, setSelectedTime] = React.useState('16:00 - 18:00');
   const [status, setStatus] = React.useState({ loading: false, message: '', error: '' });
+  const selectedBooking = extensionSources.find((item) => item.id === selectedBookingId) || extensionSources[0];
   const calendarDays = [
     '30', '31', '1', '2', '3', '4', '5',
     '6', '7', '8', '9', '10', '11', '12',
@@ -372,7 +394,12 @@ function BookingPage({ user, profile }) {
     '20', '21', '22', '23', '24', '25', '26',
     '27', '28', '29', '30', '1', '2', '3',
   ];
-  const selectedSlot = `Kamis, ${selectedDay} September 2026 - 16:00 - 18:00 WIB`;
+  const selectedDate = bookingDateOptions.find((item) => item.day === selectedDay) || bookingDateOptions[0];
+  const selectedSlot = `${selectedDate.weekday}, ${selectedDate.label} - ${selectedTime} WIB`;
+  const selectedProjectName = selectedBooking?.projectName || selectedBooking?.name || 'Project Tungku Studio';
+  React.useEffect(() => {
+    if (!extensionSources.some((item) => item.id === selectedBookingId)) setSelectedBookingId(extensionSources[0]?.id || '');
+  }, [extensionSources, selectedBookingId]);
   const handleConfirm = async () => {
     setStatus({ loading: true, message: '', error: '' });
     try {
@@ -382,7 +409,8 @@ function BookingPage({ user, profile }) {
           clientId: user.uid,
           clientName: profile?.name || user.displayName || user.email || 'Client',
           clientEmail: user.email || '',
-          projectName: 'Nama Project A',
+          sourceBookingId: selectedBooking?.id || '',
+          projectName: selectedProjectName,
           slot: selectedSlot,
           type: 'extension',
           status: 'pending_payment',
@@ -427,7 +455,8 @@ function BookingPage({ user, profile }) {
         clientEmail: user.email || '',
         sourceId: sessionRef.id,
         projectId: sessionRef.id,
-        projectName: 'Nama Project A',
+        sourceBookingId: selectedBooking?.id || '',
+        projectName: selectedProjectName,
         packageName: 'Perpanjangan Jadwal Recording',
         slot: selectedSlot,
         status: 'pending_payment',
@@ -444,9 +473,9 @@ function BookingPage({ user, profile }) {
     <section className="booking-extension-page">
       <aside className="selected-project-card">
         <div className="selected-head"><span>Project Terpilih</span><mark><FigmaIcon name="cut" />Eligible</mark></div>
-        <h2>Nama Project A</h2>
-        <p>Satria Putra Kurniawan</p>
-        <BookingInfo icon="booking" title="Jadwal Rekaman" text="Kamis, 24 September 2026 • 13:00 - 16:00 WIB" />
+        <h2>{selectedProjectName}</h2>
+        <p>{selectedBooking?.clientName || profile?.name || user.displayName || user.email || 'Client'}</p>
+        <BookingInfo icon="booking" title="Jadwal Rekaman" text={bookingSummary(selectedBooking)} />
         <BookingInfo icon="mix" title="Status Booking" text="Sudah terjadwal dan siap diperpanjang jika slot tersedia" />
         <BookingInfo icon="quotation" title="Perpanjangan" text="Pilih slot tambahan di bawah untuk melihat biaya tambahan sebelum konfirmasi." />
         <BookingInfo icon="invoice" title="Biaya Tambahan" text="Biaya perpanjangan akan muncul setelah slot dipilih dan transaksi." />
@@ -454,11 +483,20 @@ function BookingPage({ user, profile }) {
 
       <main className="extension-main">
         <div className="extension-title">
-          <div><h1>Kalender Perpanjangan</h1><p>Pilih slot tambahan untuk melihat ketersediaan dan biaya perpanjangan.</p></div>
+          <div><h1>Kalender Perpanjangan</h1><p>Pilih poin 1 sebagai booking sekarang, lalu poin 2 sebagai tanggal dan jam perpanjangan.</p></div>
           <div className="slot-legend"><span>Slot Tersedia</span><span>Slot Terisi</span><span>Hari Ini</span></div>
         </div>
 
+        <article className="extension-step-panel">
+          <span>Poin 1</span>
+          <h2>Pemesanan Sekarang</h2>
+          <div className="extension-source-list">
+            {extensionSources.map((item) => <button className={selectedBookingId === item.id ? 'active' : ''} type="button" onClick={() => setSelectedBookingId(item.id)} key={item.id}><strong>{item.projectName || item.name || item.packageName || 'Booking Tungku'}</strong><small>{bookingSummary(item)}</small></button>)}
+          </div>
+        </article>
+
         <article className="extension-calendar">
+          <span className="extension-step-label">Poin 2</span>
           <div className="calendar-toolbar"><button type="button"><FigmaIcon name="booking" />September 2026</button><button type="button">2026</button></div>
           <div className="calendar-week">{['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day) => <span key={day}>{day}</span>)}</div>
           <div className="extension-date-grid">
@@ -472,13 +510,16 @@ function BookingPage({ user, profile }) {
         <article className="extension-detail">
           <h2>Detail Perpanjangan</h2>
           <p>Slot yang dipilih: {selectedSlot}</p>
+          <div className="slot-choice-grid">
+            {bookingTimeOptions.map((time) => <button className={selectedTime === time ? 'active' : ''} type="button" onClick={() => setSelectedTime(time)} key={time}>{time}</button>)}
+          </div>
           <ExtensionRow icon="booking" title="Slot Tersedia" text="Slot ini dapat dipilih untuk perpanjangan dan tidak bentrok dengan jadwal lain." />
           <ExtensionRow icon="invoice" title="Biaya Tambahan" text="Rp 480.000 untuk 2 jam tambahan, terhitung dari slot yang dipilih." />
           <ExtensionRow icon="quotation" title="Konsekuensi Pembayaran" text="Pembayaran perpanjangan harus diselesaikan sebelum slot ditambahkan ke jadwal project." />
           <div className="extension-summary"><strong>Ringkasan Sebelum Konfirmasi</strong><span>• Slot tersedia dan tidak bentrok dengan jadwal lain.</span><span>• Biaya tambahan Rp 480.000 sudah terhitung untuk 2 jam perpanjangan.</span><span>• Pembayaran harus diselesaikan sebelum perubahan disimpan.</span></div>
           {status.message && <p className="offer-feedback success">{status.message}</p>}
           {status.error && <p className="offer-feedback error">{status.error}</p>}
-          <div className="extension-actions"><button type="button" onClick={() => setSelectedDay('24')}>Batal</button><button type="button" disabled={status.loading} onClick={handleConfirm}>{status.loading ? 'Mengirim...' : 'Konfirmasi Perpanjangan'}</button></div>
+          <div className="extension-actions"><button type="button" onClick={() => { setSelectedDay('24'); setSelectedTime('16:00 - 18:00'); }}>Batal</button><button type="button" disabled={status.loading || !selectedBooking} onClick={handleConfirm}>{status.loading ? 'Mengirim...' : 'Konfirmasi Perpanjangan'}</button></div>
           <div className="extension-warning"><strong>Tidak Ada Slot Tersedia</strong><span>Jika tidak ada slot yang tersedia, klien dapat memilih hari lain atau membatalkan permintaan perpanjangan.</span></div>
         </article>
       </main>
@@ -971,6 +1012,13 @@ function PackagePurchaseModal({ item, step, readyOrder, setReadyOrder, buyState,
   const steps = ['detail', 'form', 'slot', 'payment'];
   const stepIndex = Math.max(0, steps.indexOf(step));
   const nextLabel = step === 'detail' ? 'Lanjutkan ke Pengisian' : step === 'form' ? 'Pilih Slot Booking' : step === 'slot' ? 'Lanjut Pembayaran PO' : 'Buat Invoice PO';
+  const selectedSlot = parseBookingSlot(readyOrder.slot);
+  const selectedDateLabel = bookingDateOptions.find((itemDate) => selectedSlot.date === `2026-09-${itemDate.day}`)?.label || bookingDateOptions[0].label;
+  const selectedTimeLabel = `${selectedSlot.startTime} - ${selectedSlot.endTime}`;
+  const updateReadySlot = (dateLabel, timeLabel) => {
+    const dateOption = bookingDateOptions.find((itemDate) => itemDate.label === dateLabel) || bookingDateOptions[0];
+    setReadyOrder((value) => ({ ...value, slot: `${dateOption.weekday}, ${dateOption.label} - ${timeLabel} WIB` }));
+  };
   return (
     <div className="package-modal-backdrop" role="dialog" aria-modal="true">
       <article className="package-modal">
@@ -991,8 +1039,16 @@ function PackagePurchaseModal({ item, step, readyOrder, setReadyOrder, buyState,
           <label>Nama Project<input value={readyOrder.projectName} onChange={(event) => setReadyOrder((value) => ({ ...value, projectName: event.target.value }))} placeholder="Contoh: Single Pertama" /></label>
           <label>Catatan Project<input value={readyOrder.note || ''} onChange={(event) => setReadyOrder((value) => ({ ...value, note: event.target.value }))} placeholder="Referensi lagu, deadline, atau kebutuhan khusus" /></label>
         </div>}
-        {step === 'slot' && <div className="package-modal-form">
-          <label>Slot Recording<input value={readyOrder.slot} onChange={(event) => setReadyOrder((value) => ({ ...value, slot: event.target.value }))} /></label>
+        {step === 'slot' && <div className="package-modal-form slot-picker">
+          <label>Slot Recording<strong>{readyOrder.slot}</strong></label>
+          <div className="slot-picker-group">
+            <span>Tanggal</span>
+            <div>{bookingDateOptions.map((itemDate) => <button className={selectedDateLabel === itemDate.label ? 'active' : ''} type="button" onClick={() => updateReadySlot(itemDate.label, selectedTimeLabel)} key={itemDate.label}>{itemDate.weekday}<small>{itemDate.label}</small></button>)}</div>
+          </div>
+          <div className="slot-picker-group">
+            <span>Jam</span>
+            <div>{bookingTimeOptions.map((time) => <button className={selectedTimeLabel === time ? 'active' : ''} type="button" onClick={() => updateReadySlot(selectedDateLabel, time)} key={time}>{time}</button>)}</div>
+          </div>
           <p>Slot akan di-hold setelah invoice PO dibuat. Manager bisa menyesuaikan jadwal jika slot berubah.</p>
         </div>}
         {step === 'payment' && <div className="package-payment-review">
@@ -1140,6 +1196,15 @@ function parseBookingSlot(slotValue) {
     endTime: timeMatch?.[2] || '18:00',
     label: text || `${year}-${month}-${day} 16:00 - 18:00`,
   };
+}
+
+function bookingSummary(booking) {
+  if (!booking) return 'Pilih booking yang ingin diperpanjang';
+  if (booking.slot) return booking.slot;
+  const date = booking.date || booking.bookingDate || booking.startDate || booking.sessionDate || '';
+  const startTime = booking.startTime || booking.start_time || booking.timeStart || '13:00';
+  const endTime = booking.endTime || booking.end_time || booking.timeEnd || '16:00';
+  return `${date || 'Jadwal belum lengkap'} - ${startTime} - ${endTime} WIB`;
 }
 
 function notificationLink(item) {
