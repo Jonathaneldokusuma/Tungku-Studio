@@ -1512,6 +1512,14 @@ label:focus-visible {
   transition: background 160ms var(--ease-soft);
 }
 
+.empty-panel-row,
+.operator-empty-row {
+  padding: 18px 16px;
+  color: #8a7c78;
+  border-bottom: 1px solid #f0e9e7;
+  font-size: 12px;
+}
+
 .record-row:hover,
 .activity:hover,
 .package-table-row:hover {

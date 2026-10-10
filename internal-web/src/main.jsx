@@ -60,23 +60,7 @@ const routeByKey = {
   settings: '/manager/settings',
 };
 
-const dashboardStats = [
-  { trend: '7%', trendClass: 'bad', title: 'Pendapatan Bulan Ini', value: 'Rp 1.243.000', shape: 'chart-up' },
-  { trend: '5%', trendClass: 'good', title: 'Pengeluaran Bulan Ini', value: 'Rp 321.000', shape: 'chart-down' },
-  { trend: '1 Proyek', trendClass: 'neutral', title: 'Pembayaran Belum Lunas', value: 'Rp 649.000', shape: 'invoice' },
-  { trend: '4 Lagu', trendClass: 'neutral', title: 'Project Aktif', value: '3', shape: 'folder' },
-  { trend: '1 Menunggu Persetujuan Klien', trendClass: 'warning', title: 'Dalam Penawaran', value: '2', shape: 'offer' },
-];
-
 const emptyDashboardData = { projects: [], quotations: [], payments: [], expenses: [], packages: [] };
-
-const packageStats = [
-  { title: 'Semua Paket', value: '6', shape: 'package-box' },
-  { title: 'Recording', value: '4', shape: 'mic-box' },
-  { title: 'Editing', value: '3', shape: 'cut-box' },
-  { title: 'Mixing', value: '3', shape: 'mix-box' },
-  { title: 'Mastering', value: '2', shape: 'master-box' },
-];
 
 const packages = [
   { title: 'Paket Lengkap A', desc: 'Paket lengkap untuk satu lagu, dari rekaman sampai siap dirilis.', price: 'Rp 970.000', meta: '6 Jam Rekaman | 1 Lagu', tags: ['Recording', 'Editing', 'Mixing', 'Mastering'] },
@@ -94,41 +78,6 @@ const quotations = [
   { title: 'Nama Klien D', status: 'Diterima', price: 'Rp 450.000', meta: '2 Jam Rekaman | 1 Lagu', tags: ['Recording'], tone: 'accepted' },
 ];
 
-const quotationStats = [
-  { title: 'Semua Penawaran', value: '6', shape: 'quotation' },
-  { title: 'Klien Menawarkan Harga', value: '4', shape: 'mic-box' },
-  { title: 'Tungku Menawarkan Harga', value: '3', shape: 'cut-box' },
-  { title: 'Diterima', value: '3', shape: 'circle-add' },
-  { title: 'Ditolak', value: '2', shape: 'delete' },
-];
-
-const quotationFilters = ['Semua Penawaran (6)', 'Klien Menawarkan Harga (4)', 'Tungku Menawarkan Harga (3)', 'Diterima (3)', 'Ditolak (2)'];
-
-const projectStats = [
-  { title: 'Semua Project', value: '6', shape: 'package-box' },
-  { title: 'Recording', value: '4', shape: 'mic-box' },
-  { title: 'Editing', value: '3', shape: 'cut-box' },
-  { title: 'Mixing', value: '3', shape: 'mix-box' },
-  { title: 'Mastering', value: '2', shape: 'master-box' },
-];
-
-const projectFilters = ['Semua Project (6)', 'Recording (4)', 'Editing (3)', 'Mixing (3)', 'Mastering (2)'];
-
-const projectItems = [
-  { name: 'Project Name', client: 'Client Name', stage: 'Recording', date: '26 Sep 2026', progress: 15, tags: ['Recording'] },
-  { name: 'Project Name', client: 'Client Name', stage: 'Editing', date: '26 Sep 2026', progress: 30, tags: ['Editing'] },
-  { name: 'Project Name', client: 'Client Name', stage: 'Mixing', date: '26 Sep 2026', progress: 69, tags: ['Mixing'] },
-  { name: 'Project Name', client: 'Client Name', stage: 'Mastering', date: '26 Sep 2026', progress: 87, tags: ['Mastering'] },
-  { name: 'Project Name', client: 'Client Name', stage: 'Selesai', date: '26 Sep 2026', progress: 100, tags: ['Recording'] },
-  { name: 'Project Name', client: 'Client Name', stage: 'Revisi', date: '26 Sep 2026', progress: 99, tags: ['Recording'] },
-];
-
-const clientItems = [
-  { name: 'Satria Putra Kurniawan', email: 'satria@mail.com', phone: '+62 812 4431 8821', stage: 'Follow Up', project: 'Project A', lastContact: 'Hari ini', value: 'Rp 970.000' },
-  { name: 'Jane Doe', email: 'jane@mail.com', phone: '+62 813 5512 0098', stage: 'Aktif', project: 'Project C', lastContact: '3 Okt 2026', value: 'Rp 1.600.000' },
-  { name: 'Budi Spageti', email: 'budi@mail.com', phone: '+62 822 9910 2245', stage: 'Penawaran', project: 'Project B', lastContact: '2 Okt 2026', value: 'Rp 450.000' },
-  { name: 'John Doe', email: 'john@mail.com', phone: '+62 811 6677 4432', stage: 'Lead Baru', project: '-', lastContact: '1 Okt 2026', value: 'Rp 360.000' },
-];
 
 const productionStages = [
   { name: 'Recording', icon: 'mic', unit: 'Jam', price: 150000 },
@@ -149,11 +98,6 @@ const bundleTemplates = [
   { name: 'Bundle Mini Album', stages: ['Recording', 'Editing', 'Mixing', 'Mastering'], recordingHours: 12, songCount: 3, discount: 15 },
   { name: 'Bundle Vocal Polish', stages: ['Recording', 'Editing', 'Mixing'], recordingHours: 4, songCount: 1, discount: 5 },
 ];
-
-const schedule = [['Nama Project A', 'John Doe', '13:00 - 16:00'], ['Nama Project B', 'Jane Doe', '13:00 - 16:00'], ['Nama Project C', 'John Doe', '13:00 - 16:00']];
-const progress = [['Nama Project D', 'Jane Doe', 'Mastering', 'purple'], ['Nama Project E', 'John Doe', 'Editing', 'green'], ['Nama Project F', 'Jane Doe', 'Mixing', 'yellow']];
-const offers = [['Penawaran A', 'Klien X', 'Klien Menawarkan Harga', 'orange'], ['Penawaran B', 'Klien Y', 'Ditolak', 'red'], ['Penawaran C', 'Klien Z', 'Diterima', 'green']];
-const activities = [['Klien A meminta revisi lagu Example A pada Projec...', '2 jam lalu'], ['Operator A mengunggah hasil editing lagu Exampl...', '5 hari lalu'], ['Operator C mengunggah hasil recording lagu Exam...', '1 minggu lalu']];
 
 function FigmaIcon({ name, className = '' }) {
   const positions = {
@@ -702,9 +646,10 @@ function dashboardRows(data) {
   const projects = data.projects.slice(0, 3);
   const quotations = data.quotations.slice(0, 3);
   return {
-    schedule: projects.length ? projects.map((item) => [item.name || item.projectName || 'Project Tungku', item.clientName || item.clientEmail || 'Client', item.schedule || item.time || item.deadline || '-']) : schedule,
-    progress: projects.length ? projects.map((item) => [item.name || item.projectName || 'Project Tungku', item.clientName || 'Client', item.stage || item.status || 'Berjalan', 'green']) : progress,
-    offers: quotations.length ? quotations.map((item) => [item.title || item.packageName || 'Penawaran', item.clientName || item.clientEmail || 'Client', quotationStatusLabel(item.status), item.status === 'rejected' ? 'red' : 'yellow']) : offers,
+    schedule: projects.map((item) => [item.name || item.projectName || 'Project Tungku', item.clientName || item.clientEmail || 'Client', item.schedule || item.time || item.deadline || '-']),
+    progress: projects.map((item) => [item.name || item.projectName || 'Project Tungku', item.clientName || 'Client', item.stage || item.status || 'Berjalan', 'green']),
+    offers: quotations.map((item) => [item.title || item.packageName || 'Penawaran', item.clientName || item.clientEmail || 'Client', quotationStatusLabel(item.status), item.status === 'rejected' ? 'red' : 'yellow']),
+    activities: [],
   };
 }
 
@@ -756,10 +701,10 @@ function Dashboard() {
         <section className="stats">{liveStats.map((item) => <StatCard item={item} onDetail={openDetail} key={item.title} />)}</section>
         <section className="middle-grid"><FinanceChart monthLabel={monthLabel} payments={dashboardData.payments} expenses={dashboardData.expenses} /><PiePanel onDetail={openDetail} packages={dashboardData.packages} quotations={dashboardData.quotations} /><PiePanel kind="donut" onDetail={openDetail} expenses={dashboardData.expenses} /></section>
         <section className="bottom-grid">
-          <SmallPanel title="Jadwal Rekaman Hari Ini" detail={rows.schedule.map(([name, client, time]) => `${name} - ${client} (${time})`).join('\n')} onDetail={openDetail}>{rows.schedule.map(([name, client, time]) => <div className="record-row" key={name}><div><strong>{name}</strong><span>{client}</span></div><time>{time}</time></div>)}</SmallPanel>
-          <SmallPanel title="Progress Proyek" detail={rows.progress.map(([name, client, tag]) => `${name} - ${client}: ${tag}`).join('\n')} onDetail={openDetail}>{rows.progress.map(([name, client, tag, color]) => <div className="record-row" key={name}><div><strong>{name}</strong><span>{client}</span></div><mark className={color}>{tag}</mark></div>)}</SmallPanel>
-          <SmallPanel title="Progress Penawaran" detail={rows.offers.map(([name, client, tag]) => `${name} - ${client}: ${tag}`).join('\n')} onDetail={openDetail}>{rows.offers.map(([name, client, tag, color]) => <div className="record-row" key={name}><div><strong>{name}</strong><span>{client}</span></div><mark className={color}>{tag}</mark></div>)}</SmallPanel>
-          <SmallPanel title="Aktivitas Operator" detail={activities.map(([text, time]) => `${text} - ${time}`).join('\n')} onDetail={openDetail}>{activities.slice(0, 3).map(([text, time]) => <div className="activity" key={text}><strong>{text}</strong><span>{time}</span></div>)}</SmallPanel>
+          <SmallPanel title="Jadwal Rekaman Hari Ini" detail={panelDetail(rows.schedule, 'Belum ada jadwal dari Firebase.')} onDetail={openDetail}>{rows.schedule.length ? rows.schedule.map(([name, client, time]) => <div className="record-row" key={name}><div><strong>{name}</strong><span>{client}</span></div><time>{time}</time></div>) : <EmptyPanelRow text="Belum ada jadwal dari Firebase." />}</SmallPanel>
+          <SmallPanel title="Progress Proyek" detail={panelDetail(rows.progress, 'Belum ada progress proyek dari Firebase.')} onDetail={openDetail}>{rows.progress.length ? rows.progress.map(([name, client, tag, color]) => <div className="record-row" key={name}><div><strong>{name}</strong><span>{client}</span></div><mark className={color}>{tag}</mark></div>) : <EmptyPanelRow text="Belum ada progress proyek dari Firebase." />}</SmallPanel>
+          <SmallPanel title="Progress Penawaran" detail={panelDetail(rows.offers, 'Belum ada penawaran dari Firebase.')} onDetail={openDetail}>{rows.offers.length ? rows.offers.map(([name, client, tag, color]) => <div className="record-row" key={name}><div><strong>{name}</strong><span>{client}</span></div><mark className={color}>{tag}</mark></div>) : <EmptyPanelRow text="Belum ada penawaran dari Firebase." />}</SmallPanel>
+          <SmallPanel title="Aktivitas Operator" detail="Belum ada aktivitas operator dari Firebase." onDetail={openDetail}><EmptyPanelRow text="Belum ada aktivitas operator dari Firebase." /></SmallPanel>
         </section>
       </main>
       {detail && <DashboardDetailModal detail={detail} onClose={() => setDetail(null)} />}
@@ -767,15 +712,15 @@ function Dashboard() {
   );
 }
 
+function EmptyPanelRow({ text }) {
+  return <div className="empty-panel-row">{text}</div>;
+}
+
+function panelDetail(rows, emptyText) {
+  return rows.length ? rows.map((row) => row.filter(Boolean).join(' - ')).join('\n') : emptyText;
+}
+
 const timeSlots = ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00'];
-const bookingEvents = [
-  { date: '2026-10-03', start: 0, span: 2, color: 'red', time: '10:00 - 12:00', title: 'Nama Project A', client: 'Satria Putra Kurniawan' },
-  { date: '2026-10-05', start: 1, span: 3, color: 'yellow', time: '11:00 - 15:00', title: 'Nama Project C', client: 'Jane Doe', avatar: true },
-  { date: '2026-10-09', start: 3, span: 2, color: 'red', time: '13:00 - 16:00', title: 'Nama Project A', client: 'Satria Putra Kurniawan' },
-  { date: '2026-10-10', start: 0, span: 4, color: 'blue', time: '10:00 - 14:00', title: 'Nama Project B', client: 'Budi Spageti', avatar: true },
-  { date: '2026-10-10', start: 5, span: 1, color: 'green', time: '16:00 - 22:00', title: 'Nama Project C', client: 'Jane Doe' },
-  { date: '2026-10-17', start: 2, span: 2, color: 'yellow', time: '12:00 - 15:00', title: 'Nama Project D', client: 'John Doe' },
-];
 const monthNames = ['januari', 'februari', 'maret', 'april', 'mei', 'juni', 'juli', 'agustus', 'september', 'oktober', 'november', 'desember'];
 
 function monthName(date) {
@@ -1637,21 +1582,12 @@ function PackageManagement() {
 }
 
 const placeholderPages = {
-  inventaris: { crumb: 'Operasional / Inventaris', title: 'Inventaris', action: 'Tambah Alat', stats: [{ title: 'Total Inventaris', value: '24', shape: 'inventaris' }, { title: 'Perlu Servis', value: '3', shape: 'settings' }, { title: 'Dipakai Project', value: '8', shape: 'project' }], columns: ['Nama Alat', 'Kategori', 'Status', 'Lokasi', 'Aksi'], rows: [['Mic Condenser A', 'Recording', 'Tersedia', 'Studio A'], ['Audio Interface', 'Recording', 'Dipakai', 'Studio B'], ['Gitar Akustik', 'Instrumen', 'Servis', 'Gudang'], ['Headphone Monitor', 'Monitoring', 'Tersedia', 'Studio A']] },
-  crm: { crumb: 'Penjualan / CRM', title: 'CRM', action: 'Tambah Klien', stats: [{ title: 'Total Klien', value: '18', shape: 'crm' }, { title: 'Klien Aktif', value: '7', shape: 'thumb-up' }, { title: 'Follow Up', value: '4', shape: 'quotation' }], columns: ['Nama Klien', 'Kontak', 'Stage', 'Project', 'Aksi'], rows: [['Satria Putra', 'satria@mail.com', 'Follow Up', 'Project A'], ['Jane Doe', 'jane@mail.com', 'Aktif', 'Project C'], ['Budi Spageti', 'budi@mail.com', 'Penawaran', 'Project B'], ['John Doe', 'john@mail.com', 'Lead Baru', '-']] },
-  invoice: { crumb: 'Keuangan / Invoice', title: 'Invoice', action: 'Buat Invoice', stats: [{ title: 'Semua Invoice', value: '12', shape: 'invoice' }, { title: 'Belum Lunas', value: '4', shape: 'reports' }, { title: 'Lunas', value: '8', shape: 'thumb-up' }], columns: ['No Invoice', 'Klien', 'Total', 'Status', 'Aksi'], rows: [['INV-001', 'Satria Putra', 'Rp 970.000', 'Lunas'], ['INV-002', 'Jane Doe', 'Rp 1.600.000', 'Belum Lunas'], ['INV-003', 'Budi Spageti', 'Rp 450.000', 'Lunas'], ['INV-004', 'John Doe', 'Rp 360.000', 'Belum Lunas']] },
-  reports: { crumb: 'Keuangan / Laporan', title: 'Laporan', action: 'Export', stats: [{ title: 'Laporan Bulan Ini', value: '5', shape: 'reports' }, { title: 'Pendapatan', value: 'Rp 1.243.000', shape: 'chart-up' }, { title: 'Pengeluaran', value: 'Rp 321.000', shape: 'expenses' }], columns: ['Periode', 'Pendapatan', 'Pengeluaran', 'Profit', 'Aksi'], rows: [['Oktober 2026', 'Rp 1.243.000', 'Rp 321.000', 'Rp 922.000'], ['September 2026', 'Rp 1.050.000', 'Rp 290.000', 'Rp 760.000'], ['Agustus 2026', 'Rp 980.000', 'Rp 240.000', 'Rp 740.000']] },
-  expenses: { crumb: 'Keuangan / Pengeluaran', title: 'Pengeluaran', action: 'Tambah Pengeluaran', stats: [{ title: 'Total Pengeluaran', value: 'Rp 321.000', shape: 'expenses' }, { title: 'Maintenance', value: '57%', shape: 'settings' }, { title: 'Operasional', value: '11%', shape: 'reports' }], columns: ['Nama Pengeluaran', 'Kategori', 'Nominal', 'Tanggal', 'Aksi'], rows: [['Service Mic', 'Maintenance', 'Rp 150.000', '3 Okt 2026'], ['Beli Kabel XLR', 'Pembelian Alat', 'Rp 95.000', '2 Okt 2026'], ['Listrik Studio', 'Operasional', 'Rp 76.000', '1 Okt 2026']] },
-  operator: { crumb: 'Administrasi / Operator', title: 'Operator', action: 'Tambah Operator', stats: [{ title: 'Semua Operator', value: '6', shape: 'operator' }, { title: 'Aktif', value: '4', shape: 'thumb-up' }, { title: 'Task Berjalan', value: '9', shape: 'project' }], columns: ['Nama Operator', 'Role', 'Task Aktif', 'Status', 'Aksi'], rows: [['Operator A', 'Recording', '3', 'Aktif'], ['Operator B', 'Editing', '2', 'Aktif'], ['Operator C', 'Mixing', '4', 'Aktif'], ['Operator D', 'Mastering', '0', 'Off']] },
-  settings: { crumb: 'Administrasi / Pengaturan', title: 'Pengaturan', action: 'Simpan', stats: [{ title: 'Profil Studio', value: '1', shape: 'settings' }, { title: 'Role Aktif', value: '3', shape: 'operator' }, { title: 'Notifikasi', value: 'Aktif', shape: 'bell' }], columns: ['Pengaturan', 'Nilai', 'Status', 'Terakhir Diubah', 'Aksi'], rows: [['Nama Studio', 'Tungku Studio', 'Aktif', 'Hari ini'], ['Email Notifikasi', 'Aktif', 'Aktif', 'Hari ini'], ['Role Manager', 'Full Access', 'Aktif', 'Kemarin'], ['Mode Booking', 'Manual Approval', 'Aktif', 'Kemarin']] },
+  settings: { crumb: 'Administrasi / Pengaturan', title: 'Pengaturan' },
 };
 
 function PlaceholderPage({ pageKey }) {
   if (['invoice', 'expenses', 'inventaris', 'reports'].includes(pageKey)) return <RealtimeDataPage pageKey={pageKey} />;
   const page = placeholderPages[pageKey];
-  const [query, setQuery] = React.useState('');
-  const [selectedRow, setSelectedRow] = React.useState(null);
-  const rows = page.rows.filter((row) => row.join(' ').toLowerCase().includes(query.toLowerCase()));
   if (pageKey === 'settings') {
     return (
       <div className="dashboard-frame data-page">
@@ -1669,25 +1605,7 @@ function PlaceholderPage({ pageKey }) {
       </div>
     );
   }
-  return (
-    <div className="dashboard-frame data-page">
-      <Sidebar activeKey={pageKey} />
-      <main className="content">
-        <Header crumb={page.crumb} title={page.title} />
-        <section className="package-stats data-stats">{page.stats.map((item) => <PackageStatCard item={item} key={item.title} />)}</section>
-        <section className="data-toolbar panel">
-          <label className="package-search"><FigmaIcon name="search" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`Cari ${page.title.toLowerCase()}...`} /></label>
-          <button type="button"><FigmaIcon name="add" />{page.action}</button>
-        </section>
-        <section className="data-table panel">
-          <div className="data-table-head">{page.columns.map((column) => <span key={column}>{column}</span>)}</div>
-          {rows.map((row) => <div className="data-table-row" key={row.join('-')}>{row.map((cell) => <span key={cell}>{cell}</span>)}<button type="button" onClick={() => setSelectedRow(row)}><FigmaIcon name="arrow-right" /></button></div>)}
-          <div className="package-table-foot"><div className="pager"><button type="button">&lt;</button><span>1</span><button type="button">&gt;</button></div><span>{rows.length} data</span></div>
-        </section>
-      </main>
-      {selectedRow && <DashboardDetailModal detail={{ title: page.title, value: selectedRow[0], description: selectedRow.map((cell, index) => `${page.columns[index]}: ${cell}`).join('\n') }} onClose={() => setSelectedRow(null)} />}
-    </div>
-  );
+  return null;
 }
 
 const realtimePageConfig = {
@@ -1802,9 +1720,9 @@ function RealtimeEditModal({ pageKey, item, onClose, onSave }) {
       <section className="client-modal panel" role="dialog" aria-modal="true">
         <header><h2>{item.id ? 'Ubah Data' : 'Tambah Data'}</h2><button type="button" onClick={onClose}>x</button></header>
         <div className="client-form-grid">
-          {pageKey === 'invoice' && <><label>No Invoice<input value={form.invoice} onChange={update('invoice')} placeholder="INV-001" /></label><label>Klien<input value={form.clientName} onChange={update('clientName')} placeholder="Nama klien" /></label><label>Total<input value={form.amount} onChange={update('amount')} placeholder="970000" /></label><label>Status<select value={form.status} onChange={update('status')}><option value="unpaid">Belum Lunas</option><option value="paid">Lunas</option><option value="pending">Menunggu</option></select></label></>}
-          {pageKey === 'expenses' && <><label>Nama Pengeluaran<input value={form.name} onChange={update('name')} placeholder="Service Mic" /></label><label>Kategori<input value={form.category} onChange={update('category')} placeholder="Maintenance" /></label><label>Nominal<input value={form.amount} onChange={update('amount')} placeholder="150000" /></label><label>Tanggal<input type="date" value={form.date} onChange={update('date')} /></label></>}
-          {pageKey === 'inventaris' && <><label>Nama Alat<input value={form.name} onChange={update('name')} placeholder="Mic Condenser" /></label><label>Kategori<input value={form.category} onChange={update('category')} placeholder="Recording" /></label><label>Status<select value={form.status} onChange={update('status')}><option>Tersedia</option><option>Dipakai</option><option>Servis</option></select></label><label>Lokasi<input value={form.location} onChange={update('location')} placeholder="Studio A" /></label></>}
+          {pageKey === 'invoice' && <><label>No Invoice<input value={form.invoice} onChange={update('invoice')} placeholder="Nomor invoice" /></label><label>Klien<input value={form.clientName} onChange={update('clientName')} placeholder="Nama klien" /></label><label>Total<input value={form.amount} onChange={update('amount')} placeholder="Nominal" /></label><label>Status<select value={form.status} onChange={update('status')}><option value="unpaid">Belum Lunas</option><option value="paid">Lunas</option><option value="pending">Menunggu</option></select></label></>}
+          {pageKey === 'expenses' && <><label>Nama Pengeluaran<input value={form.name} onChange={update('name')} placeholder="Nama pengeluaran" /></label><label>Kategori<input value={form.category} onChange={update('category')} placeholder="Kategori" /></label><label>Nominal<input value={form.amount} onChange={update('amount')} placeholder="Nominal" /></label><label>Tanggal<input type="date" value={form.date} onChange={update('date')} /></label></>}
+          {pageKey === 'inventaris' && <><label>Nama Alat<input value={form.name} onChange={update('name')} placeholder="Nama alat" /></label><label>Kategori<input value={form.category} onChange={update('category')} placeholder="Kategori" /></label><label>Status<select value={form.status} onChange={update('status')}><option>Tersedia</option><option>Dipakai</option><option>Servis</option></select></label><label>Lokasi<input value={form.location} onChange={update('location')} placeholder="Lokasi" /></label></>}
         </div>
         <footer><button type="button" onClick={onClose}>Batal</button><button type="button" onClick={submit}>Simpan</button></footer>
       </section>
@@ -1896,20 +1814,36 @@ function ClientPage() {
 }
 
 const operatorSteps = [
-  { label: 'Recording', icon: 'mic', state: 'done' },
-  { label: 'Editing', icon: 'edit', state: 'active', progress: '40%' },
-  { label: 'Mixing', icon: 'mix', state: 'idle' },
-  { label: 'Mastering', icon: 'master', state: 'idle' },
-  { label: 'Approved', icon: 'thumb-up', state: 'idle' },
+  { label: 'Recording', icon: 'mic' },
+  { label: 'Editing', icon: 'edit' },
+  { label: 'Mixing', icon: 'mix' },
+  { label: 'Mastering', icon: 'master' },
+  { label: 'Approved', icon: 'thumb-up' },
 ];
 
 function OperatorPage() {
   const [selectedTask, setSelectedTask] = React.useState(null);
-  const [tasks, setTasks] = React.useState([
-    { song: 'Track 1 - Vokal', operator: 'Operator A', deadline: '24 Okt 2026', status: 'in_progress', resultUrl: '' },
-    { song: 'Track 2 - Gitar', operator: 'Operator B', deadline: '25 Okt 2026', status: 'revision', resultUrl: '' },
-  ]);
-  const updateTask = (song, patch) => setTasks((items) => items.map((item) => item.song === song ? { ...item, ...patch } : item));
+  const [tasks, setTasks] = React.useState([]);
+  const [error, setError] = React.useState('');
+  React.useEffect(() => {
+    return onSnapshot(collection(db, 'tasks'), (snapshot) => {
+      setTasks(snapshot.docs.map((item) => ({ id: item.id, ...item.data() })));
+      setError('');
+    }, (err) => {
+      setTasks([]);
+      setError(err.message);
+    });
+  }, []);
+  const updateTask = async (task, patch) => {
+    if (!task.id) return;
+    await updateDoc(doc(db, 'tasks', task.id), { ...patch, updatedAt: serverTimestamp() });
+  };
+  const taskStages = new Set(tasks.map((task) => String(task.stage || task.type || '').toLowerCase()));
+  const stepState = (step) => {
+    const key = step.label.toLowerCase();
+    if (key === 'approved') return tasks.some((task) => ['approved', 'done', 'completed'].includes(String(task.status || '').toLowerCase())) ? 'done' : 'idle';
+    return taskStages.has(key) ? 'active' : 'idle';
+  };
   return (
     <div className="dashboard-frame operator-page">
       <Sidebar activeKey="operator" />
@@ -1919,35 +1853,36 @@ function OperatorPage() {
           <div className="operator-main">
             <section className="operator-flow panel">
               {operatorSteps.map((step, index) => (
-                <div className={`operator-step ${step.state}`} key={step.label}>
+                <div className={`operator-step ${stepState(step)}`} key={step.label}>
                   {index < operatorSteps.length - 1 && <span className="operator-step-line" />}
-                  <button type="button" onClick={() => setSelectedTask([step.label, step.progress || ''])}><FigmaIcon name={step.icon} /></button>
-                  {step.progress && <em>{step.progress}</em>}
+                  <button type="button" onClick={() => setSelectedTask({ song: step.label, operator: '-', deadline: '-', status: stepState(step), resultUrl: '' })}><FigmaIcon name={step.icon} /></button>
                   <strong>{step.label}</strong>
                 </div>
               ))}
             </section>
+            {error && <p className="offer-feedback error">Gagal membaca Firebase: {error}</p>}
             <section className="operator-task-table panel">
               <div className="operator-task-head"><span>Editing</span><button type="button">Set Deadline</button></div>
+              {!tasks.length && <div className="operator-empty-row">Belum ada task operator dari Firebase.</div>}
               {tasks.map((task, index) => (
-                <div className="operator-task-row" key={task.song}>
+                <div className="operator-task-row" key={task.id || task.song || index}>
                   <ProjectAvatar tone={index} />
-                  <strong>{task.song}<small>{task.deadline} - {task.status}</small></strong>
+                  <strong>{task.song || task.title || task.projectName || 'Task Operator'}<small>{task.deadline || '-'} - {task.status || 'pending'}</small></strong>
                   <button type="button" onClick={() => setSelectedTask(task)}><FigmaIcon name="add" />Submit File</button>
                 </div>
               ))}
-              <div className="package-table-foot"><div className="pager"><button type="button">&lt;</button><span>1</span><button type="button">&gt;</button></div><span>6 dari 6 operator</span></div>
+              <div className="package-table-foot"><div className="pager"><button type="button">&lt;</button><span>1</span><button type="button">&gt;</button></div><span>{tasks.length} task</span></div>
             </section>
           </div>
           <aside className="operator-side">
             <section className="operator-avatars panel">
               <h2>Operator</h2>
-              <div>{[0, 1, 2, 3, 0].map((tone, index) => <ProjectAvatar tone={tone} key={index} />)}</div>
+              <div>{tasks.length ? tasks.slice(0, 5).map((task, index) => <ProjectAvatar tone={index} key={task.id || index} />) : <span>Belum ada operator aktif.</span>}</div>
             </section>
-            <section className="operator-card panel">
-              <div className="operator-card-head"><ProjectAvatar /><div><h2>Operator Name</h2><p>Client Name</p></div><span className="project-stage mastering"><FigmaIcon name="master" />Mastering</span></div>
-              <time>26 Sep 2026</time>
-            </section>
+            {tasks[0] && <section className="operator-card panel">
+              <div className="operator-card-head"><ProjectAvatar /><div><h2>{tasks[0].operatorName || tasks[0].operator || '-'}</h2><p>{tasks[0].clientName || tasks[0].clientEmail || '-'}</p></div><span className="project-stage mastering"><FigmaIcon name="master" />{tasks[0].stage || tasks[0].type || 'Task'}</span></div>
+              <time>{tasks[0].deadline || '-'}</time>
+            </section>}
           </aside>
         </section>
       </main>
@@ -1955,16 +1890,17 @@ function OperatorPage() {
         <div className="modal-backdrop">
           <section className="dashboard-detail-modal" role="dialog" aria-modal="true" aria-label="Task Operator">
             <button className="modal-close" type="button" onClick={() => setSelectedTask(null)}>x</button>
-            <h2>{selectedTask.song}</h2>
-            <strong>{selectedTask.operator}</strong>
-            <p>Deadline: {selectedTask.deadline}</p>
-            <p>Status: {selectedTask.status}</p>
-            <label>Link File / Google Drive<input value={selectedTask.resultUrl} onChange={(event) => setSelectedTask((task) => ({ ...task, resultUrl: event.target.value }))} placeholder="https://drive.google.com/..." /></label>
-            <footer>
-              <button type="button" onClick={() => { updateTask(selectedTask.song, { status: 'revision', resultUrl: selectedTask.resultUrl }); setSelectedTask(null); }}>Minta Revisi</button>
-              <button type="button" onClick={() => { updateTask(selectedTask.song, { status: 'in_review', resultUrl: selectedTask.resultUrl }); setSelectedTask(null); }}>Submit Review</button>
-              <button type="button" onClick={() => { updateTask(selectedTask.song, { status: 'approved', resultUrl: selectedTask.resultUrl }); setSelectedTask(null); }}>Approve</button>
+            <h2>{selectedTask.song || selectedTask.title || selectedTask.projectName || 'Task Operator'}</h2>
+            <strong>{selectedTask.operator || selectedTask.operatorName || '-'}</strong>
+            <p>Deadline: {selectedTask.deadline || '-'}</p>
+            <p>Status: {selectedTask.status || '-'}</p>
+            <label>Link File / Google Drive<input value={selectedTask.resultUrl || ''} onChange={(event) => setSelectedTask((task) => ({ ...task, resultUrl: event.target.value }))} placeholder="https://drive.google.com/..." /></label>
+            {selectedTask.id && <footer>
+              <button type="button" onClick={() => { updateTask(selectedTask, { status: 'revision', resultUrl: selectedTask.resultUrl || '' }); setSelectedTask(null); }}>Minta Revisi</button>
+              <button type="button" onClick={() => { updateTask(selectedTask, { status: 'in_review', resultUrl: selectedTask.resultUrl || '' }); setSelectedTask(null); }}>Submit Review</button>
+              <button type="button" onClick={() => { updateTask(selectedTask, { status: 'approved', resultUrl: selectedTask.resultUrl || '' }); setSelectedTask(null); }}>Approve</button>
             </footer>
+            }
           </section>
         </div>
       )}

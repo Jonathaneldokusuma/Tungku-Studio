@@ -228,7 +228,7 @@ function ClientPortal() {
         onSnapshot(query(collection(db, 'notifications'), where('userId', '==', currentUser.uid)), (snapshot) => {
           setNotifications(snapshot.docs.map((item) => ({ id: item.id, ...item.data() })).sort((a, b) => getPaymentTime(b) - getPaymentTime(a)));
         }, () => setNotifications([])),
-        onSnapshot(collection(db, 'packages'), (snapshot) => setPackages(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), () => setPackages(demoPackages)),
+        onSnapshot(collection(db, 'packages'), (snapshot) => setPackages(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), () => setPackages([])),
       ];
     });
     return () => {
@@ -244,7 +244,7 @@ function ClientPortal() {
   };
 
   const activeProjects = projects;
-  const packageItems = packages.length ? packages : demoPackages;
+  const packageItems = packages;
   const displayName = profile?.name || user?.displayName || 'Singha';
   const totalProjectCount = stats.projects + stats.done;
 
@@ -379,9 +379,7 @@ function ProjectHero({ project, large = false, selected = false, onSelect }) {
 }
 
 function BookingPage({ user, profile, bookings }) {
-  const extensionSources = bookings.length ? bookings : [
-    { id: 'demo-booking', projectName: 'Nama Project A', packageName: 'Recording', date: '2026-09-24', startTime: '13:00', endTime: '16:00', status: 'active' },
-  ];
+  const extensionSources = bookings;
   const [selectedBookingId, setSelectedBookingId] = React.useState(extensionSources[0]?.id || '');
   const [selectedDay, setSelectedDay] = React.useState('24');
   const [selectedTime, setSelectedTime] = React.useState('16:00 - 18:00');
@@ -401,6 +399,10 @@ function BookingPage({ user, profile, bookings }) {
     if (!extensionSources.some((item) => item.id === selectedBookingId)) setSelectedBookingId(extensionSources[0]?.id || '');
   }, [extensionSources, selectedBookingId]);
   const handleConfirm = async () => {
+    if (!selectedBooking) {
+      setStatus({ loading: false, message: '', error: 'Belum ada booking dari Firebase untuk diperpanjang.' });
+      return;
+    }
     setStatus({ loading: true, message: '', error: '' });
     try {
       let sessionRef;
@@ -539,7 +541,8 @@ function ProjectsPage({ projects }) {
   return <section className="client-panel-page"><PageTitle title="Project" subtitle="Semua progress lagu yang sedang dikerjakan Tungku Studio." /><div className="project-list">{projects.map((project) => <ProjectHero key={project.id || project.name} project={project} />)}</div></section>;
 }
 
-function ProjectDetailPage({ project = demoProjects[0] }) {
+function ProjectDetailPage({ project }) {
+  if (!project) return <section className="client-panel-page"><PageTitle title="Project" subtitle="Detail progress dan link file project." /><div className="empty-state"><h3>Project tidak ditemukan</h3><p>Project akan muncul setelah tersimpan di Firebase.</p><a href="/projects">Kembali</a></div></section>;
   return <section className="client-panel-page"><PageTitle title={project.name || project.title} subtitle="Detail progress dan link file project." /><ProjectHero project={project} large /><div className="detail-grid"><InfoTile label="Tahap" value={project.stage || 'Mixing'} /><InfoTile label="Progress" value={`${clampPercent(project.progress ?? 68)}%`} /><InfoTile label="Folder Google Drive" value={project.driveFolderUrl || 'Link belum tersedia'} /><InfoTile label="Deadline" value={project.deadline || '26 September 2026'} /></div></section>;
 }
 
@@ -645,14 +648,21 @@ function PaymentDetail({ payment, detailRef }) {
 }
 
 function CreateProjectPage({ packages, user, profile }) {
-  const [selected, setSelected] = React.useState(packages[0]?.name || demoPackages[0].name);
+  const [selected, setSelected] = React.useState(packages[0]?.name || '');
   const [form, setForm] = React.useState({ name: '', driveUrl: '', note: '' });
   const [state, setState] = React.useState({ loading: false, message: '', error: '' });
-  const selectedPackage = packages.find((item) => (item.name || item.title) === selected) || demoPackages.find((item) => item.name === selected) || demoPackages[0];
+  const selectedPackage = packages.find((item) => (item.name || item.title) === selected) || packages[0] || null;
+  React.useEffect(() => {
+    if (!selected && packages[0]) setSelected(packages[0].name || packages[0].title || '');
+  }, [packages, selected]);
   const updateField = (field) => (event) => setForm((value) => ({ ...value, [field]: event.target.value }));
   const handleCreateProject = async (event) => {
     event.preventDefault();
     setState({ loading: true, message: '', error: '' });
+    if (!selectedPackage) {
+      setState({ loading: false, message: '', error: 'Belum ada paket dari Firebase.' });
+      return;
+    }
     try {
       await addDoc(collection(db, 'custom_offers'), {
         clientId: user.uid,
@@ -679,7 +689,7 @@ function CreateProjectPage({ packages, user, profile }) {
     <section className="client-panel-page">
       <PageTitle title="Buat Proyek" subtitle="Pilih paket, isi brief, lalu manager Tungku akan follow up." />
       <div className="create-project-layout">
-        <div className="package-grid compact">{packages.slice(0, 4).map((item) => <button className={`select-package ${selected === (item.name || item.title) ? 'selected' : ''}`} type="button" onClick={() => setSelected(item.name || item.title)} key={item.id || item.name}><PackageCard item={item} showMenu={false} /></button>)}</div>
+        <div className="package-grid compact">{packages.length ? packages.slice(0, 4).map((item) => <button className={`select-package ${selected === (item.name || item.title) ? 'selected' : ''}`} type="button" onClick={() => setSelected(item.name || item.title)} key={item.id || item.name}><PackageCard item={item} showMenu={false} /></button>) : <div className="empty-state"><h3>Belum ada paket</h3><p>Paket akan muncul setelah manager membuat paket di Firebase.</p></div>}</div>
         <form className="project-form" onSubmit={handleCreateProject}>
           <label>Nama Project<input placeholder="Contoh: Single Pertama" value={form.name} onChange={updateField('name')} required /></label>
           <label>Link Referensi Google Drive<input placeholder="https://drive.google.com/..." value={form.driveUrl} onChange={updateField('driveUrl')} /></label>
@@ -694,12 +704,7 @@ function CreateProjectPage({ packages, user, profile }) {
 }
 
 function PackagesPage({ packages, user, profile }) {
-  const readyPackages = [
-    { name: 'Paket Lengkap A', price: 970000, duration: '6 Jam Rekaman', songs: '1 Lagu', stages: ['Recording', 'Editing', 'Mixing', 'Mastering'] },
-    { name: 'Paket Lengkap B', price: 1840000, duration: '12 Jam Rekaman', songs: '2 Lagu', stages: ['Recording', 'Editing', 'Mixing', 'Mastering'] },
-    { name: 'Paket Lengkap C', price: 2710000, duration: '18 Jam Rekaman', songs: '3 Lagu', stages: ['Recording', 'Editing', 'Mixing'] },
-  ];
-  const packageItems = packages.length ? packages.slice(0, 3) : readyPackages;
+  const packageItems = packages.slice(0, 3);
   const stagePrices = { Recording: 150000, Editing: 200000, Mixing: 350000, Mastering: 250000 };
   const [selectedStages, setSelectedStages] = React.useState(['Recording', 'Editing', 'Mixing', 'Mastering']);
   const [duration, setDuration] = React.useState(3);
@@ -748,6 +753,7 @@ function PackagesPage({ packages, user, profile }) {
     setDiscountPercent(bundle.discount);
   };
   const openPackageDetail = (item) => {
+    if (!item) return;
     setDetailPackage(item);
     setPackageFlow({ open: true, step: 'detail', item });
     setBuyState({ loading: false, message: '', error: '' });
@@ -926,7 +932,7 @@ function PackagesPage({ packages, user, profile }) {
         <div><h2>Paket Siap Pakai</h2><p>Pilih paket yang sudah jadi, lalu lanjutkan ke pemilihan slot waktu, nama proyek, dan pembayaran pre-order.</p></div>
         <span>Siap Pakai</span>
       </div>
-      <div className="quote-package-grid">{packageItems.map((item) => <button className={`quote-package-choice ${selectedPackage === (item.name || item.title) ? 'selected' : ''}`} type="button" onClick={() => openPackageDetail(item)} key={item.id || item.name}><PackageCard item={item} showMenu={false} /></button>)}</div>
+      {packageItems.length ? <div className="quote-package-grid">{packageItems.map((item) => <button className={`quote-package-choice ${selectedPackage === (item.name || item.title) ? 'selected' : ''}`} type="button" onClick={() => openPackageDetail(item)} key={item.id || item.name}><PackageCard item={item} showMenu={false} /></button>)}</div> : <div className="empty-state"><h3>Belum ada paket</h3><p>Paket akan muncul setelah manager membuat paket di Firebase.</p></div>}
 
       <article className="custom-offer-banner">
         <div>
@@ -1327,24 +1333,6 @@ function isActivePath(currentPath, targetPath) {
   if (targetPath === '/dashboard') return currentPath === '/' || currentPath.includes('/dashboard');
   return currentPath.includes(targetPath);
 }
-
-const demoProjects = [
-  { id: 'demo-a', name: 'Bintang Kehidupan', date: '26 September 2026', stage: 'Mixing', progress: 28, tracks: ['Bintang Kehidupan', 'Khayal', 'Kesal', 'Putih', 'Terserah'] },
-  { id: 'demo-b', name: 'Project A', date: '17 September 2026', stage: 'Selesai', progress: 100, tracks: ['Nama Track', 'Vokal', 'Gitar', 'Bass', 'Drum'] },
-  { id: 'demo-c', name: 'Project B', date: '16 September 2026', stage: 'Selesai', progress: 100, tracks: ['Nama Track', 'Vokal', 'Gitar', 'Bass', 'Drum'] },
-];
-
-const demoPackages = [
-  { name: 'Paket Lengkap A', price: 970000, duration: '6 Jam Rekaman', songs: '1 Lagu', stages: ['Recording', 'Editing', 'Mixing', 'Mastering'] },
-  { name: 'Paket Lengkap B', price: 1600000, duration: '12 Jam Rekaman', songs: '2 Lagu', stages: ['Recording', 'Editing', 'Mixing', 'Mastering'] },
-  { name: 'Rekaman Suara', price: 360000, duration: '2 Jam Rekaman', songs: '1 Lagu', stages: ['Recording'] },
-  { name: 'Rekaman Alat Musik', price: 450000, duration: '2 Jam Rekaman', songs: '1 Lagu', stages: ['Recording'] },
-];
-
-const demoTransactions = [
-  { invoice: 'INV-001', package: 'Paket Lengkap A', amount: 'Rp 970.000', status: 'Belum Lunas' },
-  { invoice: 'INV-002', package: 'Rekaman Suara', amount: 'Rp 360.000', status: 'Lunas' },
-];
 
 const offerHistory = [
   { date: 'Hari ini, 14:20', note: 'Client menawar harga', price: 'Rp 1.250.000', active: true },
