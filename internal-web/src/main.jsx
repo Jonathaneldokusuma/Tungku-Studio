@@ -24,6 +24,16 @@ const menuSections = [
   { title: 'ADMINISTRASI', items: [{ key: 'operator', label: 'Operator', icon: 'operator' }, { key: 'settings', label: 'Pengaturan', icon: 'settings' }] },
 ];
 
+const roleAccess = {
+  manager: ['dashboard', 'booking', 'quotation', 'project', 'inventaris', 'packages', 'crm', 'invoice', 'reports', 'expenses', 'operator', 'settings'],
+  operator: ['project', 'operator'],
+};
+
+const getStoredInternalRole = () => {
+  if (typeof window === 'undefined') return 'manager';
+  return window.localStorage.getItem('internalRole') || 'manager';
+};
+
 const routeByKey = {
   dashboard: '/manager/dashboard',
   booking: '/manager/booking',
@@ -178,11 +188,18 @@ function FigmaIcon({ name, className = '' }) {
 }
 
 function Sidebar({ activeKey = 'dashboard' }) {
+  const currentRole = getStoredInternalRole();
+  const visibleKeys = roleAccess[currentRole] || roleAccess.manager;
+  const visibleSections = menuSections
+    .map((section) => ({ ...section, items: section.items.filter((item) => visibleKeys.includes(item.key)) }))
+    .filter((section) => section.items.length);
+  const roleLabel = currentRole === 'operator' ? 'Operator' : 'Manager';
+
   return (
     <aside className="sidebar">
       <div className="brand"><div className="brand-mark"><img src={brandLogo} alt="" /></div><div><h1>Tungku Studio</h1><p>Enterprise Resource Planning</p></div></div>
       <nav className="nav">
-        {menuSections.map((section) => (
+        {visibleSections.map((section) => (
           <section className="nav-section" key={section.title}>
             <div className="nav-heading"><span>{section.title}</span><FigmaIcon name="chevron-down" className="nav-chevron" /></div>
             {section.items.map((item) => {
@@ -192,7 +209,7 @@ function Sidebar({ activeKey = 'dashboard' }) {
           </section>
         ))}
       </nav>
-      <div className="account"><div className="avatar" /><div><strong>Hervin C.</strong><span>Manager</span></div><FigmaIcon name="logout" className="account-logout" /></div>
+      <div className="account"><div className="avatar" /><div><strong>Hervin C.</strong><span>{roleLabel}</span></div><FigmaIcon name="logout" className="account-logout" /></div>
     </aside>
   );
 }
@@ -267,7 +284,7 @@ function AuthPage({ mode = 'login' }) {
     event.preventDefault();
     setError('');
     setIsSubmitting(true);
-    const selectedRole = role.toLowerCase();
+    const selectedRole = isRegister ? role.toLowerCase() : null;
     try {
       let credential;
       if (isRegister) {
@@ -296,11 +313,7 @@ function AuthPage({ mode = 'login' }) {
         setError('Akun ini belum punya role internal. Buat user di Firestore dengan role manager/operator.');
         return;
       }
-      if (profileRole !== selectedRole) {
-        await signOut(auth);
-        setError(`Akun ini terdaftar sebagai ${profileRole}. Pilih role yang sesuai.`);
-        return;
-      }
+      window.localStorage.setItem('internalRole', profileRole);
       window.location.href = profileRole === 'operator' ? '/manager/operator' : '/manager/dashboard';
     } catch (authError) {
       setError(authError.message);
@@ -319,7 +332,7 @@ function AuthPage({ mode = 'login' }) {
         <div className="auth-copy">
           <span>{isRegister ? 'Daftar Internal' : 'Selamat Datang'}</span>
           <h1>{isRegister ? 'Buat akses untuk staff studio.' : 'Masuk untuk kelola operasional studio.'}</h1>
-          <p>{isRegister ? 'Akses internal dipakai manager dan operator untuk mengelola project, task, booking, dan laporan.' : 'Pilih role manager atau operator lalu masuk ke halaman kerja internal yang sesuai.'}</p>
+          <p>{isRegister ? 'Akses internal dipakai manager dan operator untuk mengelola project, task, booking, dan laporan.' : 'Gunakan satu akses internal. Sistem akan membuka halaman sesuai role akun.'}</p>
         </div>
         <div className="auth-preview">
           {['Recording', 'Editing', 'Mixing', 'Mastering'].map((stage) => <article key={stage}><FigmaIcon name={stage === 'Recording' ? 'mic' : stage === 'Editing' ? 'cut' : stage === 'Mixing' ? 'mix' : 'master'} /><span>{stage}</span></article>)}
@@ -337,9 +350,9 @@ function AuthPage({ mode = 'login' }) {
           {isRegister && <label>No. Telepon<input type="tel" value={form.phone} onChange={updateField('phone')} placeholder="+62" required /></label>}
           <label>Password<input type="password" value={form.password} onChange={updateField('password')} placeholder="Password" required /></label>
           {isRegister && <label>Konfirmasi Password<input type="password" value={form.confirmPassword} onChange={updateField('confirmPassword')} placeholder="Ulangi password" required /></label>}
-          <div className="auth-role">
+          {isRegister && <div className="auth-role">
             {['Manager', 'Operator'].map((item) => <button className={role === item ? 'active' : ''} type="button" onClick={() => setRole(item)} key={item}>{item}</button>)}
-          </div>
+          </div>}
           {!isRegister && <a className="auth-forgot" href="/register">Lupa password?</a>}
           {error && <p className="auth-message error">{error}</p>}
           <button className="auth-submit" type="submit" disabled={isSubmitting}>{isSubmitting ? 'Memproses...' : submitLabel}</button>
@@ -1553,7 +1566,7 @@ function OperatorPage() {
 }
 
 function InternalGate({ children }) {
-  const [state, setState] = React.useState({ loading: true, allowed: false });
+  const [state, setState] = React.useState({ loading: true, allowed: false, role: null });
 
   React.useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -1566,13 +1579,15 @@ function InternalGate({ children }) {
         const role = String(profileSnapshot.data()?.role || '').toLowerCase();
         if (!['manager', 'operator'].includes(role)) {
           await signOut(auth);
+          window.localStorage.removeItem('internalRole');
           window.location.href = '/login';
           return;
         }
-        setState({ loading: false, allowed: true });
+        window.localStorage.setItem('internalRole', role);
+        setState({ loading: false, allowed: true, role });
       } catch (error) {
         console.warn('Internal auth guard failed:', error.message);
-        setState({ loading: false, allowed: false });
+        setState({ loading: false, allowed: false, role: null });
       }
     });
     return unsubscribe;
@@ -1584,11 +1599,18 @@ function InternalGate({ children }) {
   if (!state.allowed) {
     return <AuthPage mode="login" />;
   }
-  return children;
+  return React.cloneElement(children, { currentRole: state.role });
 }
 
-function ManagerRoutes() {
+function ManagerRoutes({ currentRole = 'manager' }) {
   const path = window.location.pathname;
+  if (currentRole === 'operator') {
+    if (path.includes('/manager/project/create')) return <ProjectCreatePage />;
+    if (path.includes('/manager/project')) return <ProjectPage />;
+    if (path.includes('/manager/operator')) return <OperatorPage />;
+    window.location.replace('/manager/operator');
+    return null;
+  }
   if (window.location.pathname.includes('/manager/packages')) return <PackageManagement />;
   if (window.location.pathname.includes('/manager/booking')) return <BookingPage />;
   if (window.location.pathname.includes('/manager/quotation')) return <QuotationPage />;

@@ -114,7 +114,7 @@ label:focus-visible {
 
 .auth-brand strong {
   display: block;
-  font-size: 22px;
+  font-size: var(--text-title-large);
   font-weight: 500;
 }
 
@@ -135,7 +135,7 @@ label:focus-visible {
   max-width: 720px;
   margin: 12px 0 14px;
   color: #171414;
-  font-size: 57px;
+  font-size: var(--text-display-large);
   line-height: 1.04;
   font-weight: 500;
 }
@@ -144,7 +144,7 @@ label:focus-visible {
   max-width: 560px;
   margin: 0;
   color: #5f5653;
-  font-size: 14px;
+  font-size: var(--text-body-medium);
   line-height: 1.7;
 }
 
@@ -187,7 +187,7 @@ label:focus-visible {
 
 .auth-card-head h2 {
   margin: 9px 0 7px;
-  font-size: 32px;
+  font-size: var(--text-headline-large);
   line-height: 1.1;
   font-weight: 500;
 }
@@ -195,7 +195,7 @@ label:focus-visible {
 .auth-card-head p {
   margin: 0 0 28px;
   color: #6a605d;
-  font-size: 12px;
+  font-size: var(--text-label-medium);
   line-height: 1.6;
 }
 
@@ -208,7 +208,7 @@ label:focus-visible {
   display: grid;
   gap: 7px;
   color: #231f20;
-  font-size: 11px;
+  font-size: var(--text-label-small);
   font-weight: 500;
 }
 
@@ -251,7 +251,7 @@ label:focus-visible {
 .auth-forgot {
   justify-self: end;
   color: #df4438;
-  font-size: 11px;
+  font-size: var(--text-label-small);
   text-decoration: none;
 }
 
@@ -259,7 +259,7 @@ label:focus-visible {
   height: 42px;
   margin-top: 4px;
   color: #ffffff;
-  font-size: 11px;
+  font-size: var(--text-label-small);
   font-weight: 500;
   background: #df4438;
   border: 0;
@@ -274,7 +274,7 @@ label:focus-visible {
 
 .auth-message {
   margin: 0;
-  font-size: 11px;
+  font-size: var(--text-label-small);
   line-height: 1.4;
 }
 
@@ -285,7 +285,7 @@ label:focus-visible {
 .auth-switch {
   margin: 18px 0 0;
   color: #6a605d;
-  font-size: 11px;
+  font-size: var(--text-label-small);
   text-align: center;
 }
 
