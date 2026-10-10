@@ -234,6 +234,7 @@ input {
   display: flex;
   align-items: center;
   gap: 9px;
+  margin-right: 34px;
   color: #231f20;
   font-size: 12px;
   font-weight: 500;
@@ -254,7 +255,7 @@ input {
 .client-nav nav {
   display: flex;
   align-items: center;
-  gap: 23px;
+  gap: 28px;
   margin-right: auto;
 }
 
