@@ -205,6 +205,14 @@ function Sidebar({ activeKey = 'dashboard' }) {
     .map((section) => ({ ...section, items: section.items.filter((item) => visibleKeys.includes(item.key)) }))
     .filter((section) => section.items.length);
   const roleLabel = currentRole === 'operator' ? 'Operator' : 'Manager';
+  const logout = async () => {
+    try {
+      await signOut(auth);
+    } finally {
+      window.localStorage.removeItem('internalRole');
+      window.location.href = '/login';
+    }
+  };
 
   return (
     <aside className="sidebar">
@@ -220,7 +228,7 @@ function Sidebar({ activeKey = 'dashboard' }) {
           </section>
         ))}
       </nav>
-      <div className="account"><div className="avatar" /><div><strong>Hervin C.</strong><span>{roleLabel}</span></div><FigmaIcon name="logout" className="account-logout" /></div>
+      <div className="account"><div className="avatar" /><div><strong>Hervin C.</strong><span>{roleLabel}</span></div><button className="account-logout" type="button" onClick={logout} aria-label="Logout"><FigmaIcon name="logout" /></button></div>
     </aside>
   );
 }

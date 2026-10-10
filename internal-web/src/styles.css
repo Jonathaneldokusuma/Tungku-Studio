@@ -35,7 +35,7 @@ body,
 }
 
 body {
-  overflow: auto;
+  overflow: hidden;
   background: #eee5e2;
   color: #231f20;
   font-family: var(--font-family-base);
@@ -298,8 +298,8 @@ label:focus-visible {
 .dashboard-frame {
   display: grid;
   grid-template-columns: 171px 1fr;
-  width: 1365px;
-  height: 768px;
+  width: 100vw;
+  height: 100vh;
   background: #eee5e2;
 }
 
@@ -469,12 +469,29 @@ label:focus-visible {
   font-size: 11px;
 }
 
-.account .figma-icon {
+.account-logout {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.account-logout:hover {
+  background: #f8eeee;
+}
+
+.account-logout .figma-icon {
   justify-self: end;
 }
 
 .content {
   min-width: 0;
+  height: 100vh;
   padding: 0 16px 14px;
   overflow: auto;
 }
@@ -1576,13 +1593,6 @@ mark.red {
 .activity {
   display: block;
   padding-top: 14px;
-}
-
-@media (max-width: 1300px) {
-  .dashboard-frame {
-    transform: scale(calc(100vw / 1365));
-    transform-origin: top left;
-  }
 }
 
 .package-page .topbar {
