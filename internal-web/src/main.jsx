@@ -34,6 +34,17 @@ const getStoredInternalRole = () => {
   return window.localStorage.getItem('internalRole') || 'manager';
 };
 
+const authErrorMessages = {
+  'auth/invalid-credential': 'Email atau password salah, atau akun belum terdaftar di Firebase Authentication.',
+  'auth/user-not-found': 'Akun belum terdaftar. Buat akun internal dulu lewat halaman daftar.',
+  'auth/wrong-password': 'Password salah. Cek lagi password yang dipakai.',
+  'auth/email-already-in-use': 'Email ini sudah terdaftar. Silakan masuk atau gunakan email lain.',
+  'auth/weak-password': 'Password terlalu pendek. Gunakan minimal 6 karakter.',
+  'auth/invalid-email': 'Format email belum valid.',
+};
+
+const getAuthErrorMessage = (error) => authErrorMessages[error?.code] || error?.message || 'Login gagal. Coba lagi sebentar.';
+
 const routeByKey = {
   dashboard: '/manager/dashboard',
   booking: '/manager/booking',
@@ -316,7 +327,7 @@ function AuthPage({ mode = 'login' }) {
       window.localStorage.setItem('internalRole', profileRole);
       window.location.href = profileRole === 'operator' ? '/manager/operator' : '/manager/dashboard';
     } catch (authError) {
-      setError(authError.message);
+      setError(getAuthErrorMessage(authError));
     } finally {
       setIsSubmitting(false);
     }
