@@ -3108,6 +3108,13 @@ mark.red {
   background: #fff8f6;
 }
 
+.client-empty-row {
+  padding: 22px 18px;
+  color: #8a7c78;
+  border-bottom: 1px solid #e7dfdc;
+  font-size: 12px;
+}
+
 .client-name {
   display: grid;
   grid-template-columns: 34px 1fr;

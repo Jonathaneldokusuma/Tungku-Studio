@@ -1813,26 +1813,39 @@ function RealtimeEditModal({ pageKey, item, onClose, onSave }) {
 }
 
 function ClientPage() {
-  const [clients, setClients] = React.useState(clientItems);
+  const [clients, setClients] = React.useState([]);
   const [query, setQuery] = React.useState('');
   const [selectedClient, setSelectedClient] = React.useState(null);
   const [showForm, setShowForm] = React.useState(false);
+  const [error, setError] = React.useState('');
   const [form, setForm] = React.useState({ name: '', email: '', phone: '+62 ', stage: 'Lead Baru', project: '', value: '' });
   const stages = ['Semua', 'Lead Baru', 'Follow Up', 'Penawaran', 'Aktif'];
   const [stageFilter, setStageFilter] = React.useState('Semua');
+  React.useEffect(() => {
+    return onSnapshot(collection(db, 'crm_clients'), (snapshot) => {
+      setClients(snapshot.docs.map((item) => ({ id: item.id, ...item.data() })));
+      setError('');
+    }, (err) => {
+      setClients([]);
+      setError(err.message);
+    });
+  }, []);
   const filteredClients = clients.filter((client) => {
     const matchesQuery = `${client.name} ${client.email} ${client.phone} ${client.project}`.toLowerCase().includes(query.toLowerCase());
     const matchesStage = stageFilter === 'Semua' || client.stage === stageFilter;
     return matchesQuery && matchesStage;
   });
   const updateForm = (key, value) => setForm((current) => ({ ...current, [key]: value }));
-  const saveClient = () => {
+  const saveClient = async () => {
     if (!form.name.trim()) return;
-    setClients((current) => [{ ...form, project: form.project || '-', value: form.value || 'Rp 0', lastContact: 'Hari ini' }, ...current]);
+    await addDoc(collection(db, 'crm_clients'), { ...form, project: form.project || '-', value: form.value || 'Rp 0', lastContact: 'Hari ini', createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
     setForm({ name: '', email: '', phone: '+62 ', stage: 'Lead Baru', project: '', value: '' });
     setShowForm(false);
   };
-  const updateStage = (name, stage) => setClients((current) => current.map((client) => client.name === name ? { ...client, stage, lastContact: 'Baru diubah' } : client));
+  const updateStage = async (client, stage) => {
+    if (!client.id) return;
+    await updateDoc(doc(db, 'crm_clients', client.id), { stage, lastContact: 'Baru diubah', updatedAt: serverTimestamp() });
+  };
   const stats = [
     { title: 'Total Klien', value: clients.length, shape: 'crm' },
     { title: 'Klien Aktif', value: clients.filter((client) => client.stage === 'Aktif').length, shape: 'thumb-up' },
@@ -1851,14 +1864,16 @@ function ClientPage() {
           <div className="client-filters">{stages.map((stage) => <button className={stageFilter === stage ? 'active' : ''} type="button" onClick={() => setStageFilter(stage)} key={stage}>{stage}</button>)}</div>
           <button className="client-add" type="button" onClick={() => setShowForm(true)}><FigmaIcon name="add" />Tambah Client</button>
         </section>
+        {error && <p className="offer-feedback error">Gagal membaca Firebase: {error}</p>}
         <section className="client-layout">
           <div className="client-table panel">
             <div className="client-table-head"><span>Nama Client</span><span>Kontak</span><span>Stage</span><span>Project</span><span>Nilai</span><span>Aksi</span></div>
+            {!filteredClients.length && <div className="client-empty-row">Belum ada data CRM dari Firebase.</div>}
             {filteredClients.map((client, index) => (
               <div className="client-table-row" key={client.email}>
                 <div className="client-name"><ProjectAvatar tone={index} /><strong>{client.name}</strong><small>{client.lastContact}</small></div>
                 <span>{client.email}<small>{client.phone}</small></span>
-                <select value={client.stage} onChange={(event) => updateStage(client.name, event.target.value)}>{stages.slice(1).map((stage) => <option key={stage}>{stage}</option>)}</select>
+                <select value={client.stage} onChange={(event) => updateStage(client, event.target.value)}>{stages.slice(1).map((stage) => <option key={stage}>{stage}</option>)}</select>
                 <span>{client.project}</span>
                 <strong>{client.value}</strong>
                 <button type="button" onClick={() => setSelectedClient(client)}><FigmaIcon name="arrow-right" /></button>
