@@ -136,6 +136,7 @@ function ClientPortal() {
   const [projects, setProjects] = React.useState([]);
   const [packages, setPackages] = React.useState([]);
   const [payments, setPayments] = React.useState([]);
+  const [notifications, setNotifications] = React.useState([]);
   const [paymentsError, setPaymentsError] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(true);
   const currentPath = window.location.pathname;
@@ -208,6 +209,9 @@ function ClientPortal() {
           setPayments(snapshot.docs.map((item) => ({ id: item.id, ...item.data() })));
           setPaymentsError('');
         }, () => unsubscribers.push(fallbackPayments())),
+        onSnapshot(query(collection(db, 'notifications'), where('userId', '==', currentUser.uid)), (snapshot) => {
+          setNotifications(snapshot.docs.map((item) => ({ id: item.id, ...item.data() })).sort((a, b) => getPaymentTime(b) - getPaymentTime(a)));
+        }, () => setNotifications([])),
         onSnapshot(collection(db, 'packages'), (snapshot) => setPackages(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), () => setPackages(demoPackages)),
       ];
     });
@@ -230,16 +234,16 @@ function ClientPortal() {
 
   return (
     <main className="client-dashboard">
-      <ClientNav user={user} onLogout={handleLogout} currentPath={currentPath} projectCount={totalProjectCount} quotationCount={stats.offers} />
+      <ClientNav user={user} onLogout={handleLogout} currentPath={currentPath} projectCount={totalProjectCount} notificationCount={notifications.length || stats.offers} />
       <section className="client-shell">
-        {isLoading ? <PageTitle title="Loading..." subtitle="Mengambil data akun client." /> : <ClientRouteContent path={currentPath} displayName={displayName} profile={profile} user={user} stats={stats} projects={activeProjects} packages={packageItems} payments={payments} paymentsError={paymentsError} />}
+        {isLoading ? <PageTitle title="Loading..." subtitle="Mengambil data akun client." /> : <ClientRouteContent path={currentPath} displayName={displayName} profile={profile} user={user} stats={stats} projects={activeProjects} packages={packageItems} payments={payments} paymentsError={paymentsError} notifications={notifications} />}
         <footer>(c) 2026 Studio Recording Tungku. All Rights Reserved</footer>
       </section>
     </main>
   );
 }
 
-function ClientNav({ user, onLogout, currentPath = '/dashboard', projectCount = 0, quotationCount = 0 }) {
+function ClientNav({ user, onLogout, currentPath = '/dashboard', projectCount = 0, notificationCount = 0 }) {
   const [search, setSearch] = React.useState('');
   const handleSearch = (event) => {
     event.preventDefault();
@@ -259,9 +263,9 @@ function ClientNav({ user, onLogout, currentPath = '/dashboard', projectCount = 
       <div className="client-nav-actions">
         <a className="create-project" href="/projects/new">Buat Proyek</a>
         <form className="client-search" onSubmit={handleSearch}><FigmaIcon name="project" /><input placeholder="Cari project..." value={search} onChange={(event) => setSearch(event.target.value)} /></form>
-        <a className="nav-icon-link quotation-notification" href="/transactions" aria-label="Notifikasi quotation" title="Notifikasi quotation">
+        <a className="nav-icon-link quotation-notification" href="/notifications" aria-label="Notifikasi" title="Notifikasi">
           <FigmaIcon name="bell" />
-          {quotationCount > 0 && <b>{quotationCount}</b>}
+          {notificationCount > 0 && <b>{notificationCount}</b>}
         </a>
         <img src={userProfile} alt={user?.email || 'User'} />
         <a className="logout-link" href="/login" onClick={onLogout}>Keluar</a>
@@ -270,8 +274,9 @@ function ClientNav({ user, onLogout, currentPath = '/dashboard', projectCount = 
   );
 }
 
-function ClientRouteContent({ path, displayName, profile, user, stats, projects, packages, payments, paymentsError }) {
+function ClientRouteContent({ path, displayName, profile, user, stats, projects, packages, payments, paymentsError, notifications }) {
   if (path.includes('/booking')) return <BookingPage user={user} profile={profile} />;
+  if (path.includes('/notifications')) return <NotificationsPage notifications={notifications} payments={payments} projects={projects} />;
   if (path.includes('/transactions')) return <TransactionsPage payments={payments} error={paymentsError} />;
   if (path.includes('/projects/new')) return <CreateProjectPage packages={packages} user={user} profile={profile} />;
   if (path.includes('/packages')) return <PackagesPage packages={packages} user={user} profile={profile} />;
@@ -416,7 +421,21 @@ function BookingPage({ user, profile }) {
         method: 'manual_confirmation',
         note: 'Bayar extend dulu. Setelah lunas, manager menambahkan waktu recording ke jadwal.',
       });
-      setStatus({ loading: false, message: 'Slot extend dibuat dan invoice muncul di Transaksi. Waktu recording ditambah setelah pembayaran lunas.', error: '' });
+      await createClientBooking({
+        clientId: user.uid,
+        clientName: profile?.name || user.displayName || user.email || 'Client',
+        clientEmail: user.email || '',
+        sourceId: sessionRef.id,
+        projectId: sessionRef.id,
+        projectName: 'Nama Project A',
+        packageName: 'Perpanjangan Jadwal Recording',
+        slot: selectedSlot,
+        status: 'pending_payment',
+        type: 'booking_extension',
+        amount: 480000,
+        note: 'Booking perpanjangan dibuat dari client portal dan menunggu pelunasan invoice.',
+      });
+      setStatus({ loading: false, message: 'Slot extend dibuat, masuk Jadwal Booking, dan invoice muncul di Transaksi.', error: '' });
     } catch (error) {
       setStatus({ loading: false, message: '', error: `Gagal kirim perpanjangan: ${error.message}` });
     }
@@ -496,7 +515,7 @@ function TransactionsPage({ payments, error }) {
 
   return (
     <section className="client-panel-page">
-      <PageTitle title="Transaksi" subtitle="Invoice dan pembayaran diambil realtime dari Firebase." />
+      <PageTitle title="Transaksi" subtitle="Invoice dan pembayaran akun client." />
       <div className="transaction-summary">
         <StatCard title="Total Invoice" value={sortedPayments.length} icon="invoice" tone="red" />
         <StatCard title="Belum Lunas" value={sortedPayments.filter((item) => !isPaidPayment(item)).length} icon="quotation" tone="pink" />
@@ -512,6 +531,36 @@ function TransactionsPage({ payments, error }) {
           {activePayment && <PaymentDetail payment={activePayment} detailRef={detailRef} />}
         </div>
       )}
+    </section>
+  );
+}
+
+function NotificationsPage({ notifications, payments, projects }) {
+  const fallbackItems = [
+    ...payments.filter((item) => !isPaidPayment(item)).map((item) => ({
+      id: `payment-${item.id}`,
+      title: 'Invoice belum lunas',
+      body: `${item.invoice || 'Invoice'} untuk ${item.packageName || item.projectName || 'paket'} menunggu pembayaran ${formatRupiah(paymentAmount(item))}.`,
+      createdAt: item.createdAt,
+      sourceType: 'payment',
+      link: '/transactions',
+    })),
+    ...projects.filter((item) => ['pending', 'pending_payment', 'review'].includes(String(item.status || '').toLowerCase())).map((item) => ({
+      id: `project-${item.id}`,
+      title: 'Project menunggu proses',
+      body: `${item.name || item.projectName || 'Project'} sedang menunggu konfirmasi manager.`,
+      createdAt: item.createdAt,
+      sourceType: 'project',
+      link: '/projects',
+    })),
+  ];
+  const items = (notifications.length ? notifications : fallbackItems).sort((first, second) => getPaymentTime(second) - getPaymentTime(first));
+
+  return (
+    <section className="client-panel-page">
+      <PageTitle title="Notifikasi" subtitle="Update invoice, booking, dan project akun kamu." />
+      {!items.length && <div className="empty-state"><img className="empty-state-asset" src={invoiceAsset} alt="" /><h3>Belum ada notifikasi</h3><p>Notifikasi baru akan muncul saat ada update booking, invoice, atau project.</p><a href="/packages">Pilih Paket</a></div>}
+      {!!items.length && <div className="notification-list">{items.map((item) => <a href={item.link || notificationLink(item)} key={item.id || `${item.title}-${getPaymentTime(item)}`}><span>{item.sourceType || 'update'}</span><strong>{item.title || 'Update Tungku Studio'}</strong><p>{item.body || item.message || 'Ada update baru untuk akun kamu.'}</p><small>{formatDateTime(item.createdAt || item.updatedAt)}</small></a>)}</div>}
     </section>
   );
 }
@@ -736,6 +785,20 @@ function PackagesPage({ packages, user, profile }) {
           updatedAt: serverTimestamp(),
         });
       }
+      await createClientBooking({
+        clientId: user.uid,
+        clientName: profile?.name || user.displayName || user.email || 'Client',
+        clientEmail: user.email || '',
+        sourceId: orderRef.id,
+        projectId: orderRef.id,
+        projectName: readyOrder.projectName.trim(),
+        packageName: name,
+        slot: readyOrder.slot,
+        status: 'pending_payment',
+        type: 'package_purchase',
+        amount: price,
+        note: usedFallback ? 'Booking paket dibuat dari fallback order client.' : 'Booking paket dibuat dari pembelian paket client.',
+      });
       await createClientPayment({
         clientId: user.uid,
         clientName: profile?.name || user.displayName || user.email || 'Client',
@@ -1034,6 +1097,56 @@ async function createClientNotification(payload) {
     console.warn('Notification skipped:', error.message);
     return null;
   }
+}
+
+async function createClientBooking(payload) {
+  const slot = parseBookingSlot(payload.slot);
+  return addDoc(collection(db, 'bookings'), {
+    ...payload,
+    date: slot.date,
+    startTime: slot.startTime,
+    endTime: slot.endTime,
+    slot: payload.slot || slot.label,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+}
+
+function parseBookingSlot(slotValue) {
+  const text = String(slotValue || '');
+  const monthMap = {
+    januari: '01',
+    februari: '02',
+    maret: '03',
+    april: '04',
+    mei: '05',
+    juni: '06',
+    juli: '07',
+    agustus: '08',
+    september: '09',
+    oktober: '10',
+    november: '11',
+    desember: '12',
+  };
+  const dateMatch = text.match(/(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/i);
+  const timeMatch = text.match(/(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})/);
+  const today = new Date();
+  const day = dateMatch ? String(dateMatch[1]).padStart(2, '0') : String(today.getDate()).padStart(2, '0');
+  const month = dateMatch ? monthMap[dateMatch[2].toLowerCase()] || '09' : String(today.getMonth() + 1).padStart(2, '0');
+  const year = dateMatch ? dateMatch[3] : String(today.getFullYear());
+  return {
+    date: `${year}-${month}-${day}`,
+    startTime: timeMatch?.[1] || '16:00',
+    endTime: timeMatch?.[2] || '18:00',
+    label: text || `${year}-${month}-${day} 16:00 - 18:00`,
+  };
+}
+
+function notificationLink(item) {
+  const source = String(item.sourceType || item.type || '').toLowerCase();
+  if (source.includes('payment') || source.includes('invoice') || source.includes('quotation')) return '/transactions';
+  if (source.includes('booking') || source.includes('session')) return '/booking';
+  return '/projects';
 }
 
 function isPaidPayment(payment) {

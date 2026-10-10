@@ -374,7 +374,7 @@ input {
 .client-shell {
   width: min(100%, 1210px);
   margin: 0 auto;
-  padding: 42px 26px 24px;
+  padding: 66px 26px 24px;
 }
 
 .client-greeting {
@@ -1524,6 +1524,48 @@ input {
   cursor: pointer;
 }
 
+.notification-list {
+  display: grid;
+  gap: 10px;
+}
+
+.notification-list a {
+  display: grid;
+  gap: 6px;
+  padding: 16px 18px;
+  color: #141111;
+  background: #ffffff;
+  border: 1px solid #d6c7c3;
+  border-radius: 4px;
+  text-decoration: none;
+}
+
+.notification-list span {
+  width: fit-content;
+  padding: 4px 9px;
+  color: #df4438;
+  background: #fff1ef;
+  border-radius: 999px;
+  font-size: 11px;
+  text-transform: capitalize;
+}
+
+.notification-list strong {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.notification-list p {
+  margin: 0;
+  color: #665b58;
+  font-size: 13px;
+}
+
+.notification-list small {
+  color: #8a807c;
+  font-size: 11px;
+}
+
 .payment-detail,
 .empty-state {
   background: #ffffff;
@@ -2494,7 +2536,7 @@ input {
   }
 
   .client-shell {
-    padding: 28px 16px;
+    padding: 42px 16px 28px;
   }
 
   .client-greeting {
