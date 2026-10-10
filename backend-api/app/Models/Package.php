@@ -23,9 +23,11 @@ class Package extends Model
         'include_editing',
         'include_mixing',
         'include_mastering',
-        'auto_price',
-        'manual_price',
-        'is_price_manual',
+        'base_price',
+        'discount_percent',
+        'discount_amount',
+        'price',
+        'bundle_name',
         'is_active',
         'created_by',
     ];
@@ -42,23 +44,22 @@ class Package extends Model
             'include_editing' => 'boolean',
             'include_mixing' => 'boolean',
             'include_mastering' => 'boolean',
-            'auto_price' => 'integer',
-            'manual_price' => 'integer',
-            'is_price_manual' => 'boolean',
+            'base_price' => 'integer',
+            'discount_percent' => 'integer',
+            'discount_amount' => 'integer',
+            'price' => 'integer',
             'is_active' => 'boolean',
         ];
     }
 
     /**
-     * Harga yang berlaku: harga manual kalau dipakai, selain itu harga otomatis.
+     * Harga yang berlaku setelah diskon paket.
      * Nilai inilah yang disalin ke package_snapshot dan projects.price.
      */
     protected function price(): Attribute
     {
         return Attribute::get(
-            fn (): int => $this->is_price_manual && $this->manual_price !== null
-                ? $this->manual_price
-                : $this->auto_price
+            fn (?int $value): int => $value ?? max(0, (int) $this->base_price - (int) $this->discount_amount)
         );
     }
 

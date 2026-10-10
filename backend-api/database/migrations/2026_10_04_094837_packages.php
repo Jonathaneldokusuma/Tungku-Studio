@@ -24,9 +24,11 @@ return new class extends Migration
             $table->boolean('include_mixing')->default(false);
             $table->boolean('include_mastering')->default(false);
 
-            $table->unsignedBigInteger('auto_price');
-            $table->unsignedBigInteger('manual_price')->nullable();
-            $table->boolean('is_price_manual')->default(false);
+            $table->string('bundle_name', 100)->nullable();
+            $table->unsignedBigInteger('base_price');
+            $table->unsignedTinyInteger('discount_percent')->default(0);
+            $table->unsignedBigInteger('discount_amount')->default(0);
+            $table->unsignedBigInteger('price');
 
             $table->boolean('is_active')->default(true);
             $table->foreignId('created_by')->constrained('users');

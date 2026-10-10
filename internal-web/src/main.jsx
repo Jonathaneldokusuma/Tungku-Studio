@@ -492,7 +492,7 @@ function normalizePackage(item) {
   const tags = packageStages(item);
   const recordingHours = Number(item.recordingHours || item.recording_hours || 0);
   const songCount = Number(item.songCount || item.trackCount || item.track_count || item.songs || 1);
-  const price = Number(item.price || item.total || item.manual_price || item.auto_price || parseCurrency(item.priceText));
+  const price = Number(item.price || item.total || parseCurrency(item.priceText));
   const discountPercent = Number(item.discountPercent || item.discount_percent || item.discount || 0);
   return {
     ...item,

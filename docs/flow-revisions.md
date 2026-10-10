@@ -39,9 +39,9 @@ Input / Update Base Price per Tahap
 Pilih Tahap: Recording, Editing, Mixing, Mastering
 Input Track Count dan Recording Hours
 Hitung Auto Price
-Override Harga?
-  Ya -> Input Manual Price -> Set is_price_manual = true
-  Tidak -> Pakai Auto Price -> Set is_price_manual = false
+Pilih Paket Bundle / Diskon
+Hitung Discount Amount
+Simpan Final Price = Base Price - Discount Amount
 Simpan Package
 Selesai
 ```
