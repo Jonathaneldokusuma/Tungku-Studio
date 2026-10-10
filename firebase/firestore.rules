@@ -84,6 +84,14 @@ service cloud.firestore {
       allow update, delete: if hasRole('manager');
     }
 
+    match /expenses/{expenseId} {
+      allow read, write: if hasRole('manager');
+    }
+
+    match /inventories/{inventoryId} {
+      allow read, write: if internalUser();
+    }
+
     match /tasks/{taskId} {
       allow read: if signedIn() && (resource.data.operatorId == request.auth.uid || hasRole('manager'));
       allow write: if internalUser();

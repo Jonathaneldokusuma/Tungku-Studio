@@ -1355,7 +1355,92 @@ function ProjectCreatePage() {
 }
 
 function formatRupiah(value) {
-  return `Rp ${value.toLocaleString('id-ID')}`;
+  return `Rp ${(Number(value) || 0).toLocaleString('id-ID')}`;
+}
+
+function paymentStatusLabel(item) {
+  return isPaidPayment(item) ? 'Lunas' : String(item.status || '').toLowerCase() === 'pending' ? 'Menunggu' : 'Belum Lunas';
+}
+
+function formatShortDate(value) {
+  const date = value?.toDate ? value.toDate() : value?.seconds ? new Date(value.seconds * 1000) : value ? new Date(value) : new Date();
+  if (Number.isNaN(date.getTime())) return '-';
+  return new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }).format(date);
+}
+
+function rowSearchText(pageKey, row) {
+  if (pageKey === 'invoice') return `${row.invoice || ''} ${row.invoiceNumber || ''} ${row.clientName || ''} ${row.clientEmail || ''} ${row.status || ''}`;
+  if (pageKey === 'expenses') return `${row.name || ''} ${row.title || ''} ${row.category || ''} ${row.amount || ''}`;
+  if (pageKey === 'inventaris') return `${row.name || ''} ${row.title || ''} ${row.category || ''} ${row.status || ''} ${row.location || ''}`;
+  return `${row.period || ''} ${row.income || ''} ${row.expense || ''} ${row.profit || ''}`;
+}
+
+function realtimeStats(pageKey, rows, payments = [], expenses = []) {
+  if (pageKey === 'invoice') {
+    return [
+      { title: 'Semua Invoice', value: rows.length, shape: 'invoice' },
+      { title: 'Belum Lunas', value: rows.filter((item) => !isPaidPayment(item)).length, shape: 'reports' },
+      { title: 'Lunas', value: rows.filter(isPaidPayment).length, shape: 'thumb-up' },
+    ];
+  }
+  if (pageKey === 'expenses') {
+    const total = rows.reduce((sum, item) => sum + expenseAmount(item), 0);
+    const maintenance = rows.filter((item) => String(item.category || '').toLowerCase().includes('maintenance')).reduce((sum, item) => sum + expenseAmount(item), 0);
+    const operational = rows.filter((item) => String(item.category || '').toLowerCase().includes('operasional')).reduce((sum, item) => sum + expenseAmount(item), 0);
+    return [
+      { title: 'Total Pengeluaran', value: formatRupiah(total), shape: 'expenses' },
+      { title: 'Maintenance', value: total ? `${Math.round(maintenance / total * 100)}%` : '0%', shape: 'settings' },
+      { title: 'Operasional', value: total ? `${Math.round(operational / total * 100)}%` : '0%', shape: 'reports' },
+    ];
+  }
+  if (pageKey === 'inventaris') {
+    return [
+      { title: 'Total Inventaris', value: rows.length, shape: 'inventaris' },
+      { title: 'Perlu Servis', value: rows.filter((item) => String(item.status || '').toLowerCase().includes('servis')).length, shape: 'settings' },
+      { title: 'Dipakai Project', value: rows.filter((item) => String(item.status || '').toLowerCase().includes('dipakai')).length, shape: 'project' },
+    ];
+  }
+  const income = payments.filter(isPaidPayment).reduce((sum, item) => sum + paymentAmount(item), 0);
+  const expense = expenses.reduce((sum, item) => sum + expenseAmount(item), 0);
+  return [
+    { title: 'Laporan Bulan Ini', value: rows.length, shape: 'reports' },
+    { title: 'Pendapatan', value: formatRupiah(income), shape: 'chart-up' },
+    { title: 'Pengeluaran', value: formatRupiah(expense), shape: 'expenses' },
+  ];
+}
+
+function buildReportRows(payments, expenses) {
+  const bucket = new Map();
+  const ensure = (date) => {
+    const key = new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' }).format(date);
+    if (!bucket.has(key)) bucket.set(key, { id: key, period: key, income: 0, expense: 0, profit: 0 });
+    return bucket.get(key);
+  };
+  payments.filter(isPaidPayment).forEach((item) => { ensure(itemDate(item)).income += paymentAmount(item); });
+  expenses.forEach((item) => { ensure(itemDate(item)).expense += expenseAmount(item); });
+  return [...bucket.values()].map((item) => ({ ...item, profit: item.income - item.expense }));
+}
+
+function editInitialForm(pageKey, item) {
+  if (pageKey === 'invoice') return { invoice: item.invoice || item.invoiceNumber || '', clientName: item.clientName || '', amount: String(paymentAmount(item) || ''), status: isPaidPayment(item) ? 'paid' : item.status || 'unpaid' };
+  if (pageKey === 'expenses') return { name: item.name || item.title || '', category: item.category || '', amount: String(expenseAmount(item) || ''), date: item.date || new Date().toISOString().slice(0, 10) };
+  return { name: item.name || item.title || '', category: item.category || '', status: item.status || 'Tersedia', location: item.location || '' };
+}
+
+function normalizeRealtimePayload(pageKey, item) {
+  if (pageKey === 'invoice') return { invoice: item.invoice, clientName: item.clientName, amount: parseCurrency(item.amount), status: item.status, method: item.method || 'manual_confirmation' };
+  if (pageKey === 'expenses') return { name: item.name, title: item.name, category: item.category, amount: parseCurrency(item.amount), date: item.date };
+  return { name: item.name, title: item.name, category: item.category, status: item.status, location: item.location };
+}
+
+function exportReports(rows) {
+  const csv = ['Periode,Pendapatan,Pengeluaran,Profit', ...rows.map((row) => [row.period, row.income, row.expense, row.profit].join(','))].join('\n');
+  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = 'laporan-tungku.csv';
+  anchor.click();
+  URL.revokeObjectURL(url);
 }
 
 function CreatePackageModal({ initialPackage, onClose, onSubmit, title, submitLabel }) {
@@ -1562,6 +1647,7 @@ const placeholderPages = {
 };
 
 function PlaceholderPage({ pageKey }) {
+  if (['invoice', 'expenses', 'inventaris', 'reports'].includes(pageKey)) return <RealtimeDataPage pageKey={pageKey} />;
   const page = placeholderPages[pageKey];
   const [query, setQuery] = React.useState('');
   const [selectedRow, setSelectedRow] = React.useState(null);
@@ -1600,6 +1686,128 @@ function PlaceholderPage({ pageKey }) {
         </section>
       </main>
       {selectedRow && <DashboardDetailModal detail={{ title: page.title, value: selectedRow[0], description: selectedRow.map((cell, index) => `${page.columns[index]}: ${cell}`).join('\n') }} onClose={() => setSelectedRow(null)} />}
+    </div>
+  );
+}
+
+const realtimePageConfig = {
+  invoice: {
+    collectionName: 'payments',
+    crumb: 'Keuangan / Invoice',
+    title: 'Invoice',
+    action: 'Buat Invoice',
+    columns: ['No Invoice', 'Klien', 'Total', 'Status', 'Aksi'],
+    empty: 'Belum ada invoice dari Firebase.',
+  },
+  expenses: {
+    collectionName: 'expenses',
+    crumb: 'Keuangan / Pengeluaran',
+    title: 'Pengeluaran',
+    action: 'Tambah Pengeluaran',
+    columns: ['Nama Pengeluaran', 'Kategori', 'Nominal', 'Tanggal', 'Aksi'],
+    empty: 'Belum ada pengeluaran dari Firebase.',
+  },
+  inventaris: {
+    collectionName: 'inventories',
+    crumb: 'Operasional / Inventaris',
+    title: 'Inventaris',
+    action: 'Tambah Alat',
+    columns: ['Nama Alat', 'Kategori', 'Status', 'Lokasi', 'Aksi'],
+    empty: 'Belum ada inventaris dari Firebase.',
+  },
+  reports: {
+    crumb: 'Keuangan / Laporan',
+    title: 'Laporan',
+    action: 'Export',
+    columns: ['Periode', 'Pendapatan', 'Pengeluaran', 'Profit', 'Aksi'],
+    empty: 'Belum ada pembayaran atau pengeluaran untuk laporan.',
+  },
+};
+
+function RealtimeDataPage({ pageKey }) {
+  const config = realtimePageConfig[pageKey];
+  const [query, setQuery] = React.useState('');
+  const [rows, setRows] = React.useState([]);
+  const [payments, setPayments] = React.useState([]);
+  const [expenses, setExpenses] = React.useState([]);
+  const [editing, setEditing] = React.useState(null);
+  const [error, setError] = React.useState('');
+  React.useEffect(() => {
+    if (pageKey === 'reports') {
+      const unsubPayments = onSnapshot(collection(db, 'payments'), (snapshot) => setPayments(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), (err) => setError(err.message));
+      const unsubExpenses = onSnapshot(collection(db, 'expenses'), (snapshot) => setExpenses(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), (err) => setError(err.message));
+      return () => { unsubPayments(); unsubExpenses(); };
+    }
+    return onSnapshot(collection(db, config.collectionName), (snapshot) => {
+      setRows(snapshot.docs.map((item) => ({ id: item.id, ...item.data() })));
+      setError('');
+    }, (err) => {
+      setRows([]);
+      setError(err.message);
+    });
+  }, [pageKey, config.collectionName]);
+
+  const sourceRows = pageKey === 'reports' ? buildReportRows(payments, expenses) : rows;
+  const filteredRows = sourceRows.filter((row) => rowSearchText(pageKey, row).toLowerCase().includes(query.toLowerCase()));
+  const stats = realtimeStats(pageKey, sourceRows, payments, expenses);
+  const saveItem = async (item) => {
+    if (pageKey === 'reports') return setEditing(null);
+    const collectionName = config.collectionName;
+    const payload = normalizeRealtimePayload(pageKey, item);
+    if (item.id) await updateDoc(doc(db, collectionName, item.id), { ...payload, updatedAt: serverTimestamp() });
+    else await addDoc(collection(db, collectionName), { ...payload, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+    setEditing(null);
+  };
+
+  return (
+    <div className="dashboard-frame data-page">
+      <Sidebar activeKey={pageKey} />
+      <main className="content">
+        <Header crumb={config.crumb} title={config.title} />
+        <section className="package-stats data-stats">{stats.map((item) => <PackageStatCard item={item} key={item.title} />)}</section>
+        <section className="data-toolbar panel">
+          <label className="package-search"><FigmaIcon name="search" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`Cari ${config.title.toLowerCase()}...`} /></label>
+          <button type="button" onClick={() => pageKey === 'reports' ? exportReports(sourceRows) : setEditing({})}><FigmaIcon name="add" />{config.action}</button>
+        </section>
+        {error && <p className="offer-feedback error">Gagal membaca Firebase: {error}</p>}
+        <section className="data-table panel">
+          <div className="data-table-head">{config.columns.map((column) => <span key={column}>{column}</span>)}</div>
+          {!filteredRows.length && <div className="data-empty-row">{config.empty}</div>}
+          {filteredRows.map((row) => <RealtimeDataRow pageKey={pageKey} row={row} onEdit={() => setEditing(row)} key={row.id || row.period} />)}
+          <div className="package-table-foot"><div className="pager"><button type="button">&lt;</button><span>1</span><button type="button">&gt;</button></div><span>{filteredRows.length} data</span></div>
+        </section>
+      </main>
+      {editing && <RealtimeEditModal pageKey={pageKey} item={editing} onClose={() => setEditing(null)} onSave={saveItem} />}
+    </div>
+  );
+}
+
+function RealtimeDataRow({ pageKey, row, onEdit }) {
+  const cells = pageKey === 'invoice'
+    ? [row.invoice || row.invoiceNumber || row.id, row.clientName || row.clientEmail || 'Client', formatRupiah(paymentAmount(row)), paymentStatusLabel(row)]
+    : pageKey === 'expenses'
+      ? [row.name || row.title || row.description || 'Pengeluaran', row.category || 'Operasional', formatRupiah(expenseAmount(row)), formatShortDate(row.date || row.createdAt)]
+      : pageKey === 'inventaris'
+        ? [row.name || row.title || 'Alat Studio', row.category || 'Recording', row.status || 'Tersedia', row.location || 'Studio']
+        : [row.period, formatRupiah(row.income), formatRupiah(row.expense), formatRupiah(row.profit)];
+  return <div className="data-table-row">{cells.map((cell, index) => <span key={`${cell}-${index}`}>{cell}</span>)}<button type="button" onClick={onEdit}><FigmaIcon name="arrow-right" /></button></div>;
+}
+
+function RealtimeEditModal({ pageKey, item, onClose, onSave }) {
+  const [form, setForm] = React.useState(editInitialForm(pageKey, item));
+  const update = (key) => (event) => setForm((value) => ({ ...value, [key]: event.target.value }));
+  const submit = () => onSave({ ...item, ...form });
+  return (
+    <div className="modal-backdrop">
+      <section className="client-modal panel" role="dialog" aria-modal="true">
+        <header><h2>{item.id ? 'Ubah Data' : 'Tambah Data'}</h2><button type="button" onClick={onClose}>x</button></header>
+        <div className="client-form-grid">
+          {pageKey === 'invoice' && <><label>No Invoice<input value={form.invoice} onChange={update('invoice')} placeholder="INV-001" /></label><label>Klien<input value={form.clientName} onChange={update('clientName')} placeholder="Nama klien" /></label><label>Total<input value={form.amount} onChange={update('amount')} placeholder="970000" /></label><label>Status<select value={form.status} onChange={update('status')}><option value="unpaid">Belum Lunas</option><option value="paid">Lunas</option><option value="pending">Menunggu</option></select></label></>}
+          {pageKey === 'expenses' && <><label>Nama Pengeluaran<input value={form.name} onChange={update('name')} placeholder="Service Mic" /></label><label>Kategori<input value={form.category} onChange={update('category')} placeholder="Maintenance" /></label><label>Nominal<input value={form.amount} onChange={update('amount')} placeholder="150000" /></label><label>Tanggal<input type="date" value={form.date} onChange={update('date')} /></label></>}
+          {pageKey === 'inventaris' && <><label>Nama Alat<input value={form.name} onChange={update('name')} placeholder="Mic Condenser" /></label><label>Kategori<input value={form.category} onChange={update('category')} placeholder="Recording" /></label><label>Status<select value={form.status} onChange={update('status')}><option>Tersedia</option><option>Dipakai</option><option>Servis</option></select></label><label>Lokasi<input value={form.location} onChange={update('location')} placeholder="Studio A" /></label></>}
+        </div>
+        <footer><button type="button" onClick={onClose}>Batal</button><button type="button" onClick={submit}>Simpan</button></footer>
+      </section>
     </div>
   );
 }

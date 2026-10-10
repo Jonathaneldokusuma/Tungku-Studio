@@ -2929,6 +2929,13 @@ mark.red {
   background: #fff8f6;
 }
 
+.data-empty-row {
+  padding: 22px 18px;
+  color: #8a7c78;
+  border-bottom: 1px solid #e7dfdc;
+  font-size: 12px;
+}
+
 .data-table-row span:first-child {
   color: #df4438;
   font-weight: 500;
