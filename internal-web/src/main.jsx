@@ -590,12 +590,50 @@ function normalizeQuotation(item) {
   const songs = item.songs || `${Number(item.songCount || item.trackCount || 1)} Lagu`;
   return {
     ...item,
-    title: item.title || item.clientName || item.clientEmail || 'Client Tungku Studio',
+    title: item.title || item.projectName || item.packageName || item.clientName || item.clientEmail || 'Client Tungku Studio',
     price: formatRupiah(Number(item.agreedPrice || item.agreed_price || item.offeredPrice || item.autoPrice || item.auto_price || 0)),
     meta: item.meta || `${duration} | ${songs}`,
     tags: tags.length ? tags : ['Recording'],
     status,
     tone: status === 'Diterima' ? 'accepted' : status === 'Ditolak' ? 'rejected' : undefined,
+  };
+}
+
+function normalizeBooking(item, index = 0) {
+  const date = item.date || item.bookingDate || item.startDate || item.sessionDate || new Date().toISOString().slice(0, 10);
+  const startTime = item.startTime || item.start_time || item.timeStart || '10:00';
+  const endTime = item.endTime || item.end_time || item.timeEnd || startTime;
+  const startHour = Number(String(startTime).slice(0, 2));
+  const endHour = Number(String(endTime).slice(0, 2));
+  const start = Math.max(0, timeSlots.findIndex((slot) => Number(slot.slice(0, 2)) >= startHour));
+  const span = Math.max(1, Math.min(4, endHour > startHour ? endHour - startHour : Number(item.durationHours || item.duration_hours || 1)));
+  const colors = ['red', 'yellow', 'blue', 'green'];
+  return {
+    ...item,
+    date,
+    start: start < 0 ? 0 : start,
+    span,
+    color: item.color || colors[index % colors.length],
+    time: item.time || `${startTime} - ${endTime}`,
+    title: item.projectName || item.project_name || item.title || item.packageName || 'Booking Tungku',
+    client: item.clientName || item.client_name || item.clientEmail || 'Client',
+    avatar: Boolean(item.operatorId || item.operatorName || index % 2),
+  };
+}
+
+function normalizeProject(item) {
+  const stage = item.stage || item.currentStage || item.status || 'Recording';
+  const normalizedStage = ['recording', 'editing', 'mixing', 'mastering'].includes(String(stage).toLowerCase())
+    ? String(stage).charAt(0).toUpperCase() + String(stage).slice(1).toLowerCase()
+    : stage === 'completed' || stage === 'done' ? 'Selesai' : String(stage || 'Recording');
+  return {
+    ...item,
+    name: item.name || item.projectName || item.project_name || item.packageName || 'Project Tungku',
+    client: item.clientName || item.client_name || item.clientEmail || 'Client',
+    stage: normalizedStage,
+    date: item.deadline || item.date || item.createdAt?.toDate?.()?.toLocaleDateString?.('id-ID') || '-',
+    progress: Math.max(0, Math.min(100, Number(item.progress || item.progressPercent || item.progress_percent || 0))),
+    tags: packageStages(item),
   };
 }
 
@@ -859,6 +897,12 @@ function WeekSchedule({ viewDate, events, onWeekChange }) {
 function BookingPage() {
   const realToday = new Date();
   const [viewDate, setViewDate] = React.useState(realToday);
+  const [bookingItems, setBookingItems] = React.useState([]);
+  React.useEffect(() => {
+    return onSnapshot(collection(db, 'bookings'), (snapshot) => {
+      setBookingItems(snapshot.docs.map((item, index) => normalizeBooking({ id: item.id, ...item.data() }, index)));
+    }, () => setBookingItems([]));
+  }, []);
   const changeWeek = (offset) => setViewDate((current) => {
     const next = new Date(current);
     next.setDate(current.getDate() + offset);
@@ -870,7 +914,7 @@ function BookingPage() {
       <Sidebar activeKey="booking" />
       <main className="content">
         <Header crumb="Operasional / Booking" title="Booking" />
-        <section className="booking-layout"><MiniCalendar viewDate={viewDate} realToday={realToday} events={bookingEvents} onMonthChange={setViewDate} onDatePick={setViewDate} /><WeekSchedule viewDate={viewDate} events={bookingEvents} onWeekChange={changeWeek} /></section>
+        <section className="booking-layout"><MiniCalendar viewDate={viewDate} realToday={realToday} events={bookingItems} onMonthChange={setViewDate} onDatePick={setViewDate} /><WeekSchedule viewDate={viewDate} events={bookingItems} onWeekChange={changeWeek} /></section>
       </main>
     </div>
   );
@@ -1014,14 +1058,35 @@ function QuotationPage() {
   const [quotationToDelete, setQuotationToDelete] = React.useState(null);
   const [quotationItems, setQuotationItems] = React.useState([]);
   React.useEffect(() => {
-    return onSnapshot(collection(db, 'quotations'), (snapshot) => {
-      setQuotationItems(snapshot.docs.map((item) => normalizeQuotation({ id: item.id, ...item.data() })));
-    }, () => setQuotationItems([]));
+    let quotationRows = [];
+    let offerRows = [];
+    const syncRows = () => setQuotationItems([...quotationRows, ...offerRows]);
+    const unsubscribeQuotations = onSnapshot(collection(db, 'quotations'), (snapshot) => {
+      quotationRows = snapshot.docs.map((item) => normalizeQuotation({ id: item.id, collectionName: 'quotations', ...item.data() }));
+      syncRows();
+    }, () => {
+      quotationRows = [];
+      syncRows();
+    });
+    const unsubscribeOffers = onSnapshot(collection(db, 'custom_offers'), (snapshot) => {
+      offerRows = snapshot.docs
+        .map((item) => ({ id: item.id, collectionName: 'custom_offers', ...item.data() }))
+        .filter((item) => ['custom_quotation', 'project_request'].includes(item.type))
+        .map(normalizeQuotation);
+      syncRows();
+    }, () => {
+      offerRows = [];
+      syncRows();
+    });
+    return () => {
+      unsubscribeQuotations();
+      unsubscribeOffers();
+    };
   }, []);
   const updateQuotationStatus = async (title, status) => {
     const target = quotationItems.find((item) => item.title === title);
     if (!target?.id) return;
-    await updateDoc(doc(db, 'quotations', target.id), {
+    await updateDoc(doc(db, target.collectionName || 'quotations', target.id), {
       status: status === 'Diterima' ? 'accepted' : 'rejected',
       updatedAt: serverTimestamp(),
     });
@@ -1035,13 +1100,13 @@ function QuotationPage() {
   };
   const deleteQuotation = async (title) => {
     const target = quotationItems.find((item) => item.title === title);
-    if (target?.id) await deleteDoc(doc(db, 'quotations', target.id));
+    if (target?.id) await deleteDoc(doc(db, target.collectionName || 'quotations', target.id));
     setQuotationToDelete(null);
   };
   const submitQuotationOffer = async (packageOffer) => {
     const target = quotationItems.find((item) => item.title === packageOffer.originalTitle);
     if (!target?.id) return;
-    await updateDoc(doc(db, 'quotations', target.id), {
+    await updateDoc(doc(db, target.collectionName || 'quotations', target.id), {
       status: 'studio_offered',
       offeredPrice: parseCurrency(packageOffer.price),
       stages: packageOffer.tags,
@@ -1148,7 +1213,7 @@ function ProjectTable({ items, onDetail }) {
           <button className="project-detail-button" type="button" onClick={() => onDetail(item)}>Lihat Detail <span>-&gt;</span></button>
         </div>
       ))}
-      <div className="package-table-foot"><div className="pager"><button type="button">&lt;</button><span>1</span><button type="button">&gt;</button></div><span>{items.length} dari {projectItems.length} project</span></div>
+      <div className="package-table-foot"><div className="pager"><button type="button">&lt;</button><span>1</span><button type="button">&gt;</button></div><span>{items.length} project</span></div>
     </section>
   );
 }
@@ -1182,20 +1247,34 @@ function ProjectPage() {
   const [viewMode, setViewMode] = React.useState('Kartu');
   const [sortMode, setSortMode] = React.useState('A-Z');
   const [selectedProject, setSelectedProject] = React.useState(null);
-  const filteredProjects = projectItems
+  const [projectItemsLive, setProjectItemsLive] = React.useState([]);
+  React.useEffect(() => {
+    return onSnapshot(collection(db, 'projects'), (snapshot) => {
+      setProjectItemsLive(snapshot.docs.map((item) => normalizeProject({ id: item.id, ...item.data() })));
+    }, () => setProjectItemsLive([]));
+  }, []);
+  const dynamicProjectFilters = ['Semua Project', 'Recording', 'Editing', 'Mixing', 'Mastering'].map((item) => `${item} (${item === 'Semua Project' ? projectItemsLive.length : projectItemsLive.filter((project) => project.stage === item).length})`);
+  const dynamicProjectStats = [
+    { title: 'Semua Project', value: String(projectItemsLive.length), shape: 'package-box' },
+    { title: 'Recording', value: String(projectItemsLive.filter((item) => item.stage === 'Recording').length), shape: 'mic-box' },
+    { title: 'Editing', value: String(projectItemsLive.filter((item) => item.stage === 'Editing').length), shape: 'cut-box' },
+    { title: 'Mixing', value: String(projectItemsLive.filter((item) => item.stage === 'Mixing').length), shape: 'mix-box' },
+    { title: 'Mastering', value: String(projectItemsLive.filter((item) => item.stage === 'Mastering').length), shape: 'master-box' },
+  ];
+  const filteredProjects = projectItemsLive
     .filter((item) => {
       const matchesQuery = item.name.toLowerCase().includes(query.toLowerCase()) || item.client.toLowerCase().includes(query.toLowerCase());
-      const matchesFilter = filter === projectFilters[0] || item.stage === filter.split(' ')[0];
+      const matchesFilter = filter.startsWith('Semua Project') || item.stage === filter.split(' ')[0];
       return matchesQuery && matchesFilter;
     })
-    .sort((a, b) => (sortMode === 'A-Z' ? a.name.localeCompare(b.name) : projectItems.indexOf(a) - projectItems.indexOf(b)));
+    .sort((a, b) => (sortMode === 'A-Z' ? a.name.localeCompare(b.name) : projectItemsLive.indexOf(a) - projectItemsLive.indexOf(b)));
 
   return (
     <div className="dashboard-frame package-page project-page">
       <Sidebar activeKey="project" />
       <main className="content">
         <Header crumb="Operasional / Project" title="Project" />
-        <section className="package-stats">{projectStats.map((item) => <PackageStatCard item={item} key={item.title} />)}</section>
+        <section className="package-stats">{dynamicProjectStats.map((item) => <PackageStatCard item={item} key={item.title} />)}</section>
         <section className="package-toolbar project-toolbar panel">
           <label className="package-search"><FigmaIcon name="search" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Cari penawaran..." /></label>
           <div className="view-mode"><span>Mode Lihat:</span>{['Kartu', 'Tabel'].map((mode) => <button className={viewMode === mode ? 'active' : ''} type="button" onClick={() => setViewMode(mode)} key={mode}><FigmaIcon name={mode === 'Kartu' ? 'grid' : 'table'} />{mode}</button>)}</div>
@@ -1204,7 +1283,7 @@ function ProjectPage() {
             <button className={sortMode === 'Terbaru' ? 'active' : ''} type="button" onClick={() => setSortMode('Terbaru')}><FigmaIcon name="sliders" />Terbaru</button>
           </div>
         </section>
-        <div className="package-filter-row project-filters">{projectFilters.map((name) => <button className={filter === name ? 'active' : ''} type="button" onClick={() => setFilter(name)} key={name}>{name}</button>)}</div>
+        <div className="package-filter-row project-filters">{dynamicProjectFilters.map((name) => <button className={filter === name ? 'active' : ''} type="button" onClick={() => setFilter(name)} key={name}>{name}</button>)}</div>
         {viewMode === 'Kartu' ? <section className="project-grid">{filteredProjects.map((item, index) => <ProjectCard item={item} index={index} onDetail={setSelectedProject} key={`${item.stage}-${index}`} />)}</section> : <ProjectTable items={filteredProjects} onDetail={setSelectedProject} />}
         <div className="page-bottom-line" />
       </main>
