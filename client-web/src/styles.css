@@ -234,7 +234,7 @@ input {
   display: flex;
   align-items: center;
   gap: 9px;
-  margin-right: 34px;
+  margin-right: 92px;
   color: #231f20;
   font-size: 12px;
   font-weight: 500;
@@ -2642,6 +2642,10 @@ input {
   .client-nav {
     flex-wrap: wrap;
     padding: 12px 16px;
+  }
+
+  .client-nav-brand {
+    margin-right: 0;
   }
 
   .client-nav nav {
