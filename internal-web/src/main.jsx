@@ -290,7 +290,7 @@ function AuthPage({ mode = 'login' }) {
       <section className="auth-hero">
         <div className="auth-brand">
           <img src={brandPrimary} alt="" />
-          <div><strong>Tungku Studio</strong><span>Internal Portal</span></div>
+          <div><span>Internal Portal</span></div>
         </div>
         <div className="auth-copy">
           <span>{isRegister ? 'Daftar Internal' : 'Selamat Datang'}</span>
