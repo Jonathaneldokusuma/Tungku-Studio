@@ -104,6 +104,8 @@ service cloud.firestore {
     match /notifications/{notificationId} {
       allow read, update: if signedIn() && (
         resource.data.userId == request.auth.uid ||
+        resource.data.clientId == request.auth.uid ||
+        resource.data.audience == 'client' ||
         (resource.data.audience == 'manager' && hasRole('manager')) ||
         (resource.data.audience == 'operator' && hasRole('operator')) ||
         internalUser()

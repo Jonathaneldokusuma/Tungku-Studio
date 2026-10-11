@@ -29,11 +29,15 @@ body,
 #root {
   width: 100%;
   height: 100%;
+  max-height: 100%;
   margin: 0;
   overflow: hidden;
+  overscroll-behavior: none;
 }
 
 body {
+  position: fixed;
+  inset: 0;
   background: #efe6e3;
   color: #231f20;
   font-family: var(--font-family-base);
@@ -216,7 +220,11 @@ input {
 }
 
 .client-dashboard {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
   height: 100dvh;
+  max-height: 100dvh;
   overflow: hidden;
   background: #ffffff;
 }
@@ -380,7 +388,7 @@ input {
   max-height: calc(100dvh - 52px);
   overflow: hidden;
   margin: 0 auto;
-  padding: 30px 26px 12px;
+  padding: 22px 26px 10px;
 }
 
 .client-greeting {
@@ -1036,7 +1044,7 @@ input {
 
 .booking-extension-page {
   display: grid;
-  grid-template-columns: 275px minmax(0, 430px);
+  grid-template-columns: 245px minmax(0, 430px);
   align-items: start;
   gap: 18px;
   max-height: 100%;
@@ -1055,14 +1063,14 @@ input {
 
 .selected-project-card {
   min-height: 0;
-  padding: 14px;
+  padding: 10px;
 }
 
 .selected-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 18px;
+  margin-bottom: 8px;
 }
 
 .selected-head > span {
@@ -1093,7 +1101,7 @@ input {
 }
 
 .selected-project-card p {
-  margin: 0 0 14px;
+  margin: 0 0 7px;
   color: #554a47;
   font-size: 11px;
 }
@@ -1128,7 +1136,7 @@ input {
   margin-top: 3px;
   color: #554a47;
   font-size: 11px;
-  line-height: 1.45;
+  line-height: 1.25;
 }
 
 .extension-main {
@@ -1142,12 +1150,13 @@ input {
   align-items: start;
   justify-content: space-between;
   gap: 14px;
+  min-height: 0;
 }
 
 .extension-title h1 {
   margin: 0 0 4px;
   color: #141111;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
 }
 
@@ -1164,7 +1173,7 @@ input {
 }
 
 .slot-legend span {
-  padding: 5px 10px;
+  padding: 4px 8px;
   color: #8d3e37;
   background: #f7d9d6;
   border-radius: 999px;
@@ -1177,8 +1186,8 @@ input {
 
 .extension-step-panel {
   display: grid;
-  gap: 10px;
-  padding: 10px;
+  gap: 6px;
+  padding: 8px;
 }
 
 .extension-step-panel > span,
@@ -1201,7 +1210,7 @@ input {
 
 .extension-source-list {
   display: grid;
-  gap: 8px;
+  gap: 5px;
 }
 
 .extension-source-list button,
@@ -1217,7 +1226,7 @@ input {
 .extension-source-list button {
   display: grid;
   gap: 4px;
-  padding: 11px 12px;
+  padding: 7px 9px;
 }
 
 .extension-source-list button.active,
@@ -1249,7 +1258,7 @@ input {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  height: 32px;
+  height: 28px;
   padding: 0 10px;
   color: #231f20;
   background: #ffffff;
@@ -1276,7 +1285,7 @@ input {
 }
 
 .calendar-week {
-  margin-bottom: 10px;
+  margin-bottom: 4px;
   color: #8a7e7a;
   font-size: 11px;
 }
@@ -1288,7 +1297,7 @@ input {
 
 .extension-date-grid button {
   width: 28px;
-  height: 28px;
+  height: 24px;
   justify-self: center;
   color: inherit;
   background: transparent;
@@ -1318,17 +1327,17 @@ input {
 }
 
 .extension-detail {
-  padding: 12px;
+  padding: 9px;
 }
 
 .extension-detail h2 {
-  margin: 0 0 7px;
-  font-size: 14px;
+  margin: 0 0 4px;
+  font-size: 13px;
   font-weight: 500;
 }
 
 .extension-detail > p {
-  margin: 0 0 14px;
+  margin: 0 0 7px;
   color: #554a47;
   font-size: 11px;
 }
@@ -1336,12 +1345,12 @@ input {
 .slot-choice-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  margin-bottom: 14px;
+  gap: 6px;
+  margin-bottom: 7px;
 }
 
 .slot-choice-grid button {
-  height: 34px;
+  height: 28px;
   padding: 0 10px;
   color: #231f20;
   font-size: 11px;
@@ -1350,9 +1359,9 @@ input {
 .extension-summary,
 .extension-warning {
   display: grid;
-  gap: 6px;
-  margin-top: 8px;
-  padding: 10px;
+  gap: 4px;
+  margin-top: 6px;
+  padding: 7px;
   border-radius: 4px;
   background: #ffd4cf;
 }
@@ -1367,7 +1376,7 @@ input {
 .extension-warning span {
   color: #5a302c;
   font-size: 11px;
-  line-height: 1.45;
+  line-height: 1.22;
 }
 
 .extension-actions {
@@ -1378,7 +1387,7 @@ input {
 }
 
 .extension-actions button {
-  height: 31px;
+  height: 28px;
   padding: 0 14px;
   border: 0;
   border-radius: 3px;

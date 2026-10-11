@@ -610,6 +610,8 @@ async function createInternalNotification(payload) {
   try {
     await addDoc(collection(db, 'notifications'), {
       audience: payload.audience || 'manager',
+      userId: payload.userId || '',
+      clientId: payload.clientId || '',
       title: payload.title,
       body: payload.body,
       sourceId: payload.sourceId || '',
@@ -1039,6 +1041,8 @@ function QuotationPage() {
       audience: 'client',
       sourceType: 'quotation',
       sourceId: target.id,
+      userId: target.clientId || '',
+      clientId: target.clientId || '',
       title: `Penawaran ${status}`,
       body: `${target.title} ${status.toLowerCase()} oleh manager.`,
     });
@@ -1062,6 +1066,8 @@ function QuotationPage() {
       audience: 'client',
       sourceType: 'quotation',
       sourceId: target.id,
+      userId: target.clientId || '',
+      clientId: target.clientId || '',
       title: 'Manager mengirim harga penawaran',
       body: `${target.title}: ${packageOffer.price}`,
     });

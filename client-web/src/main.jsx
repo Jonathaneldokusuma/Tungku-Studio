@@ -225,9 +225,9 @@ function ClientPortal() {
           setPayments(snapshot.docs.map((item) => ({ id: item.id, ...item.data() })));
           setPaymentsError('');
         }, () => unsubscribers.push(fallbackPayments())),
-        onSnapshot(query(collection(db, 'notifications'), where('userId', '==', currentUser.uid)), (snapshot) => {
-          setNotifications(snapshot.docs.map((item) => ({ id: item.id, ...item.data() })).sort((a, b) => getPaymentTime(b) - getPaymentTime(a)));
-        }, () => setNotifications([])),
+        createNotificationListener('userId', currentUser.uid, setNotifications),
+        createNotificationListener('clientId', currentUser.uid, setNotifications),
+        createNotificationListener('audience', 'client', setNotifications),
         onSnapshot(collection(db, 'packages'), (snapshot) => setPackages(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), () => setPackages([])),
       ];
     });
@@ -1147,6 +1147,8 @@ async function createClientNotification(payload) {
   try {
     return await addDoc(collection(db, 'notifications'), {
       audience: payload.audience || 'manager',
+      userId: payload.userId || '',
+      clientId: payload.clientId || '',
       title: payload.title,
       body: payload.body,
       sourceId: payload.sourceId || '',
@@ -1159,6 +1161,20 @@ async function createClientNotification(payload) {
     console.warn('Notification skipped:', error.message);
     return null;
   }
+}
+
+function createNotificationListener(field, value, setNotifications) {
+  return onSnapshot(query(collection(db, 'notifications'), where(field, '==', value)), (snapshot) => {
+    setNotifications((current) => {
+      const otherItems = current.filter((item) => item.notificationBucket !== field);
+      const nextItems = snapshot.docs.map((item) => ({ id: item.id, notificationBucket: field, ...item.data() }));
+      const merged = new Map();
+      [...otherItems, ...nextItems].forEach((item) => merged.set(item.id, item));
+      return [...merged.values()].sort((a, b) => getPaymentTime(b) - getPaymentTime(a));
+    });
+  }, () => {
+    setNotifications((current) => current.filter((item) => item.notificationBucket !== field));
+  });
 }
 
 async function createClientBooking(payload) {
